@@ -1,0 +1,1 @@
+# Faust IDE Mode
