@@ -217,7 +217,7 @@ Available commands while editing Faust (*.dsp) files:
   (setq-local font-lock-defaults
               '(emacs-faust-ide-mode-font-lock-keywords))
   ;; (setq-local indent-line-function 'emacs-faust-ide-mode-indent-line)
-  ;; (smie-setup nil #'ignore)
+  (smie-setup nil #'ignore)
   ;; (smie-setup faust-grammar #'ignore)
 
   (use-local-map emacs-faust-ide-mode-map)
