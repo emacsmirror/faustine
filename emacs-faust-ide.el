@@ -34,54 +34,13 @@
 
 ;;; Code:
 
-;; (defun emacs-faust-ide-mode-indent-line ()
-;;   "Indent current line as Faust code"
-;;   (interactive)
-;;   (beginning-of-line))
-
 (require 'smie)
-
-;; (defun factor-smie-rules (kind token)
-;;   (pcase (cons kind token)
-;;     (`(:elem . basic) 4)
-;;     (`(:after . ,(or `"HELLO")) 4)
-;;     ))
-
-;; (defun faust-rules (kind token)
-;;   (pcase (cons kind token)
-;;     (`(:elem . basic) fsharp-indent-level)
-;;     (`(:after . "do") fsharp-indent-level)
-;;     (`(:after . "then") fsharp-indent-level)
-;;     (`(:after . "else") fsharp-indent-level)
-;;     (`(:after . "try") fsharp-indent-level)
-;;     (`(:after . "with") fsharp-indent-level)
-;;     (`(:after . "finally") fsharp-indent-level)
-;;     (`(:after . "in") 0)
-;;     (`(:after . ,(or `"[" `"]" `"[|" `"|]")) fsharp-indent-level)
-;;     (`(,_ . ,(or `";" `",")) (if (smie-rule-parent-p "begin")
-;;                                  0
-;;                                (smie-rule-separator kind)))
-;;     (`(:after . "=") fsharp-indent-level)
-;;     (`(:after . ";;") (smie-rule-separator kind))
-;;     (`(:before . ";;") (if (smie-rule-bolp)
-;;                            0))
-;;     ))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.dsp\\'" . emacs-faust-ide-mode))
 
-(defun emacs-faust-ide-mode-indent-line ()
-  "Indent current line of Faust code."
-  (interactive)
-  (let ((savep (> (current-column) (current-indentation)))
-        (indent (condition-case nil (max (sample-calculate-indentation) 0)
-                  (error 0))))
-    (if savep
-        (save-excursion (indent-line-to indent))
-      (indent-line-to indent))))
-
-(if (bobp)  ; Check for rule 1
-    (indent-line-to 0))
+;; (if (bobp)  ; Check for rule 1
+;;     (indent-line-to 0))
 
 (defvar faust-keywords
   '("process" "with" "case" "seq" "par" "sum" "prod"
@@ -198,8 +157,24 @@ Customize `emacs-faust-ide-mode-build-options' for a lucky build"
     ;;    (,faust-arguments-regexp . font-lock-warning-face)
     ))
 
+;; (defvar test-grammar
+;;   (smie-prec2->grammar
+;;    (smie-bnf->prec2
+;;     '((id)
+;;       (inst ("begin" insts "end")
+;;             (exp)))
+;;     ;; '((assoc ":"))
+;;     ;; '((assoc "_"))
+;;     '((assoc "+")
+;;       (assoc "*")
+;;       ))))
+
+(define-derived-mode emacs-faust-ide-output-mode prog-mode "Emacs Faust IDE output buffer mode"
+  ;; :syntax-table my-js-mode-syntax-table
+  (font-lock-fontify-buffer))
+
 ;;;###autoload
-(define-derived-mode emacs-faust-ide-mode fundamental-mode "Emacs-Faust-Ide-Mode" "
+(define-derived-mode emacs-faust-ide-mode fundamental-mode "Emacs Faust IDE Mode" "
          .' '.
 -        .   .            \\\\       Emacs Faust IDE
  `.        .         .  -<<<:>      A lightweight IDE.
@@ -218,10 +193,15 @@ Available commands while editing Faust (*.dsp) files:
               '(emacs-faust-ide-mode-font-lock-keywords))
   ;; (setq-local indent-line-function 'emacs-faust-ide-mode-indent-line)
   (smie-setup nil #'ignore)
-  ;; (smie-setup faust-grammar #'ignore)
+  ;; (smie-setup test-grammar #'ignore)
 
   (use-local-map emacs-faust-ide-mode-map)
-
+  (font-lock-add-keywords 'emacs-faust-ide-output-mode
+                          '(("Process Build finished" . font-lock-keyword-face)
+                            ("Process Build started" . font-lock-keyword-face)
+                            ("Process Diagram started" . font-lock-keyword-face)
+                            ("ERROR" . font-lock-warning-face))
+                          )
   (setq mode-name "emacs-faust-ide-mode")
   (setq major-mode 'emacs-faust-ide-mode)
   (message "########### MODE OK & emacs-faust-ide-build-target : %s" emacs-faust-ide-build-target))
@@ -241,10 +221,12 @@ Available commands while editing Faust (*.dsp) files:
   (setq dsp-buffer (current-buffer))
   (with-current-buffer (get-buffer-create "Faust output")
     (pop-to-buffer "Faust output" nil t)
+    (emacs-faust-ide-output-mode)
     (goto-char (point-max))
+    (insert "Process Build started\n")
     (start-process-shell-command "Build"
                                  (current-buffer)
-                                 (format "%s *.dsp" emacs-faust-ide-build-target))
+                                 (format "%s volume.dsp" emacs-faust-ide-build-target))
     (other-window -1)
     (pop-to-buffer dsp-buffer nil t)))
 
@@ -252,11 +234,12 @@ Available commands while editing Faust (*.dsp) files:
   "Show Faust diagram(s) in a web page using default browser"
   (interactive)
   (setq dsp-buffer (current-buffer))
-  (message "Building diagrams")
   (with-current-buffer (get-buffer-create "Faust output")
     (pop-to-buffer "Faust output" nil t)
+    (emacs-faust-ide-output-mode)
     (goto-char (point-max))
-    (call-process "/bin/bash" nil t nil "-c" "faust2svg *.dsp")
+    (insert "Process Diagram started\n")
+    (call-process "/bin/bash" nil "Faust output" nil "-c" "faust2svg *.dsp")
     (other-window -1)
     (pop-to-buffer dsp-buffer nil t))
   (setq temp-file-name "faust-graphs.html")
