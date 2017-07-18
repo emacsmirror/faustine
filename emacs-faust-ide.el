@@ -1,7 +1,13 @@
-;; faust-ide-mode.el --- a purely IMAP based email client for EMACS
-
+;; emacs-faust-ide.el --- a Faust code editor for Emacs
+;;
+;; FAUST (Functional Audio Stream) is a functional programming language
+;; specifically designed for real-time signal processing and synthesis.
+;; FAUST targets high-performance signal processing applications and audio plug-ins
+;; for a variety of platforms and standards.
+;; http://faust.grame.fr
+;;
 ;; Copyright (C) 2017, 2018 Yassin Philip
-;; URL: https://bitbucket.org/yassinphilip/faust-ide-mode
+;; URL: https://bitbucket.org/yassinphilip/emacs-faust-ide-mode
 
 ;; Author: Yassin Philip <xaccrocheur@gmail.com>
 ;; Keywords: faust
@@ -28,7 +34,7 @@
 
 ;;; Code:
 
-;; (defun faust-ide-mode-indent-line ()
+;; (defun emacs-faust-ide-mode-indent-line ()
 ;;   "Indent current line as Faust code"
 ;;   (interactive)
 ;;   (beginning-of-line))
@@ -62,7 +68,7 @@
 ;;     ))
 
 
-(defun faust-ide-mode-indent-line ()
+(defun emacs-faust-ide-mode-indent-line ()
   "Indent current line of Faust code."
   (interactive)
   (let ((savep (> (current-column) (current-indentation)))
@@ -94,32 +100,32 @@
   '("button" "checkbox" "vslider" "hslider" "nentry"
     "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
 
-(defgroup faust-ide-mode nil
+(defgroup emacs-faust-ide-mode nil
   "Mail-bug - A lightweight IDE.
-Customize `faust-ide-mode-build-options' for a lucky build"
+Customize `emacs-faust-ide-mode-build-options' for a lucky build"
   :group 'applications)
 
-(defcustom faust-ide-mode-build-options "plop"
+(defcustom emacs-faust-ide-mode-build-options "plop"
   "The type of build"
   :type '(string)
-  :group 'faust-ide-mode)
+  :group 'emacs-faust-ide-mode)
 
-;; (defvar faust-ide-mode-map nil "Keymap for `faust-ide-mode'")
+;; (defvar emacs-faust-ide-mode-map nil "Keymap for `emacs-faust-ide-mode'")
 
-(defvar faust-ide-mode-map
+(defvar emacs-faust-ide-mode-map
    (let ((map (make-sparse-keymap)))
-     (define-key map [?\C-c ?\C-b] 'faust-ide-mode-build)
+     (define-key map [?\C-c ?\C-b] 'emacs-faust-ide-mode-build)
      map)
-   "Keymap for `faust-ide-mode'.")
+   "Keymap for `emacs-faust-ide-mode'.")
 
- (defvar faust-ide-mode-syntax-table
+ (defvar emacs-faust-ide-mode-syntax-table
    (let ((st (make-syntax-table)))
      (modify-syntax-entry ?/  ". 124b" st)
      (modify-syntax-entry ?*  ". 23" st)
      (modify-syntax-entry ?\n "> b" st)
      (modify-syntax-entry ?\^m "> b" st)
      st)
-   "Syntax table for `faust-ide-mode'.")
+   "Syntax table for `emacs-faust-ide-mode'.")
 
 (defvar faust-variables-regexp "[A-Za-z][A-Za-z]*")
 (defvar faust-arguments-regexp "[0-9]")
@@ -130,7 +136,7 @@ Customize `faust-ide-mode-build-options' for a lucky build"
 (defvar faust-ui-keywords-regexp (regexp-opt faust-ui-keywords 'words))
 
 ;; create the list for font-lock.
-(defvar faust-ide-mode-font-lock-keywords
+(defvar emacs-faust-ide-mode-font-lock-keywords
   `(
     (,faust-function-regexp . font-lock-type-face)
     (,faust-ui-keywords-regexp . font-lock-builtin-face)
@@ -142,42 +148,42 @@ Customize `faust-ide-mode-build-options' for a lucky build"
     ))
 
 ;;;###autoload
-(define-derived-mode faust-ide-mode c-mode "Faust-Ide-Mode" "
+(define-derived-mode emacs-faust-ide-mode c-mode "Emacs-Faust-Ide-Mode" "
          .' '.
--        .   .            \\\\       faust-ide-mode
+-        .   .            \\\\       emacs-faust-ide-mode
  `.        .         .  -{{{:}     A lightweight IDE.
    ' .  . ' ' .  . '      //
 
-Type \\[customize-group] faust-ide-mode (or use the menu)  to set it up.
+Type \\[customize-group] emacs-faust-ide-mode (or use the menu)  to set it up.
 Available commands while editing Faust (*.dsp) files:
 
-\\{faust-ide-mode-map}"
+\\{emacs-faust-ide-mode-map}"
   (kill-all-local-variables)
 
-  ;; :syntax-table faust-ide-mode-syntax-table
-  (set-syntax-table faust-ide-mode-syntax-table)
+  ;; :syntax-table emacs-faust-ide-mode-syntax-table
+  (set-syntax-table emacs-faust-ide-mode-syntax-table)
   (setq-local comment-start "// ")
   (setq-local comment-end "")
   ;; (setq-local comment-start-skip "#+\\s-*")
   (setq-local font-lock-defaults
-              '(faust-ide-mode-font-lock-keywords))
-  ;; (setq-local indent-line-function 'faust-ide-mode-indent-line)
+              '(emacs-faust-ide-mode-font-lock-keywords))
+  ;; (setq-local indent-line-function 'emacs-faust-ide-mode-indent-line)
   ;; (smie-setup nil #'ignore)
 ;  (smie-setup faust-grammar #'ignore)
 
   ;; (setq c-default-style "linux"
   ;;       c-basic-offset 4)
 
-  (use-local-map faust-ide-mode-map)
+  (use-local-map emacs-faust-ide-mode-map)
 
-  (add-to-list 'auto-mode-alist '("\\.dsp\\'" . faust-ide-mode))
-  (setq mode-name "faust-ide-mode")
-  (setq major-mode 'faust-ide-mode)
+  (add-to-list 'auto-mode-alist '("\\.dsp\\'" . emacs-faust-ide-mode))
+  (setq mode-name "emacs-faust-ide-mode")
+  (setq major-mode 'emacs-faust-ide-mode)
   (message "########### MODE OK"))
 
 ;; Functions
 
-(defun faust-ide-mode-build ()
+(defun emacs-faust-ide-mode-build ()
   "actually build"
   (interactive)
   (setq dsp-buffer (current-buffer))
@@ -190,7 +196,7 @@ Available commands while editing Faust (*.dsp) files:
     (pop-to-buffer dsp-buffer nil t)
     ))
 
-(defun faust-ide-mode-diagram ()
+(defun emacs-faust-ide-mode-diagram ()
   "Show Faust diagram(s) in a web page using default browser"
   (interactive)
   (if (string-match-p "^[a-z0-9A-Z]?+\\.dsp$" (file-name-nondirectory buffer-file-name))
@@ -198,11 +204,11 @@ Available commands while editing Faust (*.dsp) files:
         (message "Building diagrams")
         (setq temp-file-name "~/tmp/faust-graphs.html")
         (setq mylist (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
-        (faust-ide-mode-build-temp-file mylist temp-file-name)
-        (faust-ide-mode-show-graph temp-file-name))
+        (emacs-faust-ide-mode-build-temp-file mylist temp-file-name)
+        (emacs-faust-ide-mode-show-graph temp-file-name))
     (message "Not a regular Faust file")))
 
-(defun faust-ide-mode-build-temp-file (list temp-file-name)
+(defun emacs-faust-ide-mode-build-temp-file (list temp-file-name)
   "Print each element of LIST on a line of its own."
   (if (file-regular-p temp-file-name)
       (delete-file temp-file-name))
@@ -255,9 +261,9 @@ img.scaled {
   (write-region "</body>
 </html>\n" nil tempfile 'append 0 nil nil))
 
-(defun faust-ide-mode-show-graph (html-page)
+(defun emacs-faust-ide-mode-show-graph (html-page)
   "Show Faust diagram(s) in a web page using default browser"
   (interactive)
   (browse-url-of-file html-page))
 
-(provide 'faust-ide-mode)
+(provide 'emacs-faust-ide)
