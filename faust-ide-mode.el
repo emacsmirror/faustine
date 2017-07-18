@@ -28,6 +28,65 @@
 
 ;;; Code:
 
+;; (defun faust-ide-mode-indent-line ()
+;;   "Indent current line as Faust code"
+;;   (interactive)
+;;   (beginning-of-line))
+
+(require 'smie)
+
+(defvar faust-grammar
+  (smie-prec2->grammar
+   (smie-bnf->prec2
+    '((exp ("{" insts "}"))
+      '((assoc ";"))
+      '((assoc ":"))
+      '((assoc ","))
+      ;; (insts (exp) (insts ";" insts))
+      )
+    )))
+
+;; (defun factor-smie-rules (kind token)
+;;   (pcase (cons kind token)
+;;     (`(:elem . basic) 4)
+;;     (`(:after . ,(or `"HELLO")) 4)
+;;     ))
+
+;; (defun faust-rules (kind token)
+;;   (pcase (cons kind token)
+;;     (`(:elem . basic) fsharp-indent-level)
+;;     (`(:after . "do") fsharp-indent-level)
+;;     (`(:after . "then") fsharp-indent-level)
+;;     (`(:after . "else") fsharp-indent-level)
+;;     (`(:after . "try") fsharp-indent-level)
+;;     (`(:after . "with") fsharp-indent-level)
+;;     (`(:after . "finally") fsharp-indent-level)
+;;     (`(:after . "in") 0)
+;;     (`(:after . ,(or `"[" `"]" `"[|" `"|]")) fsharp-indent-level)
+;;     (`(,_ . ,(or `";" `",")) (if (smie-rule-parent-p "begin")
+;;                                  0
+;;                                (smie-rule-separator kind)))
+;;     (`(:after . "=") fsharp-indent-level)
+;;     (`(:after . ";;") (smie-rule-separator kind))
+;;     (`(:before . ";;") (if (smie-rule-bolp)
+;;                            0))
+;;     ))
+
+
+(defun faust-ide-mode-indent-line ()
+  "Indent current line of Faust code."
+  (interactive)
+  (let ((savep (> (current-column) (current-indentation)))
+        (indent (condition-case nil (max (sample-calculate-indentation) 0)
+                  (error 0))))
+    (if savep
+        (save-excursion (indent-line-to indent))
+      (indent-line-to indent))))
+
+
+(if (bobp)  ; Check for rule 1
+    (indent-line-to 0))
+
 (defvar faust-keywords
   '("process" "with" "case" "seq" "par" "sum" "prod"
     "include" "import" "component" "library" "environment" "declare"
@@ -93,18 +152,8 @@ Customize `faust-ide-mode-build-options' for a lucky build"
     ;;    (,faust-arguments-regexp . font-lock-warning-face)
     ))
 
-(defun faust-ide-mode-indent-line ()
-  "Indent current line of Sample code."
-  (interactive)
-  (let ((savep (> (current-column) (current-indentation)))
-        (indent (condition-case nil (max (sample-calculate-indentation) 0)
-                  (error 0))))
-    (if savep
-        (save-excursion (indent-line-to indent))
-      (indent-line-to indent))))
-
 ;;;###autoload
-(define-derived-mode faust-ide-mode fundamental-mode "Faust-Ide-Mode" "
+(define-derived-mode faust-ide-mode c-mode "Faust-Ide-Mode" "
          .' '.
 -        .   .            \\\\       faust-ide-mode
  `.        .         .  -{{{:}     A lightweight IDE.
@@ -123,7 +172,12 @@ Available commands while editing Faust (*.dsp) files:
   ;; (setq-local comment-start-skip "#+\\s-*")
   (setq-local font-lock-defaults
               '(faust-ide-mode-font-lock-keywords))
-  (setq-local indent-line-function 'faust-ide-mode-indent-line)
+  ;; (setq-local indent-line-function 'faust-ide-mode-indent-line)
+  ;; (smie-setup nil #'ignore)
+  (smie-setup faust-grammar #'ignore)
+
+  ;; (setq c-default-style "linux"
+  ;;       c-basic-offset 4)
 
   (use-local-map faust-ide-mode-map)
 
