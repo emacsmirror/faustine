@@ -35,17 +35,6 @@
 
 (require 'smie)
 
-(defvar faust-grammar
-  (smie-prec2->grammar
-   (smie-bnf->prec2
-    '((exp ("{" insts "}"))
-      '((assoc ";"))
-      '((assoc ":"))
-      '((assoc ","))
-      ;; (insts (exp) (insts ";" insts))
-      )
-    )))
-
 ;; (defun factor-smie-rules (kind token)
 ;;   (pcase (cons kind token)
 ;;     (`(:elem . basic) 4)
@@ -174,7 +163,7 @@ Available commands while editing Faust (*.dsp) files:
               '(faust-ide-mode-font-lock-keywords))
   ;; (setq-local indent-line-function 'faust-ide-mode-indent-line)
   ;; (smie-setup nil #'ignore)
-  (smie-setup faust-grammar #'ignore)
+;  (smie-setup faust-grammar #'ignore)
 
   ;; (setq c-default-style "linux"
   ;;       c-basic-offset 4)
