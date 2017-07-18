@@ -199,7 +199,7 @@ Customize `emacs-faust-ide-mode-build-options' for a lucky build"
     ))
 
 ;;;###autoload
-(define-derived-mode emacs-faust-ide-mode c-mode "Emacs-Faust-Ide-Mode" "
+(define-derived-mode emacs-faust-ide-mode fundamental-mode "Emacs-Faust-Ide-Mode" "
          .' '.
 -        .   .            \\\\       Emacs Faust IDE
  `.        .         .  -<<<:>      A lightweight IDE.
