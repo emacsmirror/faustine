@@ -78,7 +78,6 @@
         (save-excursion (indent-line-to indent))
       (indent-line-to indent))))
 
-
 (if (bobp)  ; Check for rule 1
     (indent-line-to 0))
 
@@ -100,15 +99,61 @@
   '("button" "checkbox" "vslider" "hslider" "nentry"
     "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
 
-(defgroup emacs-faust-ide-mode nil
-  "Mail-bug - A lightweight IDE.
+(defgroup emacs-faust-ide nil
+  "Emacs Faust IDE - A lightweight IDE.
 Customize `emacs-faust-ide-mode-build-options' for a lucky build"
   :group 'applications)
+
+(defcustom emacs-faust-ide-builder 'faust2jaqt
+  "*The builder"
+  ;;:type 'symbol
+  :type '(choice
+          (const :tag "faust2alsa" faust2alsa)
+          (const :tag "faust2firefox" faust2firefox)
+          (const :tag "faust2netjackconsole" faust2netjackconsole)
+          (const :tag "faust2sigviewer" faust2sigviewer)
+          (const :tag "faust2alsaconsole" faust2alsaconsole)
+          (const :tag "faust2graph" faust2graph)
+          (const :tag "faust2netjackqt" faust2netjackqt)
+          (const :tag "faust2smartkeyb" faust2smartkeyb)
+          (const :tag "faust2android" faust2android)
+          (const :tag "faust2graphviewer" faust2graphviewer)
+          (const :tag "faust2octave" faust2octave)
+          (const :tag "faust2sndfile" faust2sndfile)
+          (const :tag "faust2androidunity" faust2androidunity)
+          (const :tag "faust2ios" faust2ios)
+          (const :tag "faust2osxiosunity" faust2osxiosunity)
+          (const :tag "faust2supercollider" faust2supercollider)
+          (const :tag "faust2api" faust2api)
+          (const :tag "faust2jack" faust2jack)
+          (const :tag "faust2owl" faust2owl)
+          (const :tag "faust2svg" faust2svg)
+          (const :tag "faust2asmjs" faust2asmjs)
+          (const :tag "faust2jackconsole" faust2jackconsole)
+          (const :tag "faust2paqt" faust2paqt)
+          (const :tag "faust2unity" faust2unity)
+          (const :tag "faust2atomsnippets" faust2atomsnippets)
+          (const :tag "faust2jackinternal" faust2jackinternal)
+          (const :tag "faust2pdf" faust2pdf)
+          (const :tag "faust2vst" faust2vst)
+          (const :tag "faust2au" faust2au)
+          (const :tag "faust2jackserver" faust2jackserver)
+          (const :tag "faust2plot" faust2plot)
+          (const :tag "faust2vsti" faust2vsti)
+          (const :tag "faust2bela" faust2bela)
+          (const :tag "faust2jaqt" faust2jaqt)
+          (const :tag "faust2png" faust2png)
+          (const :tag "faust2w32max6" faust2w32max6)
+          (const :tag "faust2caqt" faust2caqt)
+          (const :tag "faust2juce" faust2juce)
+          (const :tag "faust2puredata" faust2puredata)
+          (const :tag "faust2w32msp" faust2w32msp))
+  :group 'emacs-faust-ide)
 
 (defcustom emacs-faust-ide-mode-build-options "plop"
   "The type of build"
   :type '(string)
-  :group 'emacs-faust-ide-mode)
+  :group 'emacs-faust-ide)
 
 ;; (defvar emacs-faust-ide-mode-map nil "Keymap for `emacs-faust-ide-mode'")
 
@@ -150,11 +195,11 @@ Customize `emacs-faust-ide-mode-build-options' for a lucky build"
 ;;;###autoload
 (define-derived-mode emacs-faust-ide-mode c-mode "Emacs-Faust-Ide-Mode" "
          .' '.
--        .   .            \\\\       emacs-faust-ide-mode
- `.        .         .  -{{{:}     A lightweight IDE.
+-        .   .            \\\\       Emacs Faust IDE
+ `.        .         .  -{{{:}      A lightweight IDE.
    ' .  . ' ' .  . '      //
 
-Type \\[customize-group] emacs-faust-ide-mode (or use the menu)  to set it up.
+Type \\[customize-group] emacs-faust-ide (or use the menu)  to set it up.
 Available commands while editing Faust (*.dsp) files:
 
 \\{emacs-faust-ide-mode-map}"
@@ -179,7 +224,7 @@ Available commands while editing Faust (*.dsp) files:
   (add-to-list 'auto-mode-alist '("\\.dsp\\'" . emacs-faust-ide-mode))
   (setq mode-name "emacs-faust-ide-mode")
   (setq major-mode 'emacs-faust-ide-mode)
-  (message "########### MODE OK"))
+  (message "########### MODE OK & emacs-faust-ide-builder : %s" emacs-faust-ide-builder))
 
 ;; Functions
 
