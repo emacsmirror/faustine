@@ -28,126 +28,191 @@
 
 ;;; Code:
 
-(defun faust-ide-mode-menu ()
-  "Create the faust-ide-mode menu"
-  (define-key-after
-    global-map
-    [menu-bar faust-ide-mode-menu]
-    (cons "faust-ide-mode" (make-sparse-keymap "hoot hoot"))
-    'tools )
+(defvar faust-keywords
+  '("process" "with" "case" "seq" "par" "sum" "prod"
+    "include" "import" "component" "library" "environment" "declare"
+    "define" "undef" "error" "pragma" "ident"
+    "if" "def" "else" "elif" "endif" "line" "warning"))
 
-  (define-key
-    global-map
-    [menu-bar faust-ide-mode-menu prefs]
-    '("Prefs" . (lambda () (interactive) (customize-group 'faust-ide-mode))))
+(defvar faust-functions
+  '("mem" "prefix" "int" "float"
+    "rdtable" "rwtable" "select2" "select3"
+    "ffunction" "fconstant" "fvariable"
+    "attach" "acos" "asin" "atan" "atan2" "cos" "sin" "tan" "exp"
+    "log" "log10" "pow" "sqrt" "abs" "min" "max" "fmod"
+    "remainder" "floor" "ceil" "rint"))
 
-  (define-key
-    global-map
-    [menu-bar faust-ide-mode-menu help]
-    '("Help" . (lambda () (interactive) (describe-mode (get-buffer "faust-ide-mode"))))))
+(defvar faust-ui-keywords
+  '("button" "checkbox" "vslider" "hslider" "nentry"
+    "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
 
-(add-hook 'faust-ide-mode-mode-hook
-          (lambda ()
-            (toggle-truncate-lines 1)
-            (linum-mode -1)
-            (hl-line-mode t)))
+(defgroup faust-ide-mode nil
+  "Mail-bug - A lightweight IDE.
+Customize `faust-ide-mode-build-options' for a lucky build"
+  :group 'applications)
 
-(add-hook 'faust-ide-mode-message-mode-hook
-          (lambda ()
-            (goto-address-mode t)))
+(defcustom faust-ide-mode-build-options "plop"
+  "The type of build"
+  :type '(string)
+  :group 'faust-ide-mode)
 
+;; (defvar faust-ide-mode-map nil "Keymap for `faust-ide-mode'")
 
-(defun faust-ide-mode-mode ()
-  "
+(defvar faust-ide-mode-map
+   (let ((map (make-sparse-keymap)))
+     (define-key map [?\C-c ?\C-b] 'faust-ide-mode-build)
+     map)
+   "Keymap for `faust-ide-mode'.")
+
+ (defvar faust-ide-mode-syntax-table
+   (let ((st (make-syntax-table)))
+     (modify-syntax-entry ?/  ". 124b" st)
+     (modify-syntax-entry ?*  ". 23" st)
+     (modify-syntax-entry ?\n "> b" st)
+     (modify-syntax-entry ?\^m "> b" st)
+     st)
+   "Syntax table for `faust-ide-mode'.")
+
+(defvar faust-variables-regexp "[A-Za-z][A-Za-z]*")
+(defvar faust-arguments-regexp "[0-9]")
+(defvar faust-operator-regexp "\\([~!_@,<>:;]\\)")
+(defvar faust-math-op-regexp "[=\+\{\}()/*-]")
+(defvar faust-keywords-regexp (regexp-opt faust-keywords 'words))
+(defvar faust-function-regexp (regexp-opt faust-functions 'words))
+(defvar faust-ui-keywords-regexp (regexp-opt faust-ui-keywords 'words))
+
+;; create the list for font-lock.
+(defvar faust-ide-mode-font-lock-keywords
+  `(
+    (,faust-function-regexp . font-lock-type-face)
+    (,faust-ui-keywords-regexp . font-lock-builtin-face)
+    (,faust-math-op-regexp . font-lock-function-name-face)
+    (,faust-operator-regexp . font-lock-constant-face)
+    (,faust-keywords-regexp . font-lock-keyword-face)
+    ;;    (,faust-variables-regexp . font-lock-variable-name-face)
+    ;;    (,faust-arguments-regexp . font-lock-warning-face)
+    ))
+
+(defun faust-ide-mode-indent-line ()
+  "Indent current line of Sample code."
+  (interactive)
+  (let ((savep (> (current-column) (current-indentation)))
+        (indent (condition-case nil (max (sample-calculate-indentation) 0)
+                  (error 0))))
+    (if savep
+        (save-excursion (indent-line-to indent))
+      (indent-line-to indent))))
+
+(define-derived-mode faust-ide-mode faust-mode "Faust-Ide-Mode" "
          .' '.
 -        .   .            \\\\       faust-ide-mode
- `.        .         .  -{{{:}     A lightweight Mail User Agent for GNU Emacs.
+ `.        .         .  -{{{:}     A lightweight IDE.
    ' .  . ' ' .  . '      //
 
 Type \\[customize-group] faust-ide-mode (or use the menu)  to set it up.
+Available commands while editing Faust (*.dsp) files:
 
-Available commands in summary (list) buffer:
- \\{faust-ide-mode-mode-map}"
-  (interactive)
+\\{faust-ide-mode-map}"
   (kill-all-local-variables)
-  (unless faust-ide-mode-mode-map
-    (setq faust-ide-mode-mode-map (make-sparse-keymap))
 
-    (define-key faust-ide-mode-mode-map "\r" 'faust-ide-mode-open)
-    (define-key faust-ide-mode-mode-map "+" 'faust-ide-mode-create-folder)
-    (define-key faust-ide-mode-mode-map "/" 'isearch-forward-regexp)
-    (define-key faust-ide-mode-mode-map "B" 'bury-buffer)
-    (define-key faust-ide-mode-mode-map "d" 'faust-ide-mode-delete)
-    (define-key faust-ide-mode-mode-map "g" 'faust-ide-mode-redraw)
-    ;; (define-key faust-ide-mode-mode-map "h" 'faust-ide-mode-toggle-headers)
-    (define-key faust-ide-mode-mode-map "K" 'faust-ide-mode-kill-folder)
-    ;; (define-key faust-ide-mode-mode-map "r" 'faust-ide-mode-reply-to)
-    ;; (define-key faust-ide-mode-mode-map "n" 'next-line)
-    (define-key faust-ide-mode-mode-map "m" 'faust-ide-mode-move)
-    ;; (define-key faust-ide-mode-mode-map "p" 'previous-line)
-    (define-key faust-ide-mode-mode-map "n" 'message-mail)
-    (define-key faust-ide-mode-mode-map "S" 'faust-ide-mode-show-structure)
-    (define-key faust-ide-mode-mode-map "u" 'faust-ide-mode-undelete)
-    (define-key faust-ide-mode-mode-map "x" 'faust-ide-mode-expunge)
-    (define-key faust-ide-mode-mode-map "X" 'faust-ide-mode-spam))
-  (use-local-map faust-ide-mode-mode-map)
-  ;;set the mode as a non-editor mode
-  (put 'faust-ide-mode-mode 'mode-class 'special)
-  ;;specify the mode name
+  :syntax-table faust-ide-mode-syntax-table
+  (setq-local comment-start "# ")
+  (setq-local comment-end "")
+  (setq-local comment-start-skip "#+\\s-*")
+  (setq-local font-lock-defaults
+              '(faust-ide-mode-font-lock-keywords))
+  (setq-local indent-line-function 'faust-ide-mode-indent-line)
+
+  (use-local-map faust-ide-mode-map)
+
+  (add-to-list 'auto-mode-alist '("\\.dsp\\'" . faust-ide-mode))
   (setq mode-name "faust-ide-mode")
-  (setq major-mode 'faust-ide-mode-mode)
-  ;;setup the buffer to be modal
-  (setq buffer-read-only 't)
-  ;;specify that this buffer has been initialized with the major mode
-  (make-local-variable 'faust-ide-mode-mode-initialized-p)
-  (setq faust-ide-mode-mode-initialized-p 't)
-  ;;ensure that paragraphs are considered to be whole mailing lists
-  (make-local-variable 'paragraph-start)
-  (setq paragraph-start "^[A-Za-z0-9]")
-  ;; Ensure the undo doesn't get recorded for this buffer
-  (buffer-disable-undo)
-  ;;setup the kill-buffer stuff
-  (make-local-variable 'kill-buffer-hook)
-  (add-hook 'kill-buffer-hook 'faust-ide-mode-kill-buffer-hook)
-  ;; Make the connection local
-  (make-local-variable 'faust-ide-mode-connection)
-  ;;make the username and password local
-  (make-local-variable 'faust-ide-mode-username)
-  (make-local-variable 'faust-ide-mode-password)
-  ;;run the mode hooks
-  (run-hooks 'faust-ide-mode-mode-hook))
+  (setq major-mode 'faust-ide-mode)
+  (message "########### MODE OK"))
 
+;; Functions
 
-(define-derived-mode faust-ide-mode-message-mode message-mode "Faust-Ide-Mode Message" "
-Available commands in message composition buffer:
+(defun faust-ide-mode-build ()
+  "actually build"
+  (interactive)
+  (setq dsp-buffer (current-buffer))
+  (with-current-buffer (get-buffer-create "Faust output")
+    (pop-to-buffer "Faust output" nil t)
+    ;; (previous-window)
+    (goto-char (point-max))
+    (start-process-shell-command "Build" (current-buffer) "faust2svg *.dsp")
+    (other-window -1)
+    (pop-to-buffer dsp-buffer nil t)
+    ))
 
- \\{faust-ide-mode-message-mode-map}
+(defun faust-ide-mode-diagram ()
+  "Show Faust diagram(s) in a web page using default browser"
+  (interactive)
+  (if (string-match-p "^[a-z0-9A-Z]?+\\.dsp$" (file-name-nondirectory buffer-file-name))
+      (progn
+        (message "Building diagrams")
+        (setq temp-file-name "~/tmp/faust-graphs.html")
+        (setq mylist (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
+        (faust-ide-mode-build-temp-file mylist temp-file-name)
+        (faust-ide-mode-show-graph temp-file-name))
+    (message "Not a regular Faust file")))
 
-Also available in message composition buffer:
-\\{mml-mode-map}
-"
-  (unless faust-ide-mode-message-keymap-initializedp
-    (define-key faust-ide-mode-message-mode-map "\r" 'faust-ide-mode-message-open-attachment)
-    ;;(define-key faust-ide-mode-message-mode-map "s" 'faust-ide-mode-message-save-attachment)
-    ;;(define-key faust-ide-mode-message-mode-map "d" 'faust-ide-mode-message-dump-attachment)
-    (define-key faust-ide-mode-message-mode-map "a" 'message-wide-reply)
-    (define-key faust-ide-mode-message-mode-map "h" 'faust-ide-mode-toggle-headers)
-    (define-key faust-ide-mode-message-mode-map "H" 'faust-ide-mode-wash-html)
-    (define-key faust-ide-mode-message-mode-map "s-i" 'message-insert-or-toggle-importance)
+(defun faust-ide-mode-build-temp-file (list temp-file-name)
+  "Print each element of LIST on a line of its own."
+  (if (file-regular-p temp-file-name)
+      (delete-file temp-file-name))
+  (write-region "<html>
+<style>
+html {
+  background-color: #ccc;
+  font-family: sans-serif;
+}
+figure {
+  float: right;
+  width: 30%;
+  text-align: center;
+  font-style: italic;
+  font-size: smaller;
+  text-indent: 0;
+  border: thin silver solid;
+  margin: 0.2em;
+  padding: 0.1em;
+}
+img.scaled {
+  width: 100%;
+}
+</style>
+<body>\n" nil tempfile)
+  (write-region (format "<h4>Rendered %s</h4>\n" (current-time-string)) nil tempfile 'append 0 nil nil)
+  (while list
+    (if (file-regular-p (car list))
+        (progn
+          (setq dsp-element (file-name-sans-extension (car list)))
+          (setq dsp-dir (file-name-directory buffer-file-name))
+          (let ((dsp-element (file-name-sans-extension (car list)))
+                (dsp-file-name (car list))
+                (dsp-dir (file-name-directory buffer-file-name)))
+            (write-region
+             (format "
+<figure>
+  <a href='%s%s-svg/process.svg'>
+<img class=scaled src='%s%s-svg/process.svg'
+    alt='%s'></a>
+  <figcaption>%s</figcaption>
+</figure>
+\n"
+                     dsp-dir
+                     dsp-element
+                     dsp-dir
+                     dsp-element
+                     dsp-file-name dsp-file-name) nil tempfile 'append 0 nil nil))))
+    (setq list (cdr list)))
+  (write-region "</body>
+</html>\n" nil tempfile 'append 0 nil nil))
 
-    (define-key faust-ide-mode-message-mode-map "q" 'faust-ide-mode-kill-buffer)
-
-    (define-key faust-ide-mode-message-mode-map "r" 'message-reply)
-    (setq faust-ide-mode-message-keymap-initializedp 't))
-  ;;set the mode as a non-editor mode
-  (put 'faust-ide-mode-message-mode 'mode-class 'special)
-  ;;ensure that paragraphs are considered to be whole mailing lists
-  (make-local-variable 'paragraph-start)
-  (setq paragraph-start paragraph-separate)
-  ;;setup the buffer to be read only
-  ;; (make-local-variable 'buffer-read-only)
-  (setq buffer-read-only 't)
-  ;;run the mode hooks
-  (run-hooks 'faust-ide-mode-message-mode-hook))
+(defun faust-ide-mode-show-graph (html-page)
+  "Show Faust diagram(s) in a web page using default browser"
+  (interactive)
+  (browse-url-of-file html-page))
 
 (provide 'faust-ide-mode)
