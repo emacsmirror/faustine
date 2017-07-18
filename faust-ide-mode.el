@@ -103,7 +103,8 @@ Customize `faust-ide-mode-build-options' for a lucky build"
         (save-excursion (indent-line-to indent))
       (indent-line-to indent))))
 
-(define-derived-mode faust-ide-mode faust-mode "Faust-Ide-Mode" "
+;;;###autoload
+(define-derived-mode faust-ide-mode fundamental-mode "Faust-Ide-Mode" "
          .' '.
 -        .   .            \\\\       faust-ide-mode
  `.        .         .  -{{{:}     A lightweight IDE.
@@ -115,10 +116,11 @@ Available commands while editing Faust (*.dsp) files:
 \\{faust-ide-mode-map}"
   (kill-all-local-variables)
 
-  :syntax-table faust-ide-mode-syntax-table
-  (setq-local comment-start "# ")
+  ;; :syntax-table faust-ide-mode-syntax-table
+  (set-syntax-table faust-ide-mode-syntax-table)
+  (setq-local comment-start "// ")
   (setq-local comment-end "")
-  (setq-local comment-start-skip "#+\\s-*")
+  ;; (setq-local comment-start-skip "#+\\s-*")
   (setq-local font-lock-defaults
               '(faust-ide-mode-font-lock-keywords))
   (setq-local indent-line-function 'faust-ide-mode-indent-line)
