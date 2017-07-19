@@ -157,20 +157,8 @@ Customize `emacs-faust-ide-mode-build-options' for a lucky build"
     ;;    (,faust-arguments-regexp . font-lock-warning-face)
     ))
 
-;; (defvar test-grammar
-;;   (smie-prec2->grammar
-;;    (smie-bnf->prec2
-;;     '((id)
-;;       (inst ("begin" insts "end")
-;;             (exp)))
-;;     ;; '((assoc ":"))
-;;     ;; '((assoc "_"))
-;;     '((assoc "+")
-;;       (assoc "*")
-;;       ))))
-
-(define-derived-mode emacs-faust-ide-output-mode prog-mode "Emacs Faust IDE output buffer mode"
-  ;; :syntax-table my-js-mode-syntax-table
+(define-derived-mode emacs-faust-ide-output-mode prog-mode
+  "Emacs Faust IDE output buffer mode"
   (font-lock-fontify-buffer))
 
 ;;;###autoload
@@ -185,24 +173,28 @@ Available commands while editing Faust (*.dsp) files:
 
 \\{emacs-faust-ide-mode-map}"
   (kill-all-local-variables)
+  (setq mode-name "emacs-faust-ide-mode")
   (set-syntax-table emacs-faust-ide-mode-syntax-table)
   (setq-local comment-start "// ")
   (setq-local comment-end "")
-  ;; (setq-local comment-start-skip "#+\\s-*")
   (setq-local font-lock-defaults
               '(emacs-faust-ide-mode-font-lock-keywords))
-  ;; (setq-local indent-line-function 'emacs-faust-ide-mode-indent-line)
   (smie-setup nil #'ignore)
-  ;; (smie-setup test-grammar #'ignore)
 
   (use-local-map emacs-faust-ide-mode-map)
+
   (font-lock-add-keywords 'emacs-faust-ide-output-mode
                           '(("Process Build finished" . font-lock-keyword-face)
                             ("Process Build started" . font-lock-keyword-face)
                             ("Process Diagram started" . font-lock-keyword-face)
-                            ("ERROR" . font-lock-warning-face))
-                          )
-  (setq mode-name "emacs-faust-ide-mode")
+                            ("ERROR" . font-lock-warning-face)))
+
+  (font-lock-add-keywords 'c++-mode
+                          '(("Process Build finished" . font-lock-keyword-face)
+                            ("Process Build started" . font-lock-keyword-face)
+                            ("Process Diagram started" . font-lock-keyword-face)
+                            ("ERROR" . font-lock-warning-face)))
+
   (setq major-mode 'emacs-faust-ide-mode)
   (message "########### MODE OK & emacs-faust-ide-build-target : %s" emacs-faust-ide-build-target))
 
@@ -254,6 +246,7 @@ Available commands while editing Faust (*.dsp) files:
   (setq dsp-buffer (current-buffer))
   (with-current-buffer (get-buffer-create "Faust c++")
     (pop-to-buffer "Faust c++" nil t)
+    (erase-buffer)
     (c++-mode)
     (call-process "/bin/bash" nil t nil "-c" (format "faust %s" dsp-buffer))
     (goto-char (point-min))
