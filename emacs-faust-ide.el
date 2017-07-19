@@ -40,26 +40,31 @@
 (defvar emacs-faust-ide-module-path (file-name-directory load-file-name))
 
 (defvar emacs-faust-ide-mode-line-greenbug
-  (list " " (propertize ":3" 'display
-                        `(image :type xpm
-                                :ascent center
-                                :file ,(expand-file-name "greenbug.xpm" emacs-faust-ide-module-path)))))
+  (list " "
+        (propertize ":3"
+                    'display
+                    `(image :type xpm
+                            :ascent center
+                            :file ,(expand-file-name "greenbug.xpm" emacs-faust-ide-module-path)))))
 
 (defvar emacs-faust-ide-mode-line-redbug
-  (list " " (propertize ":3" 'display
-                        `(image :type xpm
-                                :ascent center
-                                :file ,(expand-file-name "redbug.xpm" emacs-faust-ide-module-path)))))
+
+  (list " "
+        (propertize ":3"
+                    'display
+                    `(image :type xpm
+                            :ascent center
+                            :file ,(expand-file-name "redbug.xpm" emacs-faust-ide-module-path)))))
 
 (put 'emacs-faust-ide-mode-line-greenbug 'risky-local-variable t)
 (put 'emacs-faust-ide-mode-line-redbug 'risky-local-variable t)
 
 (define-minor-mode emacs-faust-ide-minor-mode-green
-  "Minor mode to display green in the mode-line."
+  "Minor mode to display a green bug in the mode-line."
   :lighter emacs-faust-ide-mode-line-greenbug)
 
 (define-minor-mode emacs-faust-ide-minor-mode-red
-  "Minor mode to display red in the mode-line."
+  "Minor mode to display a red bug in the mode-line."
   :lighter emacs-faust-ide-mode-line-redbug)
 
 ;;;###autoload
@@ -149,6 +154,12 @@ Customize `emacs-faust-ide-build-options' for a lucky build"
      (define-key map [?\C-c ?\C-r] 'emacs-faust-ide-run)
      (define-key map [?\C-c ?\C-s] 'emacs-faust-ide-source-code)
      (define-key map [?\C-c ?\C-c] 'emacs-faust-ide-syntax-check)
+
+     (define-key map (vector 'mode-line 'mouse-1)
+       `(lambda (e)
+          (interactive "e")
+          (switch-to-buffer "Faust output")))
+
      map)
    "Keymap for `emacs-faust-ide-mode'.")
 
@@ -271,8 +282,10 @@ Available commands while editing Faust (*.dsp) files:
 
     (if build-all
         (progn (setq-local files-to-build "*.dsp")
+               (setq display-mode "single")
                (message "Building ALL"))
       (progn (message "Building just %s" dsp-buffer)
+             (setq display-mode "all")
              (setq-local files-to-build dsp-buffer)))
 
     (call-process "/bin/bash" nil "Faust output" nil "-c" (format "faust2svg %s" files-to-build))
@@ -280,7 +293,7 @@ Available commands while editing Faust (*.dsp) files:
     (pop-to-buffer dsp-buffer nil t))
   (setq temp-file-name "faust-graphs.html")
   (setq mylist (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
-  (emacs-faust-ide-build-temp-file mylist temp-file-name dsp-buffer-name)
+  (emacs-faust-ide-build-temp-file mylist temp-file-name dsp-buffer-name display-mode)
   (emacs-faust-ide-show temp-file-name))
 
 (defun emacs-faust-ide-source-code ()
@@ -361,12 +374,16 @@ Available commands while editing Faust (*.dsp) files:
                                  dsp-buffer-name)))
   (emacs-faust-ide-show temp-file-name))
 
-(defun emacs-faust-ide-build-temp-file (list temp-file-name diagram)
+(defun emacs-faust-ide-build-temp-file (list temp-file-name diagram display-mode)
   "Build a minimal HTML (web) page to display Faust diagram(s)."
   (if (file-regular-p temp-file-name)
       (delete-file temp-file-name))
 
-  (write-region "<html>
+  (let flex
+    (if (equal display-mode "all")
+        "100\%"
+      "3 1"))
+  (write-region (format "<html>
 </head>
 <style>
 html {
@@ -384,7 +401,8 @@ div.item {
   margin: 0.2em;
   padding: 0.1em;
   order:2;
-  flex: 3 1;
+/*  flex: 3 1; */
+  flex: %s;
 }
 div.focus {
   border: thick red solid;
@@ -397,7 +415,8 @@ img.scaled {
 <title>Faust diagram</title>
 </head>
 <body>
-<div class='wrap'>\n" nil temp-file-name)
+<div class='wrap'>\n" flex nil temp-file-name)))
+
   (write-region (format "<h4>Rendered %s</h4>\n" (current-time-string)) nil temp-file-name 'append 0 nil nil)
   (while list
     (if (file-regular-p (car list))
