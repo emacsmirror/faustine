@@ -52,20 +52,18 @@ Must be an XPM (use Gimp)."
       (apply 'propertize " " `(display ,mail-bug-icon))
     mbug-host-name))
 
-(defvar my-nyan-mode-lighter
+(defvar emacs-faust-ide-mode-lighter
   (list " " (propertize "-" 'display
                         `(image :type xpm
                                 :ascent center
                                 :file ,(expand-file-name "~/.emacs.d/elisp/emacs-faust-ide/greenbug.xpm")))))
 
-(put 'my-nyan-mode-lighter 'risky-local-variable t)
+(put 'emacs-faust-ide-mode-lighter 'risky-local-variable t)
 
-(define-minor-mode my-nyan-mode
-  "Nyan mode"
-  :lighter my-nyan-mode-lighter)
+(define-minor-mode emacs-faust-ide-minor-mode
+  "Minor mode to display things in the mode-line."
+  :lighter emacs-faust-ide-mode-lighter)
 
-(my-nyan-mode 0)
-;; (my-nyan-mode)
 
 ;; (progn (setq global-mode-string ())
 ;;        (add-to-list 'global-mode-string
@@ -245,6 +243,7 @@ Available commands while editing Faust (*.dsp) files:
                             ("ERROR" . font-lock-warning-face)))
 
   (setq major-mode 'emacs-faust-ide-mode)
+  (emacs-faust-ide-minor-mode t)
   (message "########### MODE OK & emacs-faust-ide-build-target : %s" emacs-faust-ide-build-target))
 
 ;; Functions
