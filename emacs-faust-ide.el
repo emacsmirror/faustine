@@ -37,7 +37,6 @@
 
 (require 'smie)
 
-
 (defcustom mail-bug-icon
   (when (image-type-available-p 'xpm)
     `(image :type xpm
@@ -53,10 +52,25 @@ Must be an XPM (use Gimp)."
       (apply 'propertize " " `(display ,mail-bug-icon))
     mbug-host-name))
 
-(defun mbug-mode-line (mbug-unseen-mails)
-  "Construct an emacs modeline object."
-  (let ((s "plop"))
-    (concat mail-bug-logo ":" s)))
+(defvar my-nyan-mode-lighter
+  (list " " (propertize "-" 'display
+                        `(image :type xpm
+                                :ascent center
+                                :file ,(expand-file-name "~/.emacs.d/elisp/emacs-faust-ide/greenbug.xpm")))))
+
+(put 'my-nyan-mode-lighter 'risky-local-variable t)
+
+(define-minor-mode my-nyan-mode
+  "Nyan mode"
+  :lighter my-nyan-mode-lighter)
+
+(my-nyan-mode 0)
+;; (my-nyan-mode)
+
+;; (progn (setq global-mode-string ())
+;;        (add-to-list 'global-mode-string
+;;                     (emacs-faust-ide-mode-line 1))
+;;        )
 
 (defun emacs-faust-ide-syntax-check ()
   "Check if Faust code buffer compiles."
@@ -71,7 +85,7 @@ Must be an XPM (use Gimp)."
     ;; Refresh the modeline
     (progn (setq global-mode-string ())
            (add-to-list 'global-mode-string
-                        (mbug-mode-line)))
+                        (mail-bug-logo)))
     ))
 
 ;;;###autoload
