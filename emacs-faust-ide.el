@@ -121,7 +121,8 @@ Customize `emacs-faust-ide-build-options' for a lucky build"
      (define-key map [?\C-c ?\C-b] 'emacs-faust-ide-build)
      (define-key map [?\C-c ?\C-\S-b] 'emacs-faust-ide-build-all)
      (define-key map [?\C-c ?\C-d] 'emacs-faust-ide-diagram)
-     (define-key map [?\C-c ?\C-h] 'emacs-faust-ide-web-doc)
+     (define-key map [?\C-c ?\C-h] 'emacs-faust-ide-online-doc)
+     (define-key map [?\C-c ?\C-m] 'emacs-faust-ide-mdoc)
      (define-key map [?\C-c ?\C-r] 'emacs-faust-ide-run)
      (define-key map [?\C-c ?\C-s] 'emacs-faust-ide-source-code)
      map)
@@ -206,8 +207,8 @@ Available commands while editing Faust (*.dsp) files:
 
 ;; Functions
 
-(defun emacs-faust-ide-web-doc (start end)
-  "Websearch selected string on the faust.grame.fr web site"
+(defun emacs-faust-ide-online-doc (start end)
+  "Websearch selected string on the faust.grame.fr library web site"
   (interactive "r")
   (let ((q (buffer-substring-no-properties start end)))
     (browse-url (concat "http://faust.grame.fr/library.html#"
@@ -241,27 +242,9 @@ Available commands while editing Faust (*.dsp) files:
     (other-window -1)
     (pop-to-buffer dsp-buffer nil t)))
 
-(defun emacs-faust-ide-diagram ()
-  "Show Faust diagram(s) in a web page using default browser"
-  (interactive)
-  (setq dsp-buffer (current-buffer))
-  (with-current-buffer (get-buffer-create "Faust output")
-    (pop-to-buffer "Faust output" nil t)
-    (emacs-faust-ide-output-mode)
-    (goto-char (point-max))
-    (insert "Process Diagram started\n")
-    (call-process "/bin/bash" nil "Faust output" nil "-c" "faust2svg *.dsp")
-    (other-window -1)
-    (pop-to-buffer dsp-buffer nil t))
-  (setq temp-file-name "faust-graphs.html")
-  (setq mylist (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
-  (emacs-faust-ide-build-temp-file mylist temp-file-name)
-  (emacs-faust-ide-show-graph temp-file-name))
-
 (defun emacs-faust-ide-source-code ()
   "Generate Faust c++ code of the current faust file, display it in a buffer"
   (interactive)
-  (message "######## faust %s" (buffer-name))
   (setq dsp-buffer (current-buffer))
   (with-current-buffer (get-buffer-create "Faust c++")
     (pop-to-buffer "Faust c++" nil t)
@@ -288,15 +271,50 @@ Available commands while editing Faust (*.dsp) files:
     (other-window -1)
     (pop-to-buffer dsp-buffer nil t)))
 
-(defun emacs-faust-ide-show-graph (html-page)
+(defun emacs-faust-ide-show (file)
+  "Show FILE in a web page using default browser"
+  (interactive)
+  (browse-url-of-file file))
+
+(defun emacs-faust-ide-diagram ()
   "Show Faust diagram(s) in a web page using default browser"
   (interactive)
-  (browse-url-of-file html-page))
+  (setq dsp-buffer (current-buffer))
+  (with-current-buffer (get-buffer-create "Faust output")
+    (pop-to-buffer "Faust output" nil t)
+    (emacs-faust-ide-output-mode)
+    (goto-char (point-max))
+    (insert "Process Diagram started\n")
+    (call-process "/bin/bash" nil "Faust output" nil "-c" "faust2svg *.dsp")
+    (other-window -1)
+    (pop-to-buffer dsp-buffer nil t))
+  (setq temp-file-name "faust-graphs.html")
+  (setq mylist (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
+  (emacs-faust-ide-build-temp-file mylist temp-file-name)
+  (emacs-faust-ide-show temp-file-name))
 
-(defun emacs-faust-ide-show-mdoc (html-page)
-  "Show Faust full mathdoc PDF in default browser"
+(defun emacs-faust-ide-mdoc ()
+  "Generate Faust mdoc of the current faust file, display it in a buffer"
   (interactive)
-  (browse-url-of-file html-page))
+  (setq dsp-buffer (current-buffer))
+  (setq dsp-buffer-name (buffer-name))
+  (message "######### %s\n" dsp-buffer-name)
+  (with-current-buffer (get-buffer-create "Faust output")
+    (pop-to-buffer "Faust output" nil t)
+    (emacs-faust-ide-output-mode)
+    (goto-char (point-max))
+    (insert (format "Process Mdoc started"))
+    (call-process "/bin/bash" nil t nil "-c" (format "faust2mathdoc %s" dsp-buffer-name))
+    (other-window -1)
+    (pop-to-buffer dsp-buffer nil t))
+  (setq temp-file-name (format "%s-mdoc/pdf/%s.pdf"
+                               (file-name-sans-extension
+                                (file-name-nondirectory
+                                 dsp-buffer-name))
+                               (file-name-sans-extension
+                                (file-name-nondirectory
+                                 dsp-buffer-name))))
+  (emacs-faust-ide-show temp-file-name))
 
 (defun emacs-faust-ide-build-temp-file (list temp-file-name)
   "Print each element of LIST on a line of its own."
