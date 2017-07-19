@@ -326,19 +326,15 @@ html {
 div.wrap {
   display:flex;
   flex-flow: row wrap;
-  align-items: stretch;
 }
 div.item {
   float: right;
   width: 30%;
-  text-align: center;
-  font-style: italic;
-  font-size: smaller;
-  text-indent: 0;
   border: thin silver solid;
   margin: 0.2em;
   padding: 0.1em;
   order:2;
+  flex: 3 1;
 }
 div.focus {
   border: thick red solid;
