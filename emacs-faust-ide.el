@@ -52,18 +52,28 @@ Must be an XPM (use Gimp)."
 
 (defvar emacs-faust-ide-module-path (file-name-directory load-file-name))
 
-(defvar emacs-faust-ide-mode-lighter
+(defvar emacs-faust-ide-mode-line-greenbug
   (list " " (propertize ":3" 'display
                         `(image :type xpm
                                 :ascent center
                                 :file ,(expand-file-name "greenbug.xpm" emacs-faust-ide-module-path)))))
 
-(put 'emacs-faust-ide-mode-lighter 'risky-local-variable t)
+(defvar emacs-faust-ide-mode-line-redbug
+  (list " " (propertize ":3" 'display
+                        `(image :type xpm
+                                :ascent center
+                                :file ,(expand-file-name "redbug.xpm" emacs-faust-ide-module-path)))))
 
-(define-minor-mode emacs-faust-ide-minor-mode
-  "Minor mode to display things in the mode-line."
-  :lighter emacs-faust-ide-mode-lighter)
+(put 'emacs-faust-ide-mode-line-greenbug 'risky-local-variable t)
+(put 'emacs-faust-ide-mode-line-redbug 'risky-local-variable t)
 
+(define-minor-mode emacs-faust-ide-minor-mode-green
+  "Minor mode to display green in the mode-line."
+  :lighter emacs-faust-ide-mode-line-greenbug)
+
+(define-minor-mode emacs-faust-ide-minor-mode-red
+  "Minor mode to display red in the mode-line."
+  :lighter emacs-faust-ide-mode-line-redbug)
 
 (defun emacs-faust-ide-syntax-check ()
   "Check if Faust code buffer compiles."
@@ -238,7 +248,7 @@ Available commands while editing Faust (*.dsp) files:
                             ("ERROR" . font-lock-warning-face)))
 
   (setq major-mode 'emacs-faust-ide-mode)
-  (emacs-faust-ide-minor-mode t)
+  (emacs-faust-ide-minor-mode-green t)
   (message "########### MODE OK & emacs-faust-ide-build-target : %s" emacs-faust-ide-build-target))
 
 ;; Functions
