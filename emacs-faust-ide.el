@@ -225,14 +225,14 @@ Available commands while editing Faust (*.dsp) files:
     (insert "Process Build started\n")
 
     (if build-all
-        (progn (setq-local file-to-build "*.dsp")
+        (progn (setq-local files-to-build "*.dsp")
                (message "Building ALL"))
       (progn (message "Building just %s" dsp-buffer)
-             (setq-local file-to-build (buffer-file-name))))
+             (setq-local files-to-build dsp-buffer)))
 
-    ;; (start-process-shell-command "Build"
-    ;;                              (current-buffer)
-    ;;                              (format "%s %s" emacs-faust-ide-build-target file-to-build))
+    (start-process-shell-command "Build"
+                                 (current-buffer)
+                                 (format "%s %s" emacs-faust-ide-build-target files-to-build))
     (other-window -1)
     (pop-to-buffer dsp-buffer nil t)))
 
