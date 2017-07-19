@@ -8,13 +8,13 @@
 ;;
 ;; Copyright (C) 2017, 2018 Yassin Philip
 ;; URL: https://bitbucket.org/yassinphilip/emacs-faust-ide
-
+;;
 ;; Author: Yassin Philip <xaccrocheur@gmail.com>
 ;; Keywords: faust
 ;; Version 0.5b
-
+;;
 ;; This file is NOT part of GNU Emacs.
-
+;;
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 2, or (at your option)
@@ -29,18 +29,16 @@
 ;; along with this program; see the file COPYING.  If not, write to the
 ;; Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
-
-;;; Commentary:
-
-;;; Code:
+;;
+;; Commentary:
+;; See README.md for details.
+;;
+;; Code:
 
 (require 'smie)
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.dsp\\'" . emacs-faust-ide-mode))
-
-;; (if (bobp)  ; Check for rule 1
-;;     (indent-line-to 0))
 
 (defvar faust-keywords
   '("process" "with" "case" "seq" "par" "sum" "prod"
@@ -66,7 +64,7 @@ Customize `emacs-faust-ide-build-options' for a lucky build"
   :group 'applications)
 
 (defcustom emacs-faust-ide-build-target 'faust2jaqt
-  "*The builder"
+  "The Faust code-to-executable build backend."
   ;;:type 'symbol
   :type '(choice
           (const :tag "faust2alsa" faust2alsa)
@@ -112,7 +110,7 @@ Customize `emacs-faust-ide-build-options' for a lucky build"
   :group 'emacs-faust-ide)
 
 (defcustom emacs-faust-ide-build-options "plop"
-  "The type of build"
+  "The type of build."
   :type '(string)
   :group 'emacs-faust-ide)
 
@@ -145,22 +143,15 @@ Customize `emacs-faust-ide-build-options' for a lucky build"
 (defvar faust-function-regexp (regexp-opt faust-functions 'words))
 (defvar faust-ui-keywords-regexp (regexp-opt faust-ui-keywords 'words))
 
-;; create the list for font-lock.
 (defvar emacs-faust-ide-mode-font-lock-keywords
-  `(
-    (,faust-function-regexp . font-lock-type-face)
+  `((,faust-function-regexp . font-lock-type-face)
     (,faust-ui-keywords-regexp . font-lock-builtin-face)
     (,faust-math-op-regexp . font-lock-function-name-face)
     (,faust-operator-regexp . font-lock-constant-face)
-    (,faust-keywords-regexp . font-lock-keyword-face)
-    ;;    (,faust-variables-regexp . font-lock-variable-name-face)
-    ;;    (,faust-arguments-regexp . font-lock-warning-face)
-    ))
-
-
+    (,faust-keywords-regexp . font-lock-keyword-face)))
 
 (define-derived-mode emacs-faust-ide-output-mode prog-mode
-  "Emacs Faust IDE output buffer mode"
+  "Emacs Faust IDE output buffer mode."
   (font-lock-fontify-buffer))
 
 (defun emacs-faust-ide-set-preferences ()
@@ -208,7 +199,7 @@ Available commands while editing Faust (*.dsp) files:
 ;; Functions
 
 (defun emacs-faust-ide-online-doc (start end)
-  "Websearch selected string on the faust.grame.fr library web site"
+  "Websearch selected string on the faust.grame.fr library web site."
   (interactive "r")
   (let ((q (buffer-substring-no-properties start end)))
     (browse-url (concat "http://faust.grame.fr/library.html#"
@@ -221,7 +212,7 @@ Available commands while editing Faust (*.dsp) files:
   (emacs-faust-ide-build 1))
 
 (defun emacs-faust-ide-build (&optional build-all)
-  "Build the executable(s) using the `emacs-faust-ide-build-target' executable"
+  "Build the executable(s) using the `emacs-faust-ide-build-target' executable. If BUILD-ALL is set, build all .dsp files in the current directory."
   (interactive)
   (setq dsp-buffer (current-buffer))
   (with-current-buffer (get-buffer-create "Faust output")
@@ -229,6 +220,28 @@ Available commands while editing Faust (*.dsp) files:
     (emacs-faust-ide-output-mode)
     (goto-char (point-max))
     (insert "Process Build started\n")
+    (if build-all
+        (progn (setq-local files-to-build "*.dsp")
+               (message "Building ALL"))
+      (progn (message "Building just %s" dsp-buffer)
+             (setq-local files-to-build dsp-buffer)))
+    (start-process-shell-command
+     "Build"
+     (current-buffer)
+     (format "%s %s" emacs-faust-ide-build-target files-to-build))
+    (other-window -1)
+    (pop-to-buffer dsp-buffer nil t)))
+
+(defun emacs-faust-ide-diagram (&optional build-all)
+  "Generate Faust diagram(s)."
+  (interactive)
+  (setq dsp-buffer (current-buffer))
+  (setq dsp-buffer-name (buffer-name))
+  (with-current-buffer (get-buffer-create "Faust output")
+    (pop-to-buffer "Faust output" nil t)
+    (emacs-faust-ide-output-mode)
+    (goto-char (point-max))
+    (insert "Process Diagram started\n")
 
     (if build-all
         (progn (setq-local files-to-build "*.dsp")
@@ -236,14 +249,16 @@ Available commands while editing Faust (*.dsp) files:
       (progn (message "Building just %s" dsp-buffer)
              (setq-local files-to-build dsp-buffer)))
 
-    (start-process-shell-command "Build"
-                                 (current-buffer)
-                                 (format "%s %s" emacs-faust-ide-build-target files-to-build))
+    (call-process "/bin/bash" nil "Faust output" nil "-c" (format "faust2svg %s" files-to-build))
     (other-window -1)
-    (pop-to-buffer dsp-buffer nil t)))
+    (pop-to-buffer dsp-buffer nil t))
+  (setq temp-file-name "faust-graphs.html")
+  (setq mylist (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
+  (emacs-faust-ide-build-temp-file mylist temp-file-name dsp-buffer-name)
+  (emacs-faust-ide-show temp-file-name))
 
 (defun emacs-faust-ide-source-code ()
-  "Generate Faust c++ code of the current faust file, display it in a buffer"
+  "Generate Faust c++ code of the current faust file, display it in a buffer."
   (interactive)
   (setq dsp-buffer (current-buffer))
   (with-current-buffer (get-buffer-create "Faust c++")
@@ -256,7 +271,7 @@ Available commands while editing Faust (*.dsp) files:
     (pop-to-buffer dsp-buffer nil t)))
 
 (defun emacs-faust-ide-run ()
-  "Run the executable generated by the Faust code file in the current buffer"
+  "Run the executable generated by the current Faust code buffer."
   (interactive)
   (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
@@ -272,33 +287,15 @@ Available commands while editing Faust (*.dsp) files:
     (pop-to-buffer dsp-buffer nil t)))
 
 (defun emacs-faust-ide-show (file)
-  "Show FILE in a web page using default browser"
+  "Show FILE in a web page using default browser."
   (interactive)
   (browse-url-of-file file))
 
-(defun emacs-faust-ide-diagram ()
-  "Show Faust diagram(s) in a web page using default browser"
-  (interactive)
-  (setq dsp-buffer (current-buffer))
-  (with-current-buffer (get-buffer-create "Faust output")
-    (pop-to-buffer "Faust output" nil t)
-    (emacs-faust-ide-output-mode)
-    (goto-char (point-max))
-    (insert "Process Diagram started\n")
-    (call-process "/bin/bash" nil "Faust output" nil "-c" "faust2svg *.dsp")
-    (other-window -1)
-    (pop-to-buffer dsp-buffer nil t))
-  (setq temp-file-name "faust-graphs.html")
-  (setq mylist (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
-  (emacs-faust-ide-build-temp-file mylist temp-file-name)
-  (emacs-faust-ide-show temp-file-name))
-
 (defun emacs-faust-ide-mdoc ()
-  "Generate Faust mdoc of the current faust file, display it in a buffer"
+  "Generate Faust mdoc of the current faust file, display it in a buffer."
   (interactive)
   (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
-  (message "######### %s\n" dsp-buffer-name)
   (with-current-buffer (get-buffer-create "Faust output")
     (pop-to-buffer "Faust output" nil t)
     (emacs-faust-ide-output-mode)
@@ -309,17 +306,16 @@ Available commands while editing Faust (*.dsp) files:
     (pop-to-buffer dsp-buffer nil t))
   (setq temp-file-name (format "%s-mdoc/pdf/%s.pdf"
                                (file-name-sans-extension
-                                (file-name-nondirectory
-                                 dsp-buffer-name))
+                                 dsp-buffer-name)
                                (file-name-sans-extension
-                                (file-name-nondirectory
-                                 dsp-buffer-name))))
+                                 dsp-buffer-name)))
   (emacs-faust-ide-show temp-file-name))
 
-(defun emacs-faust-ide-build-temp-file (list temp-file-name)
-  "Print each element of LIST on a line of its own."
+(defun emacs-faust-ide-build-temp-file (list temp-file-name diagram)
+  "Build a minimal HTML (web) page to display Faust diagram(s)."
   (if (file-regular-p temp-file-name)
       (delete-file temp-file-name))
+
   (write-region "<html>
 </head>
 <style>
@@ -327,7 +323,12 @@ html {
   background-color: #ccc;
   font-family: sans-serif;
 }
-figure {
+div.wrap {
+  display:flex;
+  flex-flow: row wrap;
+  align-items: stretch;
+}
+div.item {
   float: right;
   width: 30%;
   text-align: center;
@@ -337,6 +338,11 @@ figure {
   border: thin silver solid;
   margin: 0.2em;
   padding: 0.1em;
+  order:2;
+}
+div.focus {
+  border: thick red solid;
+  order:1;
 }
 img.scaled {
   width: 100%;
@@ -344,32 +350,40 @@ img.scaled {
 </style>
 <title>Faust diagram</title>
 </head>
-<body>\n" nil temp-file-name)
+<body>
+<div class='wrap'>\n" nil temp-file-name)
   (write-region (format "<h4>Rendered %s</h4>\n" (current-time-string)) nil temp-file-name 'append 0 nil nil)
   (while list
     (if (file-regular-p (car list))
-        (progn
-          (setq dsp-element (file-name-sans-extension (car list)))
-          (setq dsp-dir (file-name-directory buffer-file-name))
-          (let ((dsp-element (file-name-sans-extension (car list)))
-                (dsp-file-name (car list))
-                (dsp-dir (file-name-directory buffer-file-name)))
-            (write-region
-             (format "
-<figure>
+        (let* ((dsp-element (file-name-sans-extension (car list)))
+               (i 0)
+               (dsp-file-name (car list))
+               (class (if (equal diagram (car list))
+                          "focus"
+                        "normal"))
+               (order (if (equal diagram (car list))
+                          0
+                        (+ 1 i)))
+               (dsp-dir (file-name-directory buffer-file-name)))
+          (write-region
+           (format "
+<div class='item %s'>
   <a href='%s%s-svg/process.svg'>
 <img class=scaled src='%s%s-svg/process.svg'
     alt='%s'></a>
   <figcaption>%s</figcaption>
-</figure>
+</div>
 \n"
-                     dsp-dir
-                     dsp-element
-                     dsp-dir
-                     dsp-element
-                     dsp-file-name dsp-file-name) nil temp-file-name 'append 0 nil nil))))
+                   class
+                   dsp-dir
+                   dsp-element
+                   dsp-dir
+                   dsp-element
+                   dsp-file-name
+                   dsp-file-name) nil temp-file-name 'append 0 nil nil)))
     (setq list (cdr list)))
-  (write-region "</body>
+  (write-region "</div>
+</body>
 </html>\n" nil temp-file-name 'append 0 nil nil))
 
 (provide 'emacs-faust-ide)
