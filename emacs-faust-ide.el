@@ -37,6 +37,43 @@
 
 (require 'smie)
 
+
+(defcustom mail-bug-icon
+  (when (image-type-available-p 'xpm)
+    `(image :type xpm
+            :file "greenbug.xpm"
+            :ascent center))
+  "Icon for the first account.
+Must be an XPM (use Gimp)."
+  :group 'emacs-faust-ide)
+
+(defconst mail-bug-logo
+  (if (and window-system
+           mail-bug-icon)
+      (apply 'propertize " " `(display ,mail-bug-icon))
+    mbug-host-name))
+
+(defun mbug-mode-line (mbug-unseen-mails)
+  "Construct an emacs modeline object."
+  (let ((s "plop"))
+    (concat mail-bug-logo ":" s)))
+
+(defun emacs-faust-ide-syntax-check ()
+  "Check if Faust code buffer compiles."
+  (interactive)
+  (setq dsp-buffer (buffer-name))
+  (with-current-buffer (get-buffer-create "Faust output")
+    (emacs-faust-ide-output-mode)
+    (start-process-shell-command
+     "Check"
+     (current-buffer)
+     (format "faust %s > /dev/null" dsp-buffer))
+    ;; Refresh the modeline
+    (progn (setq global-mode-string ())
+           (add-to-list 'global-mode-string
+                        (mbug-mode-line)))
+    ))
+
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.dsp\\'" . emacs-faust-ide-mode))
 

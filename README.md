@@ -27,6 +27,7 @@ A Faust code editor for Emacs
 
 ### Can I thank you?
 There are several ways you can help (by order of magnificence) :
+
 - Subscribe to [my YouTube channel](https://www.youtube.com/c/YassinPhilip-ManyRecords)
 - Buy my music on [Bandcamp](https://yassinphilip.bandcamp.com) (I'm told I'm on iTunes, Spotify, Google Music and stuff but I never seem to sell a single song)
 - Help me on [Patreon](http://www.patreon.com/yassinphilip)
