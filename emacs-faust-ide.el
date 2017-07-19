@@ -158,9 +158,16 @@ Customize `emacs-faust-ide-mode-build-options' for a lucky build"
     ;;    (,faust-arguments-regexp . font-lock-warning-face)
     ))
 
+
+
 (define-derived-mode emacs-faust-ide-output-mode prog-mode
   "Emacs Faust IDE output buffer mode"
   (font-lock-fontify-buffer))
+
+(defun emacs-faust-ide-set-preferences ()
+  "Use `cutomize-group' to set up Emacs Faust IDE preferences "
+  (interactive)
+  (customize-group 'emacs-faust-ide))
 
 ;;;###autoload
 (define-derived-mode emacs-faust-ide-mode fundamental-mode "Emacs Faust IDE Mode" "
@@ -169,7 +176,7 @@ Customize `emacs-faust-ide-mode-build-options' for a lucky build"
  `.        .         .  -<<<:>      A lightweight IDE.
    ' .  . ' ' .  . '      //
 
-Type \\[customize-group] emacs-faust-ide (or use the menu)  to set it up.
+Use \\[emacs-faust-ide-set-preferences] to set it up.
 Available commands while editing Faust (*.dsp) files:
 
 \\{emacs-faust-ide-mode-map}"
