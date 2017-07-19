@@ -37,26 +37,26 @@
 
 (require 'smie)
 
-(defcustom mail-bug-icon
-  (when (image-type-available-p 'xpm)
-    `(image :type xpm
-            :file "greenbug.xpm"
-            :ascent center))
+(defvar icon
   "Icon for the first account.
 Must be an XPM (use Gimp)."
-  :group 'emacs-faust-ide)
+      `(image :type xpm
+              :file "greenbug.xpm"
+              :ascent center))
 
-(defconst mail-bug-logo
-  (if (and window-system
-           mail-bug-icon)
-      (apply 'propertize " " `(display ,mail-bug-icon))
-    mbug-host-name))
+;; (defvar emacs-faust-ide-mode-lighter
+;;   (list " " (propertize "-" 'display
+;;                         `(image :type xpm
+;;                                 :ascent center
+;;                                 :file ,icon))))
+
+(defvar emacs-faust-ide-module-path (file-name-directory load-file-name))
 
 (defvar emacs-faust-ide-mode-lighter
-  (list " " (propertize "-" 'display
+  (list " " (propertize ":3" 'display
                         `(image :type xpm
                                 :ascent center
-                                :file ,(expand-file-name "~/.emacs.d/elisp/emacs-faust-ide/greenbug.xpm")))))
+                                :file ,(expand-file-name "greenbug.xpm" emacs-faust-ide-module-path)))))
 
 (put 'emacs-faust-ide-mode-lighter 'risky-local-variable t)
 
@@ -64,11 +64,6 @@ Must be an XPM (use Gimp)."
   "Minor mode to display things in the mode-line."
   :lighter emacs-faust-ide-mode-lighter)
 
-
-;; (progn (setq global-mode-string ())
-;;        (add-to-list 'global-mode-string
-;;                     (emacs-faust-ide-mode-line 1))
-;;        )
 
 (defun emacs-faust-ide-syntax-check ()
   "Check if Faust code buffer compiles."
