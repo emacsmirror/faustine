@@ -363,26 +363,18 @@ Available commands while editing Faust (*.dsp) files:
   ;;     (message "exists")
   ;;   (message "don't exist"))
 
-  ;; (cond ((eq "Faust output" (window-buffer (selected-window)))
-  ;;        (progn
-  ;;          (setq output-visible t)
-  ;;          (message "Visible and focused")))
-  ;;       ((get-buffer-window "Faust output" `visible)
-  ;;        (progn
-  ;;          (setq output-visible t)
-  ;;          (message "Visible and unfocused")))
-  ;;       (t
-  ;;        (progn
-  ;;          (message "not visible")
-  ;;          (setq output-visible nil))))
-
-  (buffer-list)
-  (-contains? '(buffer-list) "Faust output")
-
-  (member "Faust output" (buffer-list))
-
-  (format "%s" (buffer-list))
-
+  (cond ((eq "Faust output" (window-buffer (selected-window)))
+         (progn
+           (setq output-visible t)
+           (message "Visible and focused")))
+        ((get-buffer-window "Faust output" `visible)
+         (progn
+           (setq output-visible t)
+           (message "Visible and unfocused")))
+        (t
+         (progn
+           (message "not visible")
+           (setq output-visible nil))))
 
   (if (string-match-p (regexp-quote "Faust output") (format "%s" (buffer-list)))
       (progn (message "YES")
@@ -408,16 +400,16 @@ Available commands while editing Faust (*.dsp) files:
       (progn (message "Building just %s" dsp-buffer)
              (setq display-mode "single")
              (setq-local files-to-build dsp-buffer)))
-
+    (call-process "/bin/bash" nil "Faust output" t "-c" (format "faust2svg %s" files-to-build))
     (insert (format "Process Diagram started : Building %s\n" files-to-build))
-
-    (call-process "/bin/bash" nil "Faust output" nil "-c" (format "faust2svg %s" files-to-build))
     (setq other-window-scroll-buffer "Faust output")
 
     ;; (other-window -1)
     (pop-to-buffer dsp-buffer nil t)
     )
-  (scroll-other-window)
+  (if output-visible
+      (scroll-other-window))
+
   (setq temp-file-name "faust-graphs.html")
   (setq mylist (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
   (emacs-faust-ide-build-temp-file mylist temp-file-name dsp-buffer-name display-mode)
