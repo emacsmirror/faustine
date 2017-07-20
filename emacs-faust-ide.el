@@ -286,6 +286,10 @@ Customize `emacs-faust-ide-build-options' for a lucky build"
   (interactive)
   (customize-group 'emacs-faust-ide))
 
+(defun emacs-faust-ide-syntax-check-continuous-hook ()
+  "Used in `after-save-hook' and `after-load-functions'."
+    (emacs-faust-ide-syntax-check))
+
 ;;;###autoload
 (define-derived-mode emacs-faust-ide-mode fundamental-mode "Emacs Faust IDE Mode" "
          .' '.
@@ -298,6 +302,9 @@ Available commands while editing Faust (*.dsp) files:
 
 \\{emacs-faust-ide-mode-map}"
   (kill-all-local-variables)
+  (add-hook 'after-save-hook 'emacs-faust-ide-syntax-check-continuous-hook nil t)
+
+  (add-hook 'emacs-faust-ide-mode-hook 'emacs-faust-ide-syntax-check-continuous-hook nil t)
   (setq mode-name "emacs-faust-ide-mode")
   (set-syntax-table emacs-faust-ide-mode-syntax-table)
   (setq-local comment-start "// ")
@@ -376,10 +383,6 @@ Available commands while editing Faust (*.dsp) files:
     (goto-char (point-min))
     (other-window -1)
     (pop-to-buffer dsp-buffer nil t)))
-
-(defun emacs-faust-ide-syntax-check-continuous ()
-  (message "plop")
-  (emacs-faust-ide-syntax-check))
 
 (defun emacs-faust-ide-syntax-check ()
   "Check if Faust code buffer compiles."
