@@ -38,6 +38,9 @@
 
 (require 'smie)
 
+(if (require 'company nil t)
+    (company-mode t))
+
 (defvar emacs-faust-ide-module-path (file-name-directory load-file-name))
 
 ;; (add-to-list 'before-change-functions 'emacs-faust-ide-syntax-check-continuous)
@@ -102,6 +105,48 @@
   '("button" "checkbox" "vslider" "hslider" "nentry"
     "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
 
+(defconst sample-completions
+  '("process" "with" "case" "seq" "par" "sum" "prod"
+    "include" "import" "component" "library" "environment" "declare"
+    "define" "undef" "error" "pragma" "ident"
+    "if" "def" "else" "elif" "endif" "line" "warning" "mem" "prefix" "int" "float"
+    "rdtable" "rwtable" "select2" "select3"
+    "ffunction" "fconstant" "fvariable"
+    "attach" "acos" "asin" "atan" "atan2" "cos" "sin" "tan" "exp"
+    "log" "log10" "pow" "sqrt" "abs" "min" "max" "fmod"
+    "remainder" "floor" "ceil" "rint" "button" "checkbox" "vslider" "hslider" "nentry"
+    "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
+
+
+;; (defun company-advanced--make-candidate (candidate)
+;;   (let ((text (car candidate))
+;;         (meta (cadr candidate)))
+;;     (propertize text 'meta meta)))
+
+;; (defun company-advanced--candidates (prefix)
+;;   (let (res)
+;;     (dolist (item company-advanced-keywords)
+;;       (when (string-prefix-p prefix (car item))
+;;         (push (company-advanced--make-candidate item) res)))
+;;     res))
+
+;; (defun company-advanced--meta (candidate)
+;;   (format "This will use %s of %s"
+;;           (get-text-property 0 'meta candidate)
+;;           (substring-no-properties candidate)))
+
+;; (defun company-advanced--annotation (candidate)
+;;   (format " (%s)" (get-text-property 0 'meta candidate)))
+
+;; (defun company-advanced (command &optional arg &rest ignored)
+;;   (interactive (list 'interactive))
+;;   (cl-case command
+;;     (interactive (company-begin-backend 'company-advanced))
+;;     (prefix (company-grab-symbol-cons "\\.\\|->" 2))
+;;     (candidates (company-advanced--candidates arg))
+;;     (annotation (company-advanced--annotation arg))
+;;     (meta (company-advanced--meta arg))))
+
 (defun emacs-faust-ide-mode-completion-at-point ()
   "This is the function to be used for the hook `completion-at-point-functions'."
   (interactive)
@@ -113,7 +158,7 @@
 
 (add-hook 'completion-at-point-functions 'emacs-faust-ide-mode-completion-at-point nil 'local)
 
-(defun abc-complete-symbol ()
+(defun emacs-faust-ide-mode-complete-symbol ()
   "Perform keyword completion on current symbol.
 This uses `ido-mode' user interface for completion."
   (interactive)
