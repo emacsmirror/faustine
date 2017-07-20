@@ -363,24 +363,41 @@ Available commands while editing Faust (*.dsp) files:
   ;;     (message "exists")
   ;;   (message "don't exist"))
 
-  (cond ((eq "Faust output" (window-buffer (selected-window)))
-         (progn
-           (setq output-visible t)
-           (message "Visible and focused")))
-        ((get-buffer-window "Faust output")
-         (progn
-           (setq output-visible t)
-           (message "Visible and unfocused")))
-        (t
-         (progn
-           (message "not visible")
-           (setq output-visible nil))))
+  ;; (cond ((eq "Faust output" (window-buffer (selected-window)))
+  ;;        (progn
+  ;;          (setq output-visible t)
+  ;;          (message "Visible and focused")))
+  ;;       ((get-buffer-window "Faust output" `visible)
+  ;;        (progn
+  ;;          (setq output-visible t)
+  ;;          (message "Visible and unfocused")))
+  ;;       (t
+  ;;        (progn
+  ;;          (message "not visible")
+  ;;          (setq output-visible nil))))
+
+  (buffer-list)
+  (-contains? '(buffer-list) "Faust output")
+
+  (member "Faust output" (buffer-list))
+
+  (format "%s" (buffer-list))
+
+
+  (if (string-match-p (regexp-quote "Faust output") (format "%s" (buffer-list)))
+      (progn (message "YES")
+           (setq output-visible t))
+    (progn (message "NO")
+           (setq output-visible nil)))
 
   (with-current-buffer (get-buffer-create "Faust output")
-    (pop-to-buffer "Faust output" nil t)
-    (emacs-faust-ide-output-mode)
 
-    (if (not output-visible) (enlarge-window -25))
+    (if (not output-visible)
+        (progn
+          (pop-to-buffer "Faust output" nil t)
+          (emacs-faust-ide-output-mode)
+          (enlarge-window -25))
+      )
     (goto-char (point-max))
 
     (insert "Process Diagram started\n")
