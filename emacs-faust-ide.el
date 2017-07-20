@@ -38,6 +38,47 @@
 
 (require 'smie)
 (require 'cl-lib)
+(require 'easymenu)
+
+(defvar emacs-faust-ide-minor-mode-red-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "<return>") 'newline-and-indent)
+    map)
+  "Keymap for `my-mode'.")
+
+(defvar emacs-faust-ide-minor-mode-green-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "<return>") 'newline-and-indent)
+    map)
+  "Keymap for `my-mode'.")
+
+(easy-menu-define emacs-faust-ide-mode-green-menu
+  emacs-faust-ide-minor-mode-green-map
+  "Syntax check: OK"
+   '("some text"
+     "-"))
+
+(easy-menu-define emacs-faust-ide-mode-red-menu
+  emacs-faust-ide-minor-mode-red-map
+  "Syntax check: ERROR"
+   '("some text"
+     "-"))
+
+(add-hook 'emacs-faust-ide-mode-hook
+          (lambda ()
+            (setq ac-sources '(ac-source-words-in-buffer
+                               ac-source-symbols
+                               ac-source-abbrev
+                               ac-source-dictionary
+                               ac-source-features
+                               ac-source-filename
+                               ac-source-files-in-current-dir
+                               ac-source-functions
+                               ac-source-symbols
+                               ac-source-variables
+                               ac-source-words-in-all-buffer
+                               ac-source-words-in-buffer
+                               ac-source-words-in-same-mode-buffers))))
 
 (defvar emacs-faust-ide-module-path (file-name-directory load-file-name))
 
@@ -73,11 +114,13 @@
 
 (define-minor-mode emacs-faust-ide-minor-mode-green
   "Minor mode to display a green bug in the mode-line."
-  :lighter emacs-faust-ide-mode-line-greenbug)
+  :lighter emacs-faust-ide-mode-line-greenbug
+  :keymap emacs-faust-ide-minor-mode-green-map)
 
 (define-minor-mode emacs-faust-ide-minor-mode-red
   "Minor mode to display a red bug in the mode-line."
-  :lighter emacs-faust-ide-mode-line-redbug)
+  :lighter emacs-faust-ide-mode-line-redbug
+  :keymap emacs-faust-ide-minor-mode-red-map)
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.dsp\\'" . emacs-faust-ide-mode))
@@ -111,7 +154,6 @@
 ;;     "log" "log10" "pow" "sqrt" "abs" "min" "max" "fmod"
 ;;     "remainder" "floor" "ceil" "rint" "button" "checkbox" "vslider" "hslider" "nentry"
 ;;     "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
-
 
 ;; (defun company-advanced--make-candidate (candidate)
 ;;   (let ((text (car candidate))
@@ -154,24 +196,24 @@
 
 ;; (add-hook 'completion-at-point-functions 'emacs-faust-ide-mode-completion-at-point nil 'local)
 
-(defun emacs-faust-ide-mode-complete-symbol ()
-  "Perform keyword completion on current symbol.
-This uses `ido-mode' user interface for completion."
-  (interactive)
-  (let* (
-         ($bds (bounds-of-thing-at-point 'symbol))
-         ($p1 (car $bds))
-         ($p2 (cdr $bds))
-         ($current-sym
-          (if  (or (null $p1) (null $p2) (equal $p1 $p2))
-              ""
-            (buffer-substring-no-properties $p1 $p2)))
-         $result-sym)
-    (when (not $current-sym) (setq $current-sym ""))
-    (setq $result-sym
-          (ido-completing-read "" faust-keywords nil nil $current-sym ))
-    (delete-region $p1 $p2)
-    (insert $result-sym)))
+;; (defun emacs-faust-ide-mode-complete-symbol ()
+;;   "Perform keyword completion on current symbol.
+;; This uses `ido-mode' user interface for completion."
+;;   (interactive)
+;;   (let* (
+;;          ($bds (bounds-of-thing-at-point 'symbol))
+;;          ($p1 (car $bds))
+;;          ($p2 (cdr $bds))
+;;          ($current-sym
+;;           (if  (or (null $p1) (null $p2) (equal $p1 $p2))
+;;               ""
+;;             (buffer-substring-no-properties $p1 $p2)))
+;;          $result-sym)
+;;     (when (not $current-sym) (setq $current-sym ""))
+;;     (setq $result-sym
+;;           (ido-completing-read "" faust-keywords nil nil $current-sym ))
+;;     (delete-region $p1 $p2)
+;;     (insert $result-sym)))
 
 (defgroup emacs-faust-ide nil
   "Emacs Faust IDE - A lightweight IDE.
@@ -335,10 +377,10 @@ Available commands while editing Faust (*.dsp) files:
                             ("Process Diagram started" . font-lock-keyword-face)
                             ("ERROR" . font-lock-warning-face)))
 
-  (if (require 'company nil t)
-      (progn
-        (add-to-list 'company-backends 'emacs-faust-ide-company-backend)
-        (company-mode t)))
+  ;; (if (require 'company nil t)
+  ;;     (progn
+  ;;       (add-to-list 'company-backends 'emacs-faust-ide-company-backend)
+  ;;       (company-mode t)))
 
   (setq major-mode 'emacs-faust-ide-mode)
   (message "########### MODE OK & emacs-faust-ide-build-target : %s" emacs-faust-ide-build-target))
