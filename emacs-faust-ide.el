@@ -358,9 +358,29 @@ Available commands while editing Faust (*.dsp) files:
   (interactive)
   (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
+
+  ;; (if (get-buffer "Faust output")
+  ;;     (message "exists")
+  ;;   (message "don't exist"))
+
+  (cond ((eq "Faust output" (window-buffer (selected-window)))
+         (progn
+           (setq output-visible t)
+           (message "Visible and focused")))
+        ((get-buffer-window "Faust output")
+         (progn
+           (setq output-visible t)
+           (message "Visible and unfocused")))
+        (t
+         (progn
+           (message "not visible")
+           (setq output-visible nil))))
+
   (with-current-buffer (get-buffer-create "Faust output")
     (pop-to-buffer "Faust output" nil t)
     (emacs-faust-ide-output-mode)
+
+    (if (not output-visible) (enlarge-window -25))
     (goto-char (point-max))
 
     (insert "Process Diagram started\n")
@@ -382,6 +402,24 @@ Available commands while editing Faust (*.dsp) files:
   (setq mylist (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
   (emacs-faust-ide-build-temp-file mylist temp-file-name dsp-buffer-name display-mode)
   (emacs-faust-ide-show temp-file-name))
+
+(defun my-split-main-window (direction size)
+  "Split the main window in the DIRECTION where DIRECTION is a symbol with
+possible values of right, left, above or below and SIZE is the final size of the
+windows, if the window is split horizontally (i.e. in DIRECTION below or above)
+SIZE is assumed to be the target height otherwise SIZE is assumed to be the
+target width"
+  (let* ((new-window (split-window (frame-root-window) nil direction))
+         (horizontal (member direction '(right left))))
+    (save-excursion
+      (select-window new-window)
+      (enlarge-window (- size (if horizontal
+                                  (window-width)
+                                (window-height)))
+                      horizontal))
+    new-window))
+
+;; (my-split-main-window 'below 10)
 
 (defun emacs-faust-ide-build-temp-file (list temp-file-name diagram display-mode)
   "Build a minimal HTML (web) page to display Faust diagram(s)."
