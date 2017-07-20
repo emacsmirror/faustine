@@ -306,11 +306,9 @@ Available commands while editing Faust (*.dsp) files:
   ;; (message "Output: (%s)" output-check)
   (if (string= "" output-check)
       (progn
-        ;; (message "Yeaah: %s" output-check)
         (emacs-faust-ide-minor-mode-red 0)
         (emacs-faust-ide-minor-mode-green t))
     (progn
-      ;; (message "Woops %s" output-check)
       (emacs-faust-ide-minor-mode-green 0)
       (emacs-faust-ide-minor-mode-red t))))
 
