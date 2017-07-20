@@ -37,14 +37,9 @@
 ;; Code:
 
 (require 'smie)
-
-(if (require 'company nil t)
-    (company-mode t))
+(require 'cl-lib)
 
 (defvar emacs-faust-ide-module-path (file-name-directory load-file-name))
-
-;; (add-to-list 'before-change-functions 'emacs-faust-ide-syntax-check-continuous)
-;; (add-hook 'post-self-insert-hook 'emacs-faust-ide-syntax-check-continuous)
 
 (defvar display-mode)
 (defvar temp-file-name)
@@ -105,17 +100,17 @@
   '("button" "checkbox" "vslider" "hslider" "nentry"
     "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
 
-(defconst sample-completions
-  '("process" "with" "case" "seq" "par" "sum" "prod"
-    "include" "import" "component" "library" "environment" "declare"
-    "define" "undef" "error" "pragma" "ident"
-    "if" "def" "else" "elif" "endif" "line" "warning" "mem" "prefix" "int" "float"
-    "rdtable" "rwtable" "select2" "select3"
-    "ffunction" "fconstant" "fvariable"
-    "attach" "acos" "asin" "atan" "atan2" "cos" "sin" "tan" "exp"
-    "log" "log10" "pow" "sqrt" "abs" "min" "max" "fmod"
-    "remainder" "floor" "ceil" "rint" "button" "checkbox" "vslider" "hslider" "nentry"
-    "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
+;; (defconst emacs-faust-ide-mode-company-completions
+;;   '("process" "with" "case" "seq" "par" "sum" "prod"
+;;     "include" "import" "component" "library" "environment" "declare"
+;;     "define" "undef" "error" "pragma" "ident"
+;;     "if" "def" "else" "elif" "endif" "line" "warning" "mem" "prefix" "int" "float"
+;;     "rdtable" "rwtable" "select2" "select3"
+;;     "ffunction" "fconstant" "fvariable"
+;;     "attach" "acos" "asin" "atan" "atan2" "cos" "sin" "tan" "exp"
+;;     "log" "log10" "pow" "sqrt" "abs" "min" "max" "fmod"
+;;     "remainder" "floor" "ceil" "rint" "button" "checkbox" "vslider" "hslider" "nentry"
+;;     "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
 
 
 ;; (defun company-advanced--make-candidate (candidate)
@@ -147,16 +142,17 @@
 ;;     (annotation (company-advanced--annotation arg))
 ;;     (meta (company-advanced--meta arg))))
 
-(defun emacs-faust-ide-mode-completion-at-point ()
-  "This is the function to be used for the hook `completion-at-point-functions'."
-  (interactive)
-  (let* (
-         (bds (bounds-of-thing-at-point 'symbol))
-         (start (car bds))
-         (end (cdr bds)))
-    (list start end faust-keywords . nil )))
 
-(add-hook 'completion-at-point-functions 'emacs-faust-ide-mode-completion-at-point nil 'local)
+;; (defun emacs-faust-ide-mode-completion-at-point ()
+;;   "This is the function to be used for the hook `completion-at-point-functions'."
+;;   (interactive)
+;;   (let* (
+;;          (bds (bounds-of-thing-at-point 'symbol))
+;;          (start (car bds))
+;;          (end (cdr bds)))
+;;     (list start end faust-keywords . nil )))
+
+;; (add-hook 'completion-at-point-functions 'emacs-faust-ide-mode-completion-at-point nil 'local)
 
 (defun emacs-faust-ide-mode-complete-symbol ()
   "Perform keyword completion on current symbol.
@@ -277,7 +273,19 @@ Customize `emacs-faust-ide-build-options' for a lucky build"
     (,faust-operator-regexp . font-lock-constant-face)
     (,faust-keywords-regexp . font-lock-keyword-face)))
 
-(define-derived-mode emacs-faust-ide-output-mode prog-mode
+(defun emacs-faust-ide-company-backend (command &optional arg &rest ignored)
+  (interactive (list 'interactive))
+
+  (cl-case command
+    (interactive (company-begin-backend 'emacs-faust-ide-company-backend))
+    (prefix (and (eq major-mode 'emacs-faust-ide-mode)
+                 (company-grab-symbol)))
+    (candidates
+     (cl-remove-if-not
+      (lambda (c) (string-prefix-p arg c))
+      (append faust-keywords faust-functions faust-ui-keywords)))))
+
+(define-derived-mode emacs-faust-ide-output-mode fundamental-mode
   "Emacs Faust IDE output buffer mode."
   (font-lock-fontify-buffer))
 
@@ -326,6 +334,11 @@ Available commands while editing Faust (*.dsp) files:
                             ("Process Build started" . font-lock-keyword-face)
                             ("Process Diagram started" . font-lock-keyword-face)
                             ("ERROR" . font-lock-warning-face)))
+
+  (if (require 'company nil t)
+      (progn
+        (add-to-list 'company-backends 'emacs-faust-ide-company-backend)
+        (company-mode t)))
 
   (setq major-mode 'emacs-faust-ide-mode)
   (message "########### MODE OK & emacs-faust-ide-build-target : %s" emacs-faust-ide-build-target))
