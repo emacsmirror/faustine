@@ -386,21 +386,20 @@ Available commands while editing Faust (*.dsp) files:
 
   (if (string-match-p (regexp-quote "Faust output") (format "%s" (buffer-list)))
       (progn (message "YES")
-           (setq output-visible t))
+           (setq emacs-faust-ide-output-openp t))
     (progn (message "NO")
-           (setq output-visible nil)))
+           (setq emacs-faust-ide-output-openp nil)))
 
   (with-current-buffer (get-buffer-create "Faust output")
 
-    (if (not output-visible)
+    (if (not emacs-faust-ide-output-openp)
         (progn
           (pop-to-buffer "Faust output" nil t)
           (emacs-faust-ide-output-mode)
           (enlarge-window -25))
       )
-    (goto-char (point-max))
 
-    (insert "Process Diagram started\n")
+    ;; (insert "Process Diagram started\n")
 
     (if build-all
         (progn (setq-local files-to-build "*.dsp")
@@ -410,31 +409,20 @@ Available commands while editing Faust (*.dsp) files:
              (setq display-mode "single")
              (setq-local files-to-build dsp-buffer)))
 
-    (insert (format "Building %s\n" files-to-build))
+    (insert (format "Process Diagram started : Building %s\n" files-to-build))
 
     (call-process "/bin/bash" nil "Faust output" nil "-c" (format "faust2svg %s" files-to-build))
-    (other-window -1)
-    (pop-to-buffer dsp-buffer nil t))
+    (setq other-window-scroll-buffer "Faust output")
+
+    ;; (other-window -1)
+    (pop-to-buffer dsp-buffer nil t)
+    )
+  (scroll-other-window)
   (setq temp-file-name "faust-graphs.html")
   (setq mylist (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
   (emacs-faust-ide-build-temp-file mylist temp-file-name dsp-buffer-name display-mode)
   (emacs-faust-ide-show temp-file-name))
 
-(defun my-split-main-window (direction size)
-  "Split the main window in the DIRECTION where DIRECTION is a symbol with
-possible values of right, left, above or below and SIZE is the final size of the
-windows, if the window is split horizontally (i.e. in DIRECTION below or above)
-SIZE is assumed to be the target height otherwise SIZE is assumed to be the
-target width"
-  (let* ((new-window (split-window (frame-root-window) nil direction))
-         (horizontal (member direction '(right left))))
-    (save-excursion
-      (select-window new-window)
-      (enlarge-window (- size (if horizontal
-                                  (window-width)
-                                (window-height)))
-                      horizontal))
-    new-window))
 
 ;; (my-split-main-window 'below 10)
 
