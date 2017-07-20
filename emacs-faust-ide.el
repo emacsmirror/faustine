@@ -39,6 +39,16 @@
 
 (defvar emacs-faust-ide-module-path (file-name-directory load-file-name))
 
+(defvar display-mode)
+(defvar temp-file-name)
+(defvar emacs-faust-ide-directory-files)
+(defvar output-visible)
+(defvar dsp-buffer)
+(defvar emacs-faust-ide-output-openp)
+(defvar dsp-buffer-name)
+(defvar files-to-build)
+(defvar output-check)
+
 (defvar emacs-faust-ide-mode-line-greenbug
   (list " "
         (propertize ":3"
@@ -267,7 +277,7 @@ Available commands while editing Faust (*.dsp) files:
         (progn (setq-local files-to-build "*.dsp")
                (message "Building ALL"))
       (progn (message "Building just %s" dsp-buffer)
-             (setq-local files-to-build dsp-buffer)))
+             (setq files-to-build dsp-buffer)))
     (start-process-shell-command
      "Build"
      (current-buffer)
@@ -388,20 +398,24 @@ Available commands while editing Faust (*.dsp) files:
         (progn
           (pop-to-buffer "Faust output" nil t)
           (emacs-faust-ide-output-mode)
-          (enlarge-window -25))
-      )
-
-    ;; (insert "Process Diagram started\n")
+          (enlarge-window -25)))
 
     (if build-all
-        (progn (setq-local files-to-build "*.dsp")
-               (setq display-mode "all")
-               (message "Building ALL"))
-      (progn (message "Building just %s" dsp-buffer)
-             (setq display-mode "single")
-             (setq-local files-to-build dsp-buffer)))
-    (call-process "/bin/bash" nil "Faust output" t "-c" (format "faust2svg %s" files-to-build))
-    (insert (format "Process Diagram started : Building %s\n" files-to-build))
+        (progn
+          (message "Building ALL")
+          (setq display-mode "all"))
+          ;; (setq files-to-build "*.dsp")
+      (progn
+        (message "Building just %s" dsp-buffer)
+        ;; (setq display-mode "single")
+        (setq display-mode "single")))
+
+    (let* ((files-to-build (if build-all
+                               "*.dsp"
+                             dsp-buffer)))
+      (call-process "/bin/bash" nil "Faust output" t "-c" (format "faust2svg %s" files-to-build))
+      (insert (format "Process Diagram started : Building %s\n" files-to-build)))
+
     (setq other-window-scroll-buffer "Faust output")
 
     ;; (other-window -1)
@@ -411,8 +425,8 @@ Available commands while editing Faust (*.dsp) files:
       (scroll-other-window))
 
   (setq temp-file-name "faust-graphs.html")
-  (setq mylist (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
-  (emacs-faust-ide-build-temp-file mylist temp-file-name dsp-buffer-name display-mode)
+  (setq emacs-faust-ide-directory-files (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
+  (emacs-faust-ide-build-temp-file emacs-faust-ide-directory-files temp-file-name dsp-buffer-name display-mode)
   (emacs-faust-ide-show temp-file-name))
 
 
