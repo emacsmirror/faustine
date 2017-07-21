@@ -36,33 +36,59 @@
 ;;
 ;; Code:
 
+
 (require 'smie)
-(require 'cl-lib)
 (require 'easymenu)
 
-(defvar emacs-faust-ide-minor-mode-red-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "<return>") 'newline-and-indent)
-    map)
-  "Keymap for `my-mode'.")
+(defvar emacs-faust-ide-module-path (file-name-directory load-file-name))
 
 (defvar emacs-faust-ide-minor-mode-green-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "<return>") 'newline-and-indent)
     map)
-  "Keymap for `my-mode'.")
+  "Keymap for `emacs-faust-ide-minor-mode-green'.")
 
-(easy-menu-define emacs-faust-ide-mode-green-menu
-  emacs-faust-ide-minor-mode-green-map
-  "Syntax check: OK"
-   '("some text"
-     "-"))
+(defvar emacs-faust-ide-minor-mode-red-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "<return>") 'newline-and-indent)
+    map)
+  "Keymap for `emacs-faust-ide-minor-mode-red'.")
 
-(easy-menu-define emacs-faust-ide-mode-red-menu
-  emacs-faust-ide-minor-mode-red-map
-  "Syntax check: ERROR"
-   '("some text"
-     "-"))
+;; (easy-menu-define emacs-faust-ide-minor-mode-green-menu
+;;   emacs-faust-ide-minor-mode-green-map
+;;   "Green bug menu"
+;;   '("Syntax check: OK"
+;;     "-"))
+
+;; (easy-menu-define emacs-faust-ide-minor-mode-red-menu
+;;   emacs-faust-ide-minor-mode-red-map
+;;   "Syntax check: ERROR"
+;;   '("Syntax check: ERROR"
+;;     "-"))
+
+(defvar emacs-faust-ide-minor-mode-green-bug
+  (list
+   " "
+   (propertize
+    "Syntax: OK"
+    'display
+    `(image :type xpm
+            :ascent center
+            :file ,(expand-file-name "greenbug.xpm" emacs-faust-ide-module-path)))))
+
+(defvar emacs-faust-ide-minor-mode-red-bug
+
+  (list
+   " "
+   (propertize
+    "Syntax: ERROR"
+    'display
+    `(image :type xpm
+            :ascent center
+            :file ,(expand-file-name "redbug.xpm" emacs-faust-ide-module-path)))))
+
+(put 'emacs-faust-ide-minor-mode-green-bug 'risky-local-variable t)
+(put 'emacs-faust-ide-minor-mode-red-bug 'risky-local-variable t)
 
 (add-hook 'emacs-faust-ide-mode-hook
           (lambda ()
@@ -92,34 +118,14 @@
 (defvar files-to-build)
 (defvar output-check)
 
-(defvar emacs-faust-ide-mode-line-greenbug
-  (list " "
-        (propertize ":3"
-                    'display
-                    `(image :type xpm
-                            :ascent center
-                            :file ,(expand-file-name "greenbug.xpm" emacs-faust-ide-module-path)))))
-
-(defvar emacs-faust-ide-mode-line-redbug
-
-  (list " "
-        (propertize ":3"
-                    'display
-                    `(image :type xpm
-                            :ascent center
-                            :file ,(expand-file-name "redbug.xpm" emacs-faust-ide-module-path)))))
-
-(put 'emacs-faust-ide-mode-line-greenbug 'risky-local-variable t)
-(put 'emacs-faust-ide-mode-line-redbug 'risky-local-variable t)
-
 (define-minor-mode emacs-faust-ide-minor-mode-green
   "Minor mode to display a green bug in the mode-line."
-  :lighter emacs-faust-ide-mode-line-greenbug
+  :lighter emacs-faust-ide-minor-mode-green-bug
   :keymap emacs-faust-ide-minor-mode-green-map)
 
 (define-minor-mode emacs-faust-ide-minor-mode-red
   "Minor mode to display a red bug in the mode-line."
-  :lighter emacs-faust-ide-mode-line-redbug
+  :lighter emacs-faust-ide-minor-mode-red-bug
   :keymap emacs-faust-ide-minor-mode-red-map)
 
 ;;;###autoload
@@ -142,6 +148,7 @@
 (defvar faust-ui-keywords
   '("button" "checkbox" "vslider" "hslider" "nentry"
     "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
+
 
 ;; (defconst emacs-faust-ide-mode-company-completions
 ;;   '("process" "with" "case" "seq" "par" "sum" "prod"
@@ -342,10 +349,7 @@ Customize `emacs-faust-ide-build-options' for a lucky build"
 
 ;;;###autoload
 (define-derived-mode emacs-faust-ide-mode fundamental-mode "Emacs Faust IDE Mode" "
-         .' '.
--        .   .            \\\\       Emacs Faust IDE
- `.        .         .  -<<<:>      A lightweight IDE.
-   ' .  . ' ' .  . '      //
+Emacs Faust IDE is a lightweight IDE that leverages the mighty power of the faust executable.
 
 Use \\[emacs-faust-ide-set-preferences] to set it up.
 Available commands while editing Faust (*.dsp) files:
@@ -353,8 +357,8 @@ Available commands while editing Faust (*.dsp) files:
 \\{emacs-faust-ide-mode-map}"
   (kill-all-local-variables)
   (add-hook 'after-save-hook 'emacs-faust-ide-syntax-check-continuous-hook nil t)
-
   (add-hook 'emacs-faust-ide-mode-hook 'emacs-faust-ide-syntax-check-continuous-hook nil t)
+  ;; (add-hook 'emacs-faust-ide-mode-hook 'auto-complete nil t)
   (setq mode-name "emacs-faust-ide-mode")
   (set-syntax-table emacs-faust-ide-mode-syntax-table)
   (setq-local comment-start "// ")
@@ -377,6 +381,11 @@ Available commands while editing Faust (*.dsp) files:
                             ("Process Diagram started" . font-lock-keyword-face)
                             ("ERROR" . font-lock-warning-face)))
 
+  (auto-complete-mode t)
+  (setq ac-user-dictionary (append faust-keywords faust-functions faust-ui-keywords))
+  (setq ac-auto-show-menu t)
+  (setq ac-auto-start t)
+
   ;; (if (require 'company nil t)
   ;;     (progn
   ;;       (add-to-list 'company-backends 'emacs-faust-ide-company-backend)
@@ -393,7 +402,6 @@ Available commands while editing Faust (*.dsp) files:
   (let ((q (buffer-substring-no-properties start end)))
     (browse-url (concat "http://faust.grame.fr/library.html#"
                         (url-hexify-string q)))))
-
 
 (defun emacs-faust-ide-build-all ()
   "Build all executables using `emacs-faust-ide-build'"
