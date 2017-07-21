@@ -491,6 +491,20 @@ Available commands while editing Faust (*.dsp) files:
                                  dsp-buffer-name)))
   (emacs-faust-ide-show temp-file-name))
 
+(defun run-sentinel (process event)
+  "Run the program"
+
+  (let ((oldbuf (current-buffer)))
+    (with-current-buffer (get-buffer-create "Out")
+      (insert (format "Process: %s Event: %s\n" process event)))
+    ))
+
+(defun test-sentinel ()
+  "plop"
+  (interactive)
+  (set-process-sentinel
+   (start-process-shell-command "Build" nil "ls ~/tmp/") 'run-sentinel))
+
 (defun emacs-faust-ide-diagram (&optional build-all)
   "Generate Faust diagram(s)."
   (interactive)
@@ -541,7 +555,11 @@ Available commands while editing Faust (*.dsp) files:
     (let* ((files-to-build (if build-all
                                "*.dsp"
                              dsp-buffer)))
-      (call-process "/bin/bash" nil emacs-faust-ide-output-buffer t "-c" (format "faust2svg %s" files-to-build))
+      (message "Files: %s" files-to-build)
+      (set-process-sentinel
+       (start-process-shell-command "Build" nil (format "faust2svg %s" files-to-build)) 'run-sentinel)
+
+      ;; (call-process "/bin/bash" nil emacs-faust-ide-output-buffer t "-c" (format "faust2svg %s" files-to-build))
       (insert (format "Process Diagram started : Building %s\n" files-to-build)))
 
     (setq other-window-scroll-buffer emacs-faust-ide-output-buffer)
@@ -558,7 +576,6 @@ Available commands while editing Faust (*.dsp) files:
   (emacs-faust-ide-show temp-file-name))
 
 
-;; (my-split-main-window 'below 10)
 
 (defun emacs-faust-ide-build-temp-file (list temp-file-name diagram display-mode)
   "Build a minimal HTML (web) page to display Faust diagram(s)."
