@@ -510,16 +510,14 @@ Available commands while editing Faust (*.dsp) files:
   (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
 
-  (setq display-mode (if build-all "all" "single"))
-
-  (let* ((files-to-build (if build-all "*.dsp" dsp-buffer)))
+  (let ((files-to-build (if build-all "*.dsp" dsp-buffer))
+        (dirfiles
+         (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
+        (temp-file-name "faust-graphs.html")
+        (display-mode (if build-all "all" "single")))
     (set-process-sentinel
      (start-process-shell-command
-      "Build" nil (format "faust2svg %s" files-to-build)) 'run-sentinel))
-
-  (let* ((temp-file-name "faust-graphs.html")
-         (dirfiles
-          (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$")))
+      "Build" nil (format "faust2svg %s" files-to-build)) 'run-sentinel)
     (emacs-faust-ide-build-temp-file dirfiles temp-file-name dsp-buffer-name display-mode)
     (emacs-faust-ide-show temp-file-name)))
 
