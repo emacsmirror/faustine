@@ -106,18 +106,17 @@
   '("Syntax check: OK"
     "-"))
 
-(easy-menu-define emacs-faust-ide-minor-mode-red-menu
+(easy-menu-define 
+  my-mode-mapemacs-faust-ide-minor-mode-red-menu
   emacs-faust-ide-minor-mode-red-map
-  "Syntax check: ERROR"
-  ["One entry" my-function t]
-    ("Sub Menu"
-     ["My subentry" my-obscure-function t]))
-
-(easy-menu-define my-menu my-mode-map "My own menu"
+  "My own menu"
   '("My Stuff"
     ["One entry" my-function t]
     ("Sub Menu"
      ["My subentry" my-obscure-function t])))
+
+(easy-menu-define jrk-menu global-map "MyMenu"
+  '("My Files"))
 
 ;; (define-button-type 'help-xref
 ;;   'follow-link t
