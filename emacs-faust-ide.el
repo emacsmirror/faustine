@@ -249,16 +249,11 @@ Customize `emacs-faust-ide-build-options' for a lucky build"
      (define-key map [?\C-c ?\C-d] 'emacs-faust-ide-diagram)
      (define-key map [?\C-c ?\C-\S-d] 'emacs-faust-ide-diagram-all)
      (define-key map [?\C-c ?\C-h] 'emacs-faust-ide-online-doc)
+     (define-key map [?\C-c ?\C-o] 'emacs-faust-ide-pop-out)
      (define-key map [?\C-c ?\C-m] 'emacs-faust-ide-mdoc)
-     (define-key map [?\C-c ?\C-r] 'emacs-faust-ide-run)
+     ;; (define-key map [?\C-c ?\C-r] 'emacs-faust-ide-run)
      (define-key map [?\C-c ?\C-s] 'emacs-faust-ide-source-code)
      (define-key map [?\C-c ?\C-c] 'emacs-faust-ide-syntax-check)
-
-     (define-key map (vector 'mode-line 'mouse-1)
-       `(lambda (e)
-          (interactive "e")
-          (switch-to-buffer emacs-faust-ide-output-buffer)))
-
      map)
    "Keymap for `emacs-faust-ide-mode'.")
 
@@ -298,6 +293,8 @@ Use \\[emacs-faust-ide-set-preferences] to set it up.
 Available commands while editing Faust (*.dsp) files:
 
 \\{emacs-faust-ide-mode-map}"
+
+
   (kill-all-local-variables)
   (add-hook 'after-save-hook 'emacs-faust-ide-syntax-check-continuous-hook nil t)
   (add-hook 'find-file-hook 'emacs-faust-ide-syntax-check-continuous-hook nil t)
@@ -317,10 +314,12 @@ Available commands while editing Faust (*.dsp) files:
   (use-local-map emacs-faust-ide-mode-map)
 
   (font-lock-add-keywords 'emacs-faust-ide-output-mode
-                          '(("Process Build finished" . font-lock-keyword-face)
-                            ("Process Build started" . font-lock-keyword-face)
-                            ("Process Diagram started" . font-lock-keyword-face)
-                            ("ERROR" . font-lock-warning-face)))
+                          '(("finished" . font-lock-keyword-face)
+                            ("started" . font-lock-keyword-face)
+                            ("Build" . font-lock-string-face)
+                            ("Diagram" . font-lock-string-face)
+                            ("ERROR" . font-lock-warning-face)
+                            ("exited abnormally with code" . font-lock-warning-face)))
 
   (font-lock-add-keywords 'c++-mode
                           '(("Process Build finished" . font-lock-keyword-face)
@@ -495,8 +494,17 @@ Available commands while editing Faust (*.dsp) files:
 
   (let ((oldbuf (current-buffer)))
     (with-current-buffer (get-buffer-create "Out")
-      (insert (format "Process: %s Event: %s\n" process event)))
+      (emacs-faust-ide-output-mode)
+      (font-lock-fontify-buffer)
+      ;; (newline)
+      (insert (format "Process: %s Event: %s" process event))
+      )
     ))
+
+(defun emacs-faust-ide-pop-out ()
+  "Show output buffer"
+  (interactive)
+  (display-buffer "Out"))
 
 (defun test-sentinel ()
   "plop"
@@ -516,8 +524,7 @@ Available commands while editing Faust (*.dsp) files:
         (temp-file-name "faust-graphs.html")
         (display-mode (if build-all "all" "single")))
     (set-process-sentinel
-     (start-process-shell-command
-      "Build" nil (format "faust2svg %s" files-to-build)) 'run-sentinel)
+     (start-process-shell-command "Build" nil (format "faust2svg %s" files-to-build)) 'run-sentinel)
     (emacs-faust-ide-build-temp-file dirfiles temp-file-name dsp-buffer-name display-mode)
     (emacs-faust-ide-show temp-file-name)))
 
