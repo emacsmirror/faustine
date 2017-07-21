@@ -5,7 +5,7 @@
 ;; specifically designed for real-time signal processing and synthesis.
 ;; FAUST targets high-performance signal processing applications and audio plug-ins
 ;; for a variety of platforms and standards.
-;; http://faust.grame.fr
+;; http://faust.grame.fr "plop.lib"
 ;;
 ;; Copyright (C) 2017, 2018 Yassin Philip
 ;; URL: https://bitbucket.org/yassinphilip/emacs-faust-ide
@@ -42,17 +42,81 @@
 
 (defvar emacs-faust-ide-module-path (file-name-directory load-file-name))
 
+(defun test-mouse ()
+  (interactive)
+  (message "plop"))
+
 (defvar emacs-faust-ide-minor-mode-green-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "<return>") 'newline-and-indent)
+    (define-key map [mouse-2] 'test-mouse)
     map)
   "Keymap for `emacs-faust-ide-minor-mode-green'.")
 
 (defvar emacs-faust-ide-minor-mode-red-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "<return>") 'newline-and-indent)
+    (define-key map [mouse-2] 'test-mouse)
     map)
   "Keymap for `emacs-faust-ide-minor-mode-red'.")
+
+(define-button-type 'emacs-faust-ide-link-lib
+  'follow-link t
+  'action #'emacs-faust-ide-link-lib)
+
+(define-button-type 'emacs-faust-ide-link-dsp
+  'follow-link t
+  'action #'emacs-faust-ide-link-dsp)
+
+(setq emacs-faust-ide-regexp-lib "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*.lib"
+      emacs-faust-ide-regexp-dsp "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*.dsp")
+
+(defun emacs-faust-ide-link-lib (button)
+  "Open library file"
+  (find-file (format "%s%s"
+                     emacs-faust-ide-faust-libs-dir
+                     (buffer-substring
+                      (button-start button) (button-end button)))))
+
+(defun emacs-faust-ide-link-dsp (button)
+  "Open Faust file"
+  (message "####### XXX: %s" (file-name-directory buffer-file-name))
+  (find-file (format "%s%s"
+                     (file-name-directory buffer-file-name)
+                     (buffer-substring
+                      (button-start button) (button-end button)))))
+
+(defun emacs-faust-ide-buttonize-buffer-dsp ()
+  "turn all file paths into buttons"
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward emacs-faust-ide-regexp-dsp nil t)
+      (make-button (match-beginning 0) (match-end 0) :type 'emacs-faust-ide-link-dsp))))
+
+(defun emacs-faust-ide-buttonize-buffer-lib ()
+  "turn all file paths into buttons"
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward emacs-faust-ide-regexp-lib nil t)
+      (make-button (match-beginning 0) (match-end 0) :type 'emacs-faust-ide-link-lib))))
+
+;; (defun emacs-faust-ide-buttonize-buffer-lib ()
+;;   (emacs-faust-ide-buttonize-buffer emacs-faust-ide-regexp-lib 'emacs-faust-ide-link-lib))
+
+;; (defun emacs-faust-ide-buttonize-buffer-dsp ()
+;;   (emacs-faust-ide-buttonize-buffer emacs-faust-ide-regexp-dsp 'emacs-faust-ide-link-dsp))
+
+;; import("synths.lib")
+
+
+
+;; (add-hook 'find-file-hook 'buttonize-buffer)
+
+
+;; (widget-create 'push-button
+;;                :notify (lambda (&rest ignore)
+;;                          (widget-example))
+;;                "Reset Form")
 
 ;; (easy-menu-define emacs-faust-ide-minor-mode-green-menu
 ;;   emacs-faust-ide-minor-mode-green-map
@@ -66,11 +130,17 @@
 ;;   '("Syntax check: ERROR"
 ;;     "-"))
 
+;; (define-button-type 'help-xref
+;;   'follow-link t
+;;   'action #'help-button-action)
+
 (defvar emacs-faust-ide-minor-mode-green-bug
   (list
    " "
    (propertize
     "Syntax: OK"
+    'font-lock-face '(:foreground "forest green")
+    'help-echo "Test mode help message."
     'display
     `(image :type xpm
             :ascent center
@@ -82,6 +152,9 @@
    " "
    (propertize
     "Syntax: ERROR"
+    'local-map (purecopy (make-mode-line-mouse-map
+                          'mouse-1
+                          #'test-mouse))
     'display
     `(image :type xpm
             :ascent center
@@ -278,6 +351,11 @@ Customize `emacs-faust-ide-build-options' for a lucky build"
   :type '(string)
   :group 'emacs-faust-ide)
 
+(defcustom emacs-faust-ide-faust-libs-dir "/usr/local/share/faust/"
+  "The Faust library directory for direct linking."
+  :type '(string)
+  :group 'emacs-faust-ide)
+
 (defvar emacs-faust-ide-mode-map
    (let ((map (make-sparse-keymap)))
      (define-key map [?\C-c ?\C-b] 'emacs-faust-ide-build)
@@ -344,7 +422,7 @@ Customize `emacs-faust-ide-build-options' for a lucky build"
   (customize-group 'emacs-faust-ide))
 
 (defun emacs-faust-ide-syntax-check-continuous-hook ()
-  "Used in `after-save-hook' and `after-load-functions'."
+  "Used in `after-save-hook'."
     (emacs-faust-ide-syntax-check))
 
 ;;;###autoload
@@ -357,7 +435,11 @@ Available commands while editing Faust (*.dsp) files:
 \\{emacs-faust-ide-mode-map}"
   (kill-all-local-variables)
   (add-hook 'after-save-hook 'emacs-faust-ide-syntax-check-continuous-hook nil t)
-  (add-hook 'emacs-faust-ide-mode-hook 'emacs-faust-ide-syntax-check-continuous-hook nil t)
+  (add-hook 'find-file-hook 'emacs-faust-ide-syntax-check-continuous-hook nil t)
+
+  (add-hook 'find-file-hook 'emacs-faust-ide-buttonize-buffer-lib nil t)
+  (add-hook 'find-file-hook 'emacs-faust-ide-buttonize-buffer-dsp nil t)
+
   ;; (add-hook 'emacs-faust-ide-mode-hook 'auto-complete nil t)
   (setq mode-name "emacs-faust-ide-mode")
   (set-syntax-table emacs-faust-ide-mode-syntax-table)
@@ -392,7 +474,9 @@ Available commands while editing Faust (*.dsp) files:
   ;;       (company-mode t)))
 
   (setq major-mode 'emacs-faust-ide-mode)
-  (message "########### MODE OK & emacs-faust-ide-build-target : %s" emacs-faust-ide-build-target))
+  (message "########### MODE OK & emacs-faust-ide-build-target : %s" emacs-faust-ide-build-target)
+  (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook)
+  )
 
 ;; Functions
 
