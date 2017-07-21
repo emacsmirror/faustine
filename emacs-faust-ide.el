@@ -5,7 +5,7 @@
 ;; specifically designed for real-time signal processing and synthesis.
 ;; FAUST targets high-performance signal processing applications and audio plug-ins
 ;; for a variety of platforms and standards.
-;; http://faust.grame.fr
+;; http://faust.grame.fr "plop.lib"
 ;;
 ;; Copyright (C) 2017, 2018 Yassin Philip
 ;; URL: https://bitbucket.org/yassinphilip/emacs-faust-ide
@@ -40,48 +40,90 @@
 (require 'smie)
 (require 'easymenu)
 
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.dsp\\'" . emacs-faust-ide-mode))
+
 (defvar emacs-faust-ide-module-path (file-name-directory load-file-name))
 
 (defvar emacs-faust-ide-minor-mode-green-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "<return>") 'newline-and-indent)
+    (define-key map [mouse-2] 'test-mouse)
     map)
   "Keymap for `emacs-faust-ide-minor-mode-green'.")
 
 (defvar emacs-faust-ide-minor-mode-red-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "<return>") 'newline-and-indent)
+    (define-key map [mouse-2] 'test-mouse)
     map)
   "Keymap for `emacs-faust-ide-minor-mode-red'.")
 
-;; (easy-menu-define emacs-faust-ide-minor-mode-green-menu
-;;   emacs-faust-ide-minor-mode-green-map
-;;   "Green bug menu"
-;;   '("Syntax check: OK"
-;;     "-"))
+(define-button-type 'emacs-faust-ide-link-lib
+  'follow-link t
+  'action #'emacs-faust-ide-link-lib)
 
-;; (easy-menu-define emacs-faust-ide-minor-mode-red-menu
-;;   emacs-faust-ide-minor-mode-red-map
-;;   "Syntax check: ERROR"
-;;   '("Syntax check: ERROR"
-;;     "-"))
+(define-button-type 'emacs-faust-ide-link-dsp
+  'follow-link t
+  'action #'emacs-faust-ide-link-dsp)
+
+(setq emacs-faust-ide-regexp-lib "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*.lib"
+      emacs-faust-ide-regexp-dsp "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*.dsp")
+
+(easy-menu-define emacs-faust-ide-minor-mode-green-menu
+  emacs-faust-ide-minor-mode-green-map
+  "Green bug menu"
+  '("Syntax check: OK"
+    "-"))
+
+(easy-menu-define
+  my-mode-mapemacs-faust-ide-minor-mode-red-menu
+  emacs-faust-ide-minor-mode-red-map
+  "My own menu"
+  '("My Stuff"
+    ["One entry" my-function t]
+    ("Sub Menu"
+     ["My subentry" my-obscure-function t])))
+
+(easy-menu-define jrk-menu global-map "MyMenu"
+  '("My Files"))
+
+;; (define-button-type 'help-xref
+;;   'follow-link t
+;;   'action #'help-button-action)
+
+(defvar emacs-faust-ide-module-path (file-name-directory load-file-name))
+
+(defvar display-mode)
+(defvar temp-file-name)
+(defvar output-visible)
+(defvar dsp-buffer)
+(defvar emacs-faust-ide-output-openp)
+(defvar dsp-buffer-name)
+(defvar files-to-build)
+(defvar output-check)
 
 (defvar emacs-faust-ide-minor-mode-green-bug
   (list
    " "
    (propertize
     "Syntax: OK"
+    :mouse-action 'test-mouse
+    'font-lock-face '(:foreground "forest green")
+    'help-echo "Test mode help message."
     'display
     `(image :type xpm
             :ascent center
             :file ,(expand-file-name "greenbug.xpm" emacs-faust-ide-module-path)))))
 
 (defvar emacs-faust-ide-minor-mode-red-bug
-
   (list
    " "
    (propertize
     "Syntax: ERROR"
+    ;; :keymap (purecopy (make-mode-line-mouse-map
+    ;;                       'mouse-1
+    ;;                       #'test-mouse))
+    :help-echo "Tst string"
+    :follow-link 'test-mouse
     'display
     `(image :type xpm
             :ascent center
@@ -106,18 +148,6 @@
                                ac-source-words-in-buffer
                                ac-source-words-in-same-mode-buffers))))
 
-(defvar emacs-faust-ide-module-path (file-name-directory load-file-name))
-
-(defvar display-mode)
-(defvar temp-file-name)
-(defvar emacs-faust-ide-directory-files)
-(defvar output-visible)
-(defvar dsp-buffer)
-(defvar emacs-faust-ide-output-openp)
-(defvar dsp-buffer-name)
-(defvar files-to-build)
-(defvar output-check)
-
 (define-minor-mode emacs-faust-ide-minor-mode-green
   "Minor mode to display a green bug in the mode-line."
   :lighter emacs-faust-ide-minor-mode-green-bug
@@ -127,9 +157,6 @@
   "Minor mode to display a red bug in the mode-line."
   :lighter emacs-faust-ide-minor-mode-red-bug
   :keymap emacs-faust-ide-minor-mode-red-map)
-
-;;;###autoload
-(add-to-list 'auto-mode-alist '("\\.dsp\\'" . emacs-faust-ide-mode))
 
 (defvar faust-keywords
   '("process" "with" "case" "seq" "par" "sum" "prod"
@@ -148,79 +175,6 @@
 (defvar faust-ui-keywords
   '("button" "checkbox" "vslider" "hslider" "nentry"
     "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
-
-
-;; (defconst emacs-faust-ide-mode-company-completions
-;;   '("process" "with" "case" "seq" "par" "sum" "prod"
-;;     "include" "import" "component" "library" "environment" "declare"
-;;     "define" "undef" "error" "pragma" "ident"
-;;     "if" "def" "else" "elif" "endif" "line" "warning" "mem" "prefix" "int" "float"
-;;     "rdtable" "rwtable" "select2" "select3"
-;;     "ffunction" "fconstant" "fvariable"
-;;     "attach" "acos" "asin" "atan" "atan2" "cos" "sin" "tan" "exp"
-;;     "log" "log10" "pow" "sqrt" "abs" "min" "max" "fmod"
-;;     "remainder" "floor" "ceil" "rint" "button" "checkbox" "vslider" "hslider" "nentry"
-;;     "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
-
-;; (defun company-advanced--make-candidate (candidate)
-;;   (let ((text (car candidate))
-;;         (meta (cadr candidate)))
-;;     (propertize text 'meta meta)))
-
-;; (defun company-advanced--candidates (prefix)
-;;   (let (res)
-;;     (dolist (item company-advanced-keywords)
-;;       (when (string-prefix-p prefix (car item))
-;;         (push (company-advanced--make-candidate item) res)))
-;;     res))
-
-;; (defun company-advanced--meta (candidate)
-;;   (format "This will use %s of %s"
-;;           (get-text-property 0 'meta candidate)
-;;           (substring-no-properties candidate)))
-
-;; (defun company-advanced--annotation (candidate)
-;;   (format " (%s)" (get-text-property 0 'meta candidate)))
-
-;; (defun company-advanced (command &optional arg &rest ignored)
-;;   (interactive (list 'interactive))
-;;   (cl-case command
-;;     (interactive (company-begin-backend 'company-advanced))
-;;     (prefix (company-grab-symbol-cons "\\.\\|->" 2))
-;;     (candidates (company-advanced--candidates arg))
-;;     (annotation (company-advanced--annotation arg))
-;;     (meta (company-advanced--meta arg))))
-
-
-;; (defun emacs-faust-ide-mode-completion-at-point ()
-;;   "This is the function to be used for the hook `completion-at-point-functions'."
-;;   (interactive)
-;;   (let* (
-;;          (bds (bounds-of-thing-at-point 'symbol))
-;;          (start (car bds))
-;;          (end (cdr bds)))
-;;     (list start end faust-keywords . nil )))
-
-;; (add-hook 'completion-at-point-functions 'emacs-faust-ide-mode-completion-at-point nil 'local)
-
-;; (defun emacs-faust-ide-mode-complete-symbol ()
-;;   "Perform keyword completion on current symbol.
-;; This uses `ido-mode' user interface for completion."
-;;   (interactive)
-;;   (let* (
-;;          ($bds (bounds-of-thing-at-point 'symbol))
-;;          ($p1 (car $bds))
-;;          ($p2 (cdr $bds))
-;;          ($current-sym
-;;           (if  (or (null $p1) (null $p2) (equal $p1 $p2))
-;;               ""
-;;             (buffer-substring-no-properties $p1 $p2)))
-;;          $result-sym)
-;;     (when (not $current-sym) (setq $current-sym ""))
-;;     (setq $result-sym
-;;           (ido-completing-read "" faust-keywords nil nil $current-sym ))
-;;     (delete-region $p1 $p2)
-;;     (insert $result-sym)))
 
 (defgroup emacs-faust-ide nil
   "Emacs Faust IDE - A lightweight IDE.
@@ -278,6 +232,16 @@ Customize `emacs-faust-ide-build-options' for a lucky build"
   :type '(string)
   :group 'emacs-faust-ide)
 
+(defcustom emacs-faust-ide-output-buffer "Faust output"
+  "Buffer."
+  :type '(string)
+  :group 'emacs-faust-ide)
+
+(defcustom emacs-faust-ide-faust-libs-dir "/usr/local/share/faust/"
+  "The Faust library directory for direct linking."
+  :type '(string)
+  :group 'emacs-faust-ide)
+
 (defvar emacs-faust-ide-mode-map
    (let ((map (make-sparse-keymap)))
      (define-key map [?\C-c ?\C-b] 'emacs-faust-ide-build)
@@ -285,16 +249,11 @@ Customize `emacs-faust-ide-build-options' for a lucky build"
      (define-key map [?\C-c ?\C-d] 'emacs-faust-ide-diagram)
      (define-key map [?\C-c ?\C-\S-d] 'emacs-faust-ide-diagram-all)
      (define-key map [?\C-c ?\C-h] 'emacs-faust-ide-online-doc)
+     (define-key map [?\C-c ?\C-o] 'emacs-faust-ide-pop-out)
      (define-key map [?\C-c ?\C-m] 'emacs-faust-ide-mdoc)
-     (define-key map [?\C-c ?\C-r] 'emacs-faust-ide-run)
+     ;; (define-key map [?\C-c ?\C-r] 'emacs-faust-ide-run)
      (define-key map [?\C-c ?\C-s] 'emacs-faust-ide-source-code)
      (define-key map [?\C-c ?\C-c] 'emacs-faust-ide-syntax-check)
-
-     (define-key map (vector 'mode-line 'mouse-1)
-       `(lambda (e)
-          (interactive "e")
-          (switch-to-buffer "Faust output")))
-
      map)
    "Keymap for `emacs-faust-ide-mode'.")
 
@@ -322,30 +281,9 @@ Customize `emacs-faust-ide-build-options' for a lucky build"
     (,faust-operator-regexp . font-lock-constant-face)
     (,faust-keywords-regexp . font-lock-keyword-face)))
 
-(defun emacs-faust-ide-company-backend (command &optional arg &rest ignored)
-  (interactive (list 'interactive))
-
-  (cl-case command
-    (interactive (company-begin-backend 'emacs-faust-ide-company-backend))
-    (prefix (and (eq major-mode 'emacs-faust-ide-mode)
-                 (company-grab-symbol)))
-    (candidates
-     (cl-remove-if-not
-      (lambda (c) (string-prefix-p arg c))
-      (append faust-keywords faust-functions faust-ui-keywords)))))
-
 (define-derived-mode emacs-faust-ide-output-mode fundamental-mode
   "Emacs Faust IDE output buffer mode."
   (font-lock-fontify-buffer))
-
-(defun emacs-faust-ide-set-preferences ()
-  "Use `cutomize-group' to set up Emacs Faust IDE preferences "
-  (interactive)
-  (customize-group 'emacs-faust-ide))
-
-(defun emacs-faust-ide-syntax-check-continuous-hook ()
-  "Used in `after-save-hook' and `after-load-functions'."
-    (emacs-faust-ide-syntax-check))
 
 ;;;###autoload
 (define-derived-mode emacs-faust-ide-mode fundamental-mode "Emacs Faust IDE Mode" "
@@ -355,9 +293,15 @@ Use \\[emacs-faust-ide-set-preferences] to set it up.
 Available commands while editing Faust (*.dsp) files:
 
 \\{emacs-faust-ide-mode-map}"
+
+
   (kill-all-local-variables)
   (add-hook 'after-save-hook 'emacs-faust-ide-syntax-check-continuous-hook nil t)
-  (add-hook 'emacs-faust-ide-mode-hook 'emacs-faust-ide-syntax-check-continuous-hook nil t)
+  (add-hook 'find-file-hook 'emacs-faust-ide-syntax-check-continuous-hook nil t)
+
+  (add-hook 'find-file-hook 'emacs-faust-ide-buttonize-buffer-lib nil t)
+  (add-hook 'find-file-hook 'emacs-faust-ide-buttonize-buffer-dsp nil t)
+
   ;; (add-hook 'emacs-faust-ide-mode-hook 'auto-complete nil t)
   (setq mode-name "emacs-faust-ide-mode")
   (set-syntax-table emacs-faust-ide-mode-syntax-table)
@@ -370,10 +314,12 @@ Available commands while editing Faust (*.dsp) files:
   (use-local-map emacs-faust-ide-mode-map)
 
   (font-lock-add-keywords 'emacs-faust-ide-output-mode
-                          '(("Process Build finished" . font-lock-keyword-face)
-                            ("Process Build started" . font-lock-keyword-face)
-                            ("Process Diagram started" . font-lock-keyword-face)
-                            ("ERROR" . font-lock-warning-face)))
+                          '(("finished" . font-lock-keyword-face)
+                            ("started" . font-lock-keyword-face)
+                            ("Build" . font-lock-string-face)
+                            ("Diagram" . font-lock-string-face)
+                            ("ERROR" . font-lock-warning-face)
+                            ("exited abnormally with code" . font-lock-warning-face)))
 
   (font-lock-add-keywords 'c++-mode
                           '(("Process Build finished" . font-lock-keyword-face)
@@ -386,15 +332,56 @@ Available commands while editing Faust (*.dsp) files:
   (setq ac-auto-show-menu t)
   (setq ac-auto-start t)
 
-  ;; (if (require 'company nil t)
-  ;;     (progn
-  ;;       (add-to-list 'company-backends 'emacs-faust-ide-company-backend)
-  ;;       (company-mode t)))
-
   (setq major-mode 'emacs-faust-ide-mode)
-  (message "########### MODE OK & emacs-faust-ide-build-target : %s" emacs-faust-ide-build-target))
+  (message "########### MODE OK & emacs-faust-ide-build-target : %s" emacs-faust-ide-build-target)
+  (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook)
+  )
 
 ;; Functions
+
+(defun emacs-faust-ide-set-preferences ()
+  "Use `cutomize-group' to set up Emacs Faust IDE preferences "
+  (interactive)
+  (customize-group 'emacs-faust-ide))
+
+(defun emacs-faust-ide-syntax-check-continuous-hook ()
+  "Used in `after-save-hook'."
+    (emacs-faust-ide-syntax-check))
+
+(defun emacs-faust-ide-link-lib (button)
+  "Open library file"
+  (find-file (format "%s%s"
+                     emacs-faust-ide-faust-libs-dir
+                     (buffer-substring
+                      (button-start button) (button-end button)))))
+
+(defun emacs-faust-ide-link-dsp (button)
+  "Open Faust file"
+  (message "####### XXX: %s" (file-name-directory buffer-file-name))
+  (find-file (format "%s%s"
+                     (file-name-directory buffer-file-name)
+                     (buffer-substring
+                      (button-start button) (button-end button)))))
+
+(defun emacs-faust-ide-buttonize-buffer-dsp ()
+  "turn all file paths into buttons"
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward emacs-faust-ide-regexp-dsp nil t)
+      (make-button (match-beginning 0) (match-end 0) :type 'emacs-faust-ide-link-dsp))))
+
+(defun emacs-faust-ide-buttonize-buffer-lib ()
+  "turn all file paths into buttons"
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward emacs-faust-ide-regexp-lib nil t)
+      (make-button (match-beginning 0) (match-end 0) :type 'emacs-faust-ide-link-lib))))
+
+(defun test-mouse ()
+  (interactive)
+  (message "plop"))
 
 (defun emacs-faust-ide-online-doc (start end)
   "Websearch selected string on the faust.grame.fr library web site."
@@ -417,8 +404,8 @@ Available commands while editing Faust (*.dsp) files:
   "Build the executable(s) using the `emacs-faust-ide-build-target' executable. If BUILD-ALL is set, build all .dsp files in the current directory."
   (interactive)
   (setq dsp-buffer (current-buffer))
-  (with-current-buffer (get-buffer-create "Faust output")
-    (pop-to-buffer "Faust output" nil t)
+  (with-current-buffer (get-buffer-create emacs-faust-ide-output-buffer)
+    (pop-to-buffer emacs-faust-ide-output-buffer nil t)
     (emacs-faust-ide-output-mode)
     (goto-char (point-max))
     (insert "Process Build started\n")
@@ -466,8 +453,8 @@ Available commands while editing Faust (*.dsp) files:
   (interactive)
   (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
-  (with-current-buffer (get-buffer-create "Faust output")
-    (pop-to-buffer "Faust output" nil t)
+  (with-current-buffer (get-buffer-create emacs-faust-ide-output-buffer)
+    (pop-to-buffer emacs-faust-ide-output-buffer nil t)
     ;; (previous-window)
     (goto-char (point-max))
     (start-process-shell-command "Run" (current-buffer)
@@ -487,8 +474,8 @@ Available commands while editing Faust (*.dsp) files:
   (interactive)
   (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
-  (with-current-buffer (get-buffer-create "Faust output")
-    (pop-to-buffer "Faust output" nil t)
+  (with-current-buffer (get-buffer-create emacs-faust-ide-output-buffer)
+    (pop-to-buffer emacs-faust-ide-output-buffer nil t)
     (emacs-faust-ide-output-mode)
     (goto-char (point-max))
     (insert (format "Process Mdoc started"))
@@ -502,74 +489,44 @@ Available commands while editing Faust (*.dsp) files:
                                  dsp-buffer-name)))
   (emacs-faust-ide-show temp-file-name))
 
+(defun run-sentinel (process event)
+  "Run the program"
+
+  (let ((oldbuf (current-buffer)))
+    (with-current-buffer (get-buffer-create "Out")
+      (emacs-faust-ide-output-mode)
+      (font-lock-fontify-buffer)
+      ;; (newline)
+      (insert (format "Process: %s Event: %s" process event))
+      )
+    ))
+
+(defun emacs-faust-ide-pop-out ()
+  "Show output buffer"
+  (interactive)
+  (display-buffer "Out"))
+
+(defun test-sentinel ()
+  "plop"
+  (interactive)
+  (set-process-sentinel
+   (start-process-shell-command "Build" nil "ls ~/tmp/") 'run-sentinel))
+
 (defun emacs-faust-ide-diagram (&optional build-all)
   "Generate Faust diagram(s)."
   (interactive)
   (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
 
-  ;; (if (get-buffer "Faust output")
-  ;;     (message "exists")
-  ;;   (message "don't exist"))
-
-  (cond ((eq "Faust output" (window-buffer (selected-window)))
-         (progn
-           (setq output-visible t)
-           (message "Visible and focused")))
-        ((get-buffer-window "Faust output" `visible)
-         (progn
-           (setq output-visible t)
-           (message "Visible and unfocused")))
-        (t
-         (progn
-           (message "not visible")
-           (setq output-visible nil))))
-
-  (if (string-match-p (regexp-quote "Faust output") (format "%s" (buffer-list)))
-      (progn (message "YES")
-           (setq emacs-faust-ide-output-openp t))
-    (progn (message "NO")
-           (setq emacs-faust-ide-output-openp nil)))
-
-  (with-current-buffer (get-buffer-create "Faust output")
-
-    (if (not emacs-faust-ide-output-openp)
-        (progn
-          (pop-to-buffer "Faust output" nil t)
-          (emacs-faust-ide-output-mode)
-          (enlarge-window -25)))
-
-    (if build-all
-        (progn
-          (message "Building ALL")
-          (setq display-mode "all"))
-          ;; (setq files-to-build "*.dsp")
-      (progn
-        (message "Building just %s" dsp-buffer)
-        ;; (setq display-mode "single")
-        (setq display-mode "single")))
-
-    (let* ((files-to-build (if build-all
-                               "*.dsp"
-                             dsp-buffer)))
-      (call-process "/bin/bash" nil "Faust output" t "-c" (format "faust2svg %s" files-to-build))
-      (insert (format "Process Diagram started : Building %s\n" files-to-build)))
-
-    (setq other-window-scroll-buffer "Faust output")
-
-    ;; (other-window -1)
-    (pop-to-buffer dsp-buffer nil t)
-    )
-  (if output-visible
-      (scroll-other-window))
-
-  (setq temp-file-name "faust-graphs.html")
-  (setq emacs-faust-ide-directory-files (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
-  (emacs-faust-ide-build-temp-file emacs-faust-ide-directory-files temp-file-name dsp-buffer-name display-mode)
-  (emacs-faust-ide-show temp-file-name))
-
-
-;; (my-split-main-window 'below 10)
+  (let ((files-to-build (if build-all "*.dsp" dsp-buffer))
+        (dirfiles
+         (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
+        (temp-file-name "faust-graphs.html")
+        (display-mode (if build-all "all" "single")))
+    (set-process-sentinel
+     (start-process-shell-command "Build" nil (format "faust2svg %s" files-to-build)) 'run-sentinel)
+    (emacs-faust-ide-build-temp-file dirfiles temp-file-name dsp-buffer-name display-mode)
+    (emacs-faust-ide-show temp-file-name)))
 
 (defun emacs-faust-ide-build-temp-file (list temp-file-name diagram display-mode)
   "Build a minimal HTML (web) page to display Faust diagram(s)."
