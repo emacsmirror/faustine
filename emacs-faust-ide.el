@@ -508,74 +508,29 @@ Available commands while editing Faust (*.dsp) files:
 (defun emacs-faust-ide-diagram (&optional build-all)
   "Generate Faust diagram(s)."
   (interactive)
-  (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
 
-  ;; (if (get-buffer emacs-faust-ide-output-buffer)
-  ;;     (message "exists")
-  ;;   (message "don't exist"))
-
-  (cond ((eq emacs-faust-ide-output-buffer (window-buffer (selected-window)))
-         (progn
-           (setq output-visible t)
-           (message "Visible and focused")))
-        ((get-buffer-window emacs-faust-ide-output-buffer `visible)
-         (progn
-           (setq output-visible t)
-           (message "Visible and unfocused")))
-        (t
-         (progn
-           (message "not visible")
-           (setq output-visible nil))))
-
-  (if (string-match-p (regexp-quote emacs-faust-ide-output-buffer) (format "%s" (buffer-list)))
-      (progn (message "YES")
-           (setq emacs-faust-ide-output-openp t))
-    (progn (message "NO")
-           (setq emacs-faust-ide-output-openp nil)))
-
-  (with-current-buffer (get-buffer-create emacs-faust-ide-output-buffer)
-
-    (if (not emacs-faust-ide-output-openp)
-        (progn
-          (pop-to-buffer emacs-faust-ide-output-buffer nil t)
-          (emacs-faust-ide-output-mode)
-          (enlarge-window -25)))
-
-    (if build-all
-        (progn
-          (message "Building ALL")
-          (setq display-mode "all"))
-          ;; (setq files-to-build "*.dsp")
+  (if build-all
       (progn
-        (message "Building just %s" dsp-buffer)
-        ;; (setq display-mode "single")
-        (setq display-mode "single")))
+        (message "Building ALL")
+        (setq display-mode "all"))
+    ;; (setq files-to-build "*.dsp")
+    (progn
+      (message "Building just %s" dsp-buffer)
+      ;; (setq display-mode "single")
+      (setq display-mode "single")))
 
-    (let* ((files-to-build (if build-all
-                               "*.dsp"
-                             dsp-buffer)))
-      (message "Files: %s" files-to-build)
-      (set-process-sentinel
-       (start-process-shell-command "Build" nil (format "faust2svg %s" files-to-build)) 'run-sentinel)
-
-      ;; (call-process "/bin/bash" nil emacs-faust-ide-output-buffer t "-c" (format "faust2svg %s" files-to-build))
-      (insert (format "Process Diagram started : Building %s\n" files-to-build)))
-
-    (setq other-window-scroll-buffer emacs-faust-ide-output-buffer)
-
-    ;; (other-window -1)
-    (pop-to-buffer dsp-buffer nil t)
-    )
-  (if output-visible
-      (scroll-other-window))
+  (let* ((files-to-build (if build-all
+                             "*.dsp"
+                           dsp-buffer)))
+    (set-process-sentinel
+     (start-process-shell-command
+      "Build" nil (format "faust2svg %s" files-to-build)) 'run-sentinel))
 
   (setq temp-file-name "faust-graphs.html")
   (setq emacs-faust-ide-directory-files (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
   (emacs-faust-ide-build-temp-file emacs-faust-ide-directory-files temp-file-name dsp-buffer-name display-mode)
   (emacs-faust-ide-show temp-file-name))
-
-
 
 (defun emacs-faust-ide-build-temp-file (list temp-file-name diagram display-mode)
   "Build a minimal HTML (web) page to display Faust diagram(s)."
