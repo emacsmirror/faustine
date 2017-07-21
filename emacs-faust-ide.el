@@ -100,35 +100,24 @@
     (while (re-search-forward emacs-faust-ide-regexp-lib nil t)
       (make-button (match-beginning 0) (match-end 0) :type 'emacs-faust-ide-link-lib))))
 
-;; (defun emacs-faust-ide-buttonize-buffer-lib ()
-;;   (emacs-faust-ide-buttonize-buffer emacs-faust-ide-regexp-lib 'emacs-faust-ide-link-lib))
+(easy-menu-define emacs-faust-ide-minor-mode-green-menu
+  emacs-faust-ide-minor-mode-green-map
+  "Green bug menu"
+  '("Syntax check: OK"
+    "-"))
 
-;; (defun emacs-faust-ide-buttonize-buffer-dsp ()
-;;   (emacs-faust-ide-buttonize-buffer emacs-faust-ide-regexp-dsp 'emacs-faust-ide-link-dsp))
+(easy-menu-define emacs-faust-ide-minor-mode-red-menu
+  emacs-faust-ide-minor-mode-red-map
+  "Syntax check: ERROR"
+  ["One entry" my-function t]
+    ("Sub Menu"
+     ["My subentry" my-obscure-function t]))
 
-;; import("synths.lib")
-
-
-
-;; (add-hook 'find-file-hook 'buttonize-buffer)
-
-
-;; (widget-create 'push-button
-;;                :notify (lambda (&rest ignore)
-;;                          (widget-example))
-;;                "Reset Form")
-
-;; (easy-menu-define emacs-faust-ide-minor-mode-green-menu
-;;   emacs-faust-ide-minor-mode-green-map
-;;   "Green bug menu"
-;;   '("Syntax check: OK"
-;;     "-"))
-
-;; (easy-menu-define emacs-faust-ide-minor-mode-red-menu
-;;   emacs-faust-ide-minor-mode-red-map
-;;   "Syntax check: ERROR"
-;;   '("Syntax check: ERROR"
-;;     "-"))
+(easy-menu-define my-menu my-mode-map "My own menu"
+  '("My Stuff"
+    ["One entry" my-function t]
+    ("Sub Menu"
+     ["My subentry" my-obscure-function t])))
 
 ;; (define-button-type 'help-xref
 ;;   'follow-link t
@@ -139,6 +128,7 @@
    " "
    (propertize
     "Syntax: OK"
+    :mouse-action 'test-mouse
     'font-lock-face '(:foreground "forest green")
     'help-echo "Test mode help message."
     'display
@@ -147,14 +137,15 @@
             :file ,(expand-file-name "greenbug.xpm" emacs-faust-ide-module-path)))))
 
 (defvar emacs-faust-ide-minor-mode-red-bug
-
   (list
    " "
    (propertize
     "Syntax: ERROR"
-    'local-map (purecopy (make-mode-line-mouse-map
-                          'mouse-1
-                          #'test-mouse))
+    ;; :keymap (purecopy (make-mode-line-mouse-map
+    ;;                       'mouse-1
+    ;;                       #'test-mouse))
+    :help-echo "Tst string"
+    :follow-link 'test-mouse
     'display
     `(image :type xpm
             :ascent center
