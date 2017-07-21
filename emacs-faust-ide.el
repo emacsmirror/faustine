@@ -94,7 +94,6 @@
 
 (defvar display-mode)
 (defvar temp-file-name)
-(defvar emacs-faust-ide-directory-files)
 (defvar output-visible)
 (defvar dsp-buffer)
 (defvar emacs-faust-ide-output-openp)
@@ -508,29 +507,21 @@ Available commands while editing Faust (*.dsp) files:
 (defun emacs-faust-ide-diagram (&optional build-all)
   "Generate Faust diagram(s)."
   (interactive)
+  (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
 
-  (if build-all
-      (progn
-        (message "Building ALL")
-        (setq display-mode "all"))
-    ;; (setq files-to-build "*.dsp")
-    (progn
-      (message "Building just %s" dsp-buffer)
-      ;; (setq display-mode "single")
-      (setq display-mode "single")))
+  (setq display-mode (if build-all "all" "single"))
 
-  (let* ((files-to-build (if build-all
-                             "*.dsp"
-                           dsp-buffer)))
+  (let* ((files-to-build (if build-all "*.dsp" dsp-buffer)))
     (set-process-sentinel
      (start-process-shell-command
       "Build" nil (format "faust2svg %s" files-to-build)) 'run-sentinel))
 
-  (setq temp-file-name "faust-graphs.html")
-  (setq emacs-faust-ide-directory-files (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
-  (emacs-faust-ide-build-temp-file emacs-faust-ide-directory-files temp-file-name dsp-buffer-name display-mode)
-  (emacs-faust-ide-show temp-file-name))
+  (let* ((temp-file-name "faust-graphs.html")
+         (dirfiles
+          (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$")))
+    (emacs-faust-ide-build-temp-file dirfiles temp-file-name dsp-buffer-name display-mode)
+    (emacs-faust-ide-show temp-file-name)))
 
 (defun emacs-faust-ide-build-temp-file (list temp-file-name diagram display-mode)
   "Build a minimal HTML (web) page to display Faust diagram(s)."
