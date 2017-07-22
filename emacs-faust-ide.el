@@ -489,74 +489,86 @@ Available commands while editing Faust (*.dsp) files:
                                  dsp-buffer-name)))
   (emacs-faust-ide-show temp-file-name))
 
-(defun run-sentinel (process event)
-  "Run the program"
+(defun log-to-buffer (process event)
+  "Run the program, print the status to the output buffer, scroll buffer down."
   (let ((oldbuf (current-buffer)))
     (with-current-buffer (get-buffer-create "Out")
       (emacs-faust-ide-output-mode)
       (font-lock-fontify-buffer)
-      (insert (format "%s | Process: %s Event: %s"
+      (goto-char (point-max))
+      (newline)
+      (insert (format "%s | Process: %s\nEvent: %s"
                       (format-time-string "%H:%M:%S")
                       process
-                      event))
-      ;; (goto-char (point-max))
-      ;; (setf (window-point (get-buffer-window "Out")) (point-max))
+                      (replace-regexp-in-string "\n" "" event)))
+      (if (get-buffer-window "Out" `visible)
+          (progn (setq other-window-scroll-buffer "Out")
+                 (scroll-other-window 3)))
 
-      (cond ((eq emacs-faust-ide-output-buffer (window-buffer (selected-window)))
-             (progn
-               (setq output-visible t)
-               (message "Visible and focused")))
-            ((get-buffer-window emacs-faust-ide-output-buffer `visible)
-             (progn
-               (setq output-visible t)
-               (message "Visible and unfocused")))
-            (t
-             (progn
-               (message "not visible")
-               (setq output-visible nil))))
-
-      (setq other-window-scroll-buffer "Out")
-      (scroll-other-window 1)
-      ;; (set-window-start (get-buffer-window "Out" t) (point-max) t)
-      ;; (redisplay t)
       )))
-
-(defun what-line ()
-  "Print the current line number (in the buffer) of point."
-  (interactive)
-  (save-restriction
-    (widen)
-    (save-excursion
-      (beginning-of-line)
-      (message "Line %d"
-               (1+ (count-lines 1 (point)))))))
 
 (defun emacs-faust-ide-pop-out ()
   "Show output buffer"
   (interactive)
-  (display-buffer "Out"))
+  (display-buffer "Out")
+  (if (> (+ 1 -16)
+         (window-resizable (get-buffer-window "Out" `visible) -16 nil))
+      (window-resize (get-buffer-window "Out" `visible) -16 nil)))
 
-(defun test-sentinel ()
-  "plop"
-  (interactive)
-  (set-process-sentinel
-   (start-process-shell-command "Build" nil "ls ~/tmp/") 'run-sentinel))
+
+;; (defun log-to-buffer (process)
+;;   "plop"
+;;   (with-current-buffer (get-buffer-create "Out")
+;;     (emacs-faust-ide-output-mode)
+;;     (font-lock-fontify-buffer)
+;;     (insert (format "%s | Process: %s Event: %s"
+;;                     (format-time-string "%H:%M:%S")
+;;                     process
+;;                     event))
+;;     (if (get-buffer-window "Out" `visible)
+;;         (progn (setq other-window-scroll-buffer "Out")
+;;                (scroll-other-window 1)))
+;;     (if (equal (replace-regexp-in-string "\n$" "" event) "finished")
+;;         (message "YAY")
+;;       (message "NOES")
+;;       )
+;;     ))
 
 (defun emacs-faust-ide-diagram (&optional build-all)
   "Generate Faust diagram(s)."
   (interactive)
   (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
-
-  (let ((files-to-build (if build-all "*.dsp" dsp-buffer))
+  (let ((files-to-build (if build-all "*.dsp" dsp-buffer-name))
         (dirfiles
          (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
         (temp-file-name "faust-graphs.html")
-        (display-mode (if build-all "all" "single")))
-    (set-process-sentinel
-     (start-process-shell-command "Build" nil (format "faust2svg %s" files-to-build)) 'run-sentinel)
-    (emacs-faust-ide-build-temp-file dirfiles temp-file-name dsp-buffer-name display-mode)
-    (emacs-faust-ide-show temp-file-name)))
+        (display-mode (if build-all "all" "single"))
+        (command-output (shell-command-to-string "faust2svg ~/src/kik/panpot.dsp")))
+    (if (string= "" command-output)
+        (progn
+          (log-to-buffer "Diagram" "finished")
+          (emacs-faust-ide-build-temp-file dirfiles temp-file-name dsp-buffer-name display-mode)
+          (emacs-faust-ide-show temp-file-name))
+      (progn (message "Woops!")
+             (log-to-buffer "Diagram" (format "Error: %s" command-output))))
+    ))
+
+;; (defun emacs-faust-ide-diagram (&optional build-all)
+;;   "Generate Faust diagram(s)."
+;;   (interactive)
+;;   (setq dsp-buffer (current-buffer))
+;;   (setq dsp-buffer-name (buffer-name))
+;;   (let ((files-to-build (if build-all "*.dsp" dsp-buffer))
+;;         (dirfiles
+;;          (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
+;;         (temp-file-name "faust-graphs.html")
+;;         (display-mode (if build-all "all" "single")))
+;;     (set-process-sentinel
+;;      (start-process-shell-command "Build" nil (format "faust2svg %s" files-to-build)) 'log-to-buffer)
+;;     (emacs-faust-ide-build-temp-file dirfiles temp-file-name dsp-buffer-name display-mode)
+;;     (emacs-faust-ide-show temp-file-name)
+;;     (message "Status: %s" (process-status "Build"))))
 
 (defun emacs-faust-ide-build-temp-file (list temp-file-name diagram display-mode)
   "Build a minimal HTML (web) page to display Faust diagram(s)."
