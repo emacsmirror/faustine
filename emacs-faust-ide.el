@@ -91,15 +91,7 @@
   'action #'emacs-faust-ide-link-dsp)
 
 (setq emacs-faust-ide-regexp-lib "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*.lib"
-      emacs-faust-ide-regexp-dsp (concat "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*." (format "%s" faust-file-extension))
-      ;; emacs-faust-ide-regexp-dsp "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*.dsp"
-      )
-
-;; (easy-menu-define emacs-faust-ide-minor-mode-green-menu
-;;   emacs-faust-ide-minor-mode-green-map
-;;   "Green bug menu"
-;;   '("Syntax check: OK"
-;;     "-"))
+      emacs-faust-ide-regexp-dsp (concat "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*." (format "%s" faust-file-extension)))
 
 (easy-menu-define
   emacs-faust-ide-minor-mode-green-menu
@@ -124,10 +116,6 @@
 (easy-menu-define jrk-menu global-map "MyMenu"
   '("My Files"))
 
-;; (define-button-type 'help-xref
-;;   'follow-link t
-;;   'action #'help-button-action)
-
 (defvar emacs-faust-ide-module-path (file-name-directory load-file-name))
 
 (defvar display-mode)
@@ -144,9 +132,6 @@
    " "
    (propertize
     "Syntax: OK"
-    ;; :mouse-action 'test-mouse
-    ;; 'font-lock-face '(:foreground "forest green")
-    ;; 'help-echo "Test mode help message."
     'display
     `(image :type xpm
             :ascent center
@@ -157,9 +142,6 @@
    " "
    (propertize
     "Syntax: ERROR"
-    ;; :keymap (purecopy (make-mode-line-mouse-map
-    ;;                       'mouse-1
-    ;;                       #'test-mouse))
     :help-echo "Tst string"
     :follow-link 'test-mouse
     'display
@@ -320,11 +302,8 @@ Available commands while editing Faust (*.dsp) files:
   (kill-all-local-variables)
   (add-hook 'after-save-hook 'emacs-faust-ide-syntax-check-continuous-hook nil t)
   (add-hook 'find-file-hook 'emacs-faust-ide-syntax-check-continuous-hook nil t)
-
   (add-hook 'find-file-hook 'emacs-faust-ide-buttonize-buffer-lib nil t)
   (add-hook 'find-file-hook 'emacs-faust-ide-buttonize-buffer-dsp nil t)
-
-  ;; (add-hook 'emacs-faust-ide-mode-hook 'auto-complete nil t)
   (setq mode-name "emacs-faust-ide-mode")
   (set-syntax-table emacs-faust-ide-mode-syntax-table)
   (setq-local comment-start "// ")
@@ -542,24 +521,6 @@ Available commands while editing Faust (*.dsp) files:
                 (get-buffer-window output-buffer-name `visible) -16 nil))
             (window-resize (get-buffer-window output-buffer-name `visible) -16 nil))))))
 
-;; (defun log-to-buffer (process)
-;;   "plop"
-;;   (with-current-buffer (get-buffer-create "Out")
-;;     (emacs-faust-ide-output-mode)
-;;     (font-lock-fontify-buffer)
-;;     (insert (format "%s | Process: %s Event: %s"
-;;                     (format-time-string "%H:%M:%S")
-;;                     process
-;;                     event))
-;;     (if (get-buffer-window "Out" `visible)
-;;         (progn (setq other-window-scroll-buffer "Out")
-;;                (scroll-other-window 1)))
-;;     (if (equal (replace-regexp-in-string "\n$" "" event) "finished")
-;;         (message "YAY")
-;;       (message "NOES")
-;;       )
-;;     ))
-
 (defun emacs-faust-ide-diagram (&optional build-all)
   "Generate Faust diagram(s)."
   (interactive)
@@ -579,22 +540,6 @@ Available commands while editing Faust (*.dsp) files:
       (progn (message "Woops!")
              (log-to-buffer "Diagram" (format "Error: %s" command-output))))
     ))
-
-;; (defun emacs-faust-ide-diagram (&optional build-all)
-;;   "Generate Faust diagram(s)."
-;;   (interactive)
-;;   (setq dsp-buffer (current-buffer))
-;;   (setq dsp-buffer-name (buffer-name))
-;;   (let ((files-to-build (if build-all "*.dsp" dsp-buffer))
-;;         (dirfiles
-;;          (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
-;;         (temp-file-name "faust-graphs.html")
-;;         (display-mode (if build-all "all" "single")))
-;;     (set-process-sentinel
-;;      (start-process-shell-command "Build" nil (format "faust2svg %s" files-to-build)) 'log-to-buffer)
-;;     (emacs-faust-ide-build-temp-file dirfiles temp-file-name dsp-buffer-name display-mode)
-;;     (emacs-faust-ide-show temp-file-name)
-;;     (message "Status: %s" (process-status "Build"))))
 
 (defun emacs-faust-ide-build-temp-file (list temp-file-name diagram display-mode)
   "Build a minimal HTML (web) page to display Faust diagram(s)."
