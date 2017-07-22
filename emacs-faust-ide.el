@@ -491,15 +491,45 @@ Available commands while editing Faust (*.dsp) files:
 
 (defun run-sentinel (process event)
   "Run the program"
-
   (let ((oldbuf (current-buffer)))
     (with-current-buffer (get-buffer-create "Out")
       (emacs-faust-ide-output-mode)
       (font-lock-fontify-buffer)
-      ;; (newline)
-      (insert (format "Process: %s Event: %s" process event))
-      )
-    ))
+      (insert (format "%s | Process: %s Event: %s"
+                      (format-time-string "%H:%M:%S")
+                      process
+                      event))
+      ;; (goto-char (point-max))
+      ;; (setf (window-point (get-buffer-window "Out")) (point-max))
+
+      (cond ((eq emacs-faust-ide-output-buffer (window-buffer (selected-window)))
+             (progn
+               (setq output-visible t)
+               (message "Visible and focused")))
+            ((get-buffer-window emacs-faust-ide-output-buffer `visible)
+             (progn
+               (setq output-visible t)
+               (message "Visible and unfocused")))
+            (t
+             (progn
+               (message "not visible")
+               (setq output-visible nil))))
+
+      (setq other-window-scroll-buffer "Out")
+      (scroll-other-window 1)
+      ;; (set-window-start (get-buffer-window "Out" t) (point-max) t)
+      ;; (redisplay t)
+      )))
+
+(defun what-line ()
+  "Print the current line number (in the buffer) of point."
+  (interactive)
+  (save-restriction
+    (widen)
+    (save-excursion
+      (beginning-of-line)
+      (message "Line %d"
+               (1+ (count-lines 1 (point)))))))
 
 (defun emacs-faust-ide-pop-out ()
   "Show output buffer"
