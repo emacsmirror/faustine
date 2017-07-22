@@ -77,18 +77,20 @@
 (easy-menu-define
   emacs-faust-ide-minor-mode-green-menu
   emacs-faust-ide-minor-mode-green-map
-  "Green bug menu"
-  '("Syntax check: OK"
-    ["Green entry" my-function t]
-    ("Sub Menu"
-     ["My subentry" my-obscure-function t])))
+  ""
+  '("Faust build: OK"
+    ["Faust output buffer" emacs-faust-ide-toggle-output-buffer t]
+    ("Build & compile"
+     ["Generate source code" emacs-faust-ide-source-code t])))
+
+(setq common-menu )
 
 (easy-menu-define
   my-mode-mapemacs-faust-ide-minor-mode-red-menu
   emacs-faust-ide-minor-mode-red-map
-  "My own menu"
-  '("My Stuff"
-    ["Red entry" my-function t]
+  "Re bug menu"
+  '("Faust build: Error"
+    ["Faust output buffer" emacs-faust-ide-toggle-output-buffer t]
     ("Sub Menu"
      ["My subentry" my-obscure-function t])))
 
