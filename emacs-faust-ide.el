@@ -40,6 +40,31 @@
 (require 'smie)
 (require 'easymenu)
 
+(defcustom output-buffer-name "Faust output"
+  "The name of the Faust output Buffer. Surround it with \"*\" to hide it in special buffers."
+  :type '(string)
+  :group 'emacs-faust-ide)
+
+(defcustom diagram-page-name "faust-graphs.html"
+  "The name of the Faust diagrams HTML page."
+  :type '(string)
+  :group 'emacs-faust-ide)
+
+(defcustom faust-libs-dir "/usr/local/share/faust/"
+  "The Faust library directory for direct linking."
+  :type '(string)
+  :group 'emacs-faust-ide)
+
+(defcustom faust-file-extension 'dsp
+  "The Faust files possible extensions. Just the ext, without the dot."
+  ;;:type 'symbol
+  :type '(choice
+          (const :tag "dsp" dsp)
+          (const :tag "cpp" cpp))
+  :group 'emacs-faust-ide)
+
+(message "########### Ext: %s" faust-file-extension)
+
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.dsp\\'" . emacs-faust-ide-mode))
 
@@ -66,7 +91,9 @@
   'action #'emacs-faust-ide-link-dsp)
 
 (setq emacs-faust-ide-regexp-lib "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*.lib"
-      emacs-faust-ide-regexp-dsp "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*.dsp")
+      emacs-faust-ide-regexp-dsp (concat "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*." (format "%s" faust-file-extension))
+      ;; emacs-faust-ide-regexp-dsp "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*.dsp"
+      )
 
 ;; (easy-menu-define emacs-faust-ide-minor-mode-green-menu
 ;;   emacs-faust-ide-minor-mode-green-map
@@ -189,10 +216,10 @@
 
 (defgroup emacs-faust-ide nil
   "Emacs Faust IDE - A lightweight IDE.
-Customize `emacs-faust-ide-build-options' for a lucky build"
+Customize `build-backend' for a lucky build"
   :group 'applications)
 
-(defcustom emacs-faust-ide-build-target 'faust2jaqt
+(defcustom build-backend 'faust2jaqt
   "The Faust code-to-executable build backend."
   ;;:type 'symbol
   :type '(choice
@@ -236,21 +263,6 @@ Customize `emacs-faust-ide-build-options' for a lucky build"
           (const :tag "faust2juce" faust2juce)
           (const :tag "faust2puredata" faust2puredata)
           (const :tag "faust2w32msp" faust2w32msp))
-  :group 'emacs-faust-ide)
-
-(defcustom emacs-faust-ide-build-options "plop"
-  "The type of build."
-  :type '(string)
-  :group 'emacs-faust-ide)
-
-(defcustom emacs-faust-ide-output-buffer "Faust output"
-  "Buffer."
-  :type '(string)
-  :group 'emacs-faust-ide)
-
-(defcustom emacs-faust-ide-faust-libs-dir "/usr/local/share/faust/"
-  "The Faust library directory for direct linking."
-  :type '(string)
   :group 'emacs-faust-ide)
 
 (defvar emacs-faust-ide-mode-map
@@ -343,7 +355,7 @@ Available commands while editing Faust (*.dsp) files:
   (setq ac-auto-start t)
 
   (setq major-mode 'emacs-faust-ide-mode)
-  (message "########### MODE OK & emacs-faust-ide-build-target : %s" emacs-faust-ide-build-target)
+  (message "########### MODE OK & build-backend : %s" build-backend)
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook)
   )
 
@@ -361,7 +373,7 @@ Available commands while editing Faust (*.dsp) files:
 (defun emacs-faust-ide-link-lib (button)
   "Open library file"
   (find-file (format "%s%s"
-                     emacs-faust-ide-faust-libs-dir
+                     faust-libs-dir
                      (buffer-substring
                       (button-start button) (button-end button)))))
 
@@ -411,11 +423,11 @@ Available commands while editing Faust (*.dsp) files:
   (emacs-faust-ide-diagram 1))
 
 (defun emacs-faust-ide-build (&optional build-all)
-  "Build the executable(s) using the `emacs-faust-ide-build-target' executable. If BUILD-ALL is set, build all .dsp files in the current directory."
+  "Build the executable(s) using the `build-backend' executable. If BUILD-ALL is set, build all .dsp files in the current directory."
   (interactive)
   (setq dsp-buffer (current-buffer))
-  (with-current-buffer (get-buffer-create emacs-faust-ide-output-buffer)
-    (pop-to-buffer emacs-faust-ide-output-buffer nil t)
+  (with-current-buffer (get-buffer-create output-buffer-name)
+    (pop-to-buffer output-buffer-name nil t)
     (emacs-faust-ide-output-mode)
     (goto-char (point-max))
     (insert "Process Build started\n")
@@ -427,7 +439,7 @@ Available commands while editing Faust (*.dsp) files:
     (start-process-shell-command
      "Build"
      (current-buffer)
-     (format "%s %s" emacs-faust-ide-build-target files-to-build))
+     (format "%s %s" build-backend files-to-build))
     (other-window -1)
     (pop-to-buffer dsp-buffer nil t)))
 
@@ -463,8 +475,8 @@ Available commands while editing Faust (*.dsp) files:
   (interactive)
   (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
-  (with-current-buffer (get-buffer-create emacs-faust-ide-output-buffer)
-    (pop-to-buffer emacs-faust-ide-output-buffer nil t)
+  (with-current-buffer (get-buffer-create output-buffer-name)
+    (pop-to-buffer output-buffer-name nil t)
     ;; (previous-window)
     (goto-char (point-max))
     (start-process-shell-command "Run" (current-buffer)
@@ -484,8 +496,8 @@ Available commands while editing Faust (*.dsp) files:
   (interactive)
   (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
-  (with-current-buffer (get-buffer-create emacs-faust-ide-output-buffer)
-    (pop-to-buffer emacs-faust-ide-output-buffer nil t)
+  (with-current-buffer (get-buffer-create output-buffer-name)
+    (pop-to-buffer output-buffer-name nil t)
     (emacs-faust-ide-output-mode)
     (goto-char (point-max))
     (insert (format "Process Mdoc started"))
@@ -502,7 +514,7 @@ Available commands while editing Faust (*.dsp) files:
 (defun log-to-buffer (process event)
   "Run the program, print the status to the output buffer, scroll buffer down."
   (let ((oldbuf (current-buffer)))
-    (with-current-buffer (get-buffer-create emacs-faust-ide-output-buffer)
+    (with-current-buffer (get-buffer-create output-buffer-name)
       (emacs-faust-ide-output-mode)
       (font-lock-fontify-buffer)
       (goto-char (point-max))
@@ -511,24 +523,24 @@ Available commands while editing Faust (*.dsp) files:
                       (format-time-string "%H:%M:%S")
                       process
                       (replace-regexp-in-string "\n" " " event)))
-      (if (get-buffer-window emacs-faust-ide-output-buffer `visible)
-          (progn (setq other-window-scroll-buffer emacs-faust-ide-output-buffer)
+      (if (get-buffer-window output-buffer-name `visible)
+          (progn (setq other-window-scroll-buffer output-buffer-name)
                  (scroll-other-window 1))))))
 
 (defun emacs-faust-ide-toggle-output-buffer ()
   "Show output buffer"
   (interactive)
-  (if (get-buffer-window emacs-faust-ide-output-buffer `visible)
-      (delete-window (get-buffer-window emacs-faust-ide-output-buffer `visible))
+  (if (get-buffer-window output-buffer-name `visible)
+      (delete-window (get-buffer-window output-buffer-name `visible))
 
     (let ((oldbuf (current-buffer)))
-      (with-current-buffer (get-buffer-create emacs-faust-ide-output-buffer)
+      (with-current-buffer (get-buffer-create output-buffer-name)
 
-        (display-buffer emacs-faust-ide-output-buffer)
+        (display-buffer output-buffer-name)
         (if (> (+ 1 -16)
                (window-resizable
-                (get-buffer-window emacs-faust-ide-output-buffer `visible) -16 nil))
-            (window-resize (get-buffer-window emacs-faust-ide-output-buffer `visible) -16 nil))))))
+                (get-buffer-window output-buffer-name `visible) -16 nil))
+            (window-resize (get-buffer-window output-buffer-name `visible) -16 nil))))))
 
 ;; (defun log-to-buffer (process)
 ;;   "plop"
@@ -556,7 +568,7 @@ Available commands while editing Faust (*.dsp) files:
   (let ((files-to-build (if build-all "*.dsp" dsp-buffer-name))
         (dirfiles
          (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
-        (temp-file-name "faust-graphs.html")
+        (temp-file-name diagram-page-name)
         (display-mode (if build-all "all" "single"))
         (command-output (shell-command-to-string "faust2svg ~/src/kik/panpot.dsp")))
     (if (string= "" command-output)
