@@ -68,18 +68,27 @@
 (setq emacs-faust-ide-regexp-lib "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*.lib"
       emacs-faust-ide-regexp-dsp "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*.dsp")
 
-(easy-menu-define emacs-faust-ide-minor-mode-green-menu
+;; (easy-menu-define emacs-faust-ide-minor-mode-green-menu
+;;   emacs-faust-ide-minor-mode-green-map
+;;   "Green bug menu"
+;;   '("Syntax check: OK"
+;;     "-"))
+
+(easy-menu-define
+  emacs-faust-ide-minor-mode-green-menu
   emacs-faust-ide-minor-mode-green-map
   "Green bug menu"
   '("Syntax check: OK"
-    "-"))
+    ["Green entry" my-function t]
+    ("Sub Menu"
+     ["My subentry" my-obscure-function t])))
 
 (easy-menu-define
   my-mode-mapemacs-faust-ide-minor-mode-red-menu
   emacs-faust-ide-minor-mode-red-map
   "My own menu"
   '("My Stuff"
-    ["One entry" my-function t]
+    ["Red entry" my-function t]
     ("Sub Menu"
      ["My subentry" my-obscure-function t])))
 
@@ -106,9 +115,9 @@
    " "
    (propertize
     "Syntax: OK"
-    :mouse-action 'test-mouse
-    'font-lock-face '(:foreground "forest green")
-    'help-echo "Test mode help message."
+    ;; :mouse-action 'test-mouse
+    ;; 'font-lock-face '(:foreground "forest green")
+    ;; 'help-echo "Test mode help message."
     'display
     `(image :type xpm
             :ascent center
@@ -251,7 +260,7 @@ Customize `emacs-faust-ide-build-options' for a lucky build"
      (define-key map [?\C-c ?\C-h] 'emacs-faust-ide-online-doc)
      (define-key map [?\C-c ?\C-o] 'emacs-faust-ide-toggle-output-buffer)
      (define-key map [?\C-c ?\C-m] 'emacs-faust-ide-mdoc)
-     ;; (define-key map [?\C-c ?\C-r] 'emacs-faust-ide-run)
+     (define-key map [?\C-c ?\C-r] 'emacs-faust-ide-run)
      (define-key map [?\C-c ?\C-s] 'emacs-faust-ide-source-code)
      (define-key map [?\C-c ?\C-c] 'emacs-faust-ide-syntax-check)
      map)
@@ -293,7 +302,6 @@ Use \\[emacs-faust-ide-set-preferences] to set it up.
 Available commands while editing Faust (*.dsp) files:
 
 \\{emacs-faust-ide-mode-map}"
-
 
   (kill-all-local-variables)
   (add-hook 'after-save-hook 'emacs-faust-ide-syntax-check-continuous-hook nil t)
@@ -492,7 +500,7 @@ Available commands while editing Faust (*.dsp) files:
 (defun log-to-buffer (process event)
   "Run the program, print the status to the output buffer, scroll buffer down."
   (let ((oldbuf (current-buffer)))
-    (with-current-buffer (get-buffer-create "Out")
+    (with-current-buffer (get-buffer-create emacs-faust-ide-output-buffer)
       (emacs-faust-ide-output-mode)
       (font-lock-fontify-buffer)
       (goto-char (point-max))
@@ -501,20 +509,24 @@ Available commands while editing Faust (*.dsp) files:
                       (format-time-string "%H:%M:%S")
                       process
                       (replace-regexp-in-string "\n" " " event)))
-      (if (get-buffer-window "Out" `visible)
-          (progn (setq other-window-scroll-buffer "Out")
-                 (scroll-other-window 3))))))
+      (if (get-buffer-window emacs-faust-ide-output-buffer `visible)
+          (progn (setq other-window-scroll-buffer emacs-faust-ide-output-buffer)
+                 (scroll-other-window 1))))))
 
 (defun emacs-faust-ide-toggle-output-buffer ()
   "Show output buffer"
   (interactive)
-  (if (get-buffer-window "Out" `visible)
-      (delete-window (get-buffer-window "Out" `visible))
-    (progn (display-buffer "Out")
-           (if (> (+ 1 -16)
-                  (window-resizable (get-buffer-window "Out" `visible) -16 nil))
-               (window-resize (get-buffer-window "Out" `visible) -16 nil)))))
+  (if (get-buffer-window emacs-faust-ide-output-buffer `visible)
+      (delete-window (get-buffer-window emacs-faust-ide-output-buffer `visible))
 
+    (let ((oldbuf (current-buffer)))
+      (with-current-buffer (get-buffer-create emacs-faust-ide-output-buffer)
+
+        (display-buffer emacs-faust-ide-output-buffer)
+        (if (> (+ 1 -16)
+               (window-resizable
+                (get-buffer-window emacs-faust-ide-output-buffer `visible) -16 nil))
+            (window-resize (get-buffer-window emacs-faust-ide-output-buffer `visible) -16 nil))))))
 
 ;; (defun log-to-buffer (process)
 ;;   "plop"
