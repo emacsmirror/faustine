@@ -249,7 +249,7 @@ Customize `emacs-faust-ide-build-options' for a lucky build"
      (define-key map [?\C-c ?\C-d] 'emacs-faust-ide-diagram)
      (define-key map [?\C-c ?\C-\S-d] 'emacs-faust-ide-diagram-all)
      (define-key map [?\C-c ?\C-h] 'emacs-faust-ide-online-doc)
-     (define-key map [?\C-c ?\C-o] 'emacs-faust-ide-pop-out)
+     (define-key map [?\C-c ?\C-o] 'emacs-faust-ide-toggle-output-buffer)
      (define-key map [?\C-c ?\C-m] 'emacs-faust-ide-mdoc)
      ;; (define-key map [?\C-c ?\C-r] 'emacs-faust-ide-run)
      (define-key map [?\C-c ?\C-s] 'emacs-faust-ide-source-code)
@@ -500,20 +500,20 @@ Available commands while editing Faust (*.dsp) files:
       (insert (format "%s | Process: %s\nEvent: %s"
                       (format-time-string "%H:%M:%S")
                       process
-                      (replace-regexp-in-string "\n" "" event)))
+                      (replace-regexp-in-string "\n" " " event)))
       (if (get-buffer-window "Out" `visible)
           (progn (setq other-window-scroll-buffer "Out")
-                 (scroll-other-window 3)))
+                 (scroll-other-window 3))))))
 
-      )))
-
-(defun emacs-faust-ide-pop-out ()
+(defun emacs-faust-ide-toggle-output-buffer ()
   "Show output buffer"
   (interactive)
-  (display-buffer "Out")
-  (if (> (+ 1 -16)
-         (window-resizable (get-buffer-window "Out" `visible) -16 nil))
-      (window-resize (get-buffer-window "Out" `visible) -16 nil)))
+  (if (get-buffer-window "Out" `visible)
+      (delete-window (get-buffer-window "Out" `visible))
+    (progn (display-buffer "Out")
+           (if (> (+ 1 -16)
+                  (window-resizable (get-buffer-window "Out" `visible) -16 nil))
+               (window-resize (get-buffer-window "Out" `visible) -16 nil)))))
 
 
 ;; (defun log-to-buffer (process)
