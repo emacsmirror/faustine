@@ -36,7 +36,6 @@
 ;;
 ;; Code:
 
-
 (require 'smie)
 (require 'easymenu)
 
@@ -63,10 +62,26 @@
           (const :tag "cpp" cpp))
   :group 'emacs-faust-ide)
 
-(message "########### Ext: %s" faust-file-extension)
+(defcustom faust-file-extension-test
+  '("dsp" "faust")
+  "The list of extension of Faust files. Add yours if it's not in it"
+  :type '(repeat string)
+  :group 'emacs-faust-ide)
+
+;; (mapc (lambda (x)
+;;           (message "ext: %s" x))
+;;       faust-file-extension-test)
+
+;; (add-to-list 'auto-mode-alist '("\\.dsp\\'" . emacs-faust-ide-mode))
 
 ;;;###autoload
-(add-to-list 'auto-mode-alist '("\\.dsp\\'" . emacs-faust-ide-mode))
+(mapc (lambda (x)
+          (add-to-list 'auto-mode-alist (cons (format "\\.%s$" x) 'emacs-faust-ide-mode)))
+          faust-file-extension-test)
+
+;; (list (mapcar (lambda (x)
+;;                 (cons x 'emacs-faust-ide-mode))
+;;               faust-file-extension-test))
 
 (defvar emacs-faust-ide-module-path (file-name-directory load-file-name))
 
