@@ -105,8 +105,9 @@
   'follow-link t
   'action #'emacs-faust-ide-link-dsp)
 
-(setq emacs-faust-ide-regexp-lib "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*.lib"
-      emacs-faust-ide-regexp-dsp (concat "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*." (format "%s" faust-file-extension)))
+(setq
+ emacs-faust-ide-regexp-lib "\"\\(.*[^\\]\.lib\\)\""
+ emacs-faust-ide-regexp-dsp (concat "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*." (format "%s" faust-file-extension)))
 
 (easy-menu-define
   emacs-faust-ide-minor-mode-green-menu
@@ -629,4 +630,4 @@ img.scaled {
 </body>
 </html>\n" nil temp-file-name 'append 0 nil nil)))
 
-(provide 'emacs-faust-ide)
+(provide 'faustine)
