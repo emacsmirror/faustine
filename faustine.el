@@ -54,20 +54,6 @@
   :type '(string)
   :group 'emacs-faust-ide)
 
-;; (defcustom faust-file-extension 'dsp
-;;   "The Faust files possible extensions. Just the ext, without the dot."
-;;   ;;:type 'symbol
-;;   :type '(choice
-;;           (const :tag "dsp" dsp)
-;;           (const :tag "cpp" cpp))
-;;   :group 'emacs-faust-ide)
-
-;; (defcustom faust-file-extension-test
-;;   '("dsp" "faust")
-;;   "The list of extension of Faust files. Add yours if it's not in it"
-;;   :type '(repeat string)
-;;   :group 'emacs-faust-ide)
-
 (defcustom faust-extension "dsp"
   "The Faust files extension."
   :type '(string)
@@ -75,14 +61,6 @@
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist (cons (concat "\\." faust-extension "$") 'emacs-faust-ide-mode))
-
-;; (mapc (lambda (x)
-;;         (add-to-list 'auto-mode-alist (cons (format "\\.%s$" x) 'emacs-faust-ide-mode)))
-;;       faust-file-extension-test)
-
-;; (list (mapcar (lambda (x)
-;;                 (cons x 'emacs-faust-ide-mode))
-;;               faust-file-extension-test))
 
 (defvar emacs-faust-ide-module-path (file-name-directory load-file-name))
 
@@ -541,19 +519,24 @@ Available commands while editing Faust (*.dsp) files:
   (interactive)
   (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
-  (let ((files-to-build (if build-all "*.dsp" dsp-buffer-name))
-        (dirfiles
-         (directory-files (file-name-directory buffer-file-name) nil "^[a-z0-9A-Z]?+\\.dsp$"))
-        (temp-file-name diagram-page-name)
-        (display-mode (if build-all "all" "single"))
-        (command-output (shell-command-to-string "faust2svg ~/src/kik/panpot.dsp")))
+  (let ((mylist nil)
+        (files-to-build
+         (if build-all
+             (append (directory-files (file-name-directory buffer-file-name) nil (concat "^[a-z0-9A-Z]?+\\." faust-extension "$")))
+           (append dsp-buffer-name)))
+        (display-mode (if build-all "all" "single")))
+    ;; (message "##### faust2svg %s" files-to-build)
+    ;; (message "########## Plop: %s" (format "%s" (concat files-to-build)))
+    (setq command-output (shell-command-to-string (concat "faust2svg " files-to-build)))
+    (concat "faust2svg " files-to-build)
     (if (string= "" command-output)
         (progn
           (log-to-buffer "Diagram" "finished")
-          (emacs-faust-ide-build-temp-file dirfiles temp-file-name dsp-buffer-name display-mode)
-          (emacs-faust-ide-show temp-file-name))
+          (emacs-faust-ide-build-temp-file files-to-build diagram-page-name dsp-buffer-name display-mode)
+          (emacs-faust-ide-show diagram-page-name))
       (progn (message "Woops!")
-             (log-to-buffer "Diagram" (format "Error: %s" command-output))))))
+             (log-to-buffer "Diagram" (format "Error: %s" command-output))))
+    ))
 
 (defun emacs-faust-ide-build-temp-file (list temp-file-name diagram display-mode)
   "Build a minimal HTML (web) page to display Faust diagram(s)."
