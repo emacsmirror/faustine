@@ -54,24 +54,31 @@
   :type '(string)
   :group 'emacs-faust-ide)
 
-(defcustom faust-file-extension 'dsp
-  "The Faust files possible extensions. Just the ext, without the dot."
-  ;;:type 'symbol
-  :type '(choice
-          (const :tag "dsp" dsp)
-          (const :tag "cpp" cpp))
-  :group 'emacs-faust-ide)
+;; (defcustom faust-file-extension 'dsp
+;;   "The Faust files possible extensions. Just the ext, without the dot."
+;;   ;;:type 'symbol
+;;   :type '(choice
+;;           (const :tag "dsp" dsp)
+;;           (const :tag "cpp" cpp))
+;;   :group 'emacs-faust-ide)
 
-(defcustom faust-file-extension-test
-  '("dsp" "faust")
-  "The list of extension of Faust files. Add yours if it's not in it"
-  :type '(repeat string)
+;; (defcustom faust-file-extension-test
+;;   '("dsp" "faust")
+;;   "The list of extension of Faust files. Add yours if it's not in it"
+;;   :type '(repeat string)
+;;   :group 'emacs-faust-ide)
+
+(defcustom faust-extension "dsp"
+  "The Faust files extension."
+  :type '(string)
   :group 'emacs-faust-ide)
 
 ;;;###autoload
-(mapc (lambda (x)
-        (add-to-list 'auto-mode-alist (cons (format "\\.%s$" x) 'emacs-faust-ide-mode)))
-      faust-file-extension-test)
+(add-to-list 'auto-mode-alist (cons (concat "\\." faust-extension "$") 'emacs-faust-ide-mode))
+
+;; (mapc (lambda (x)
+;;         (add-to-list 'auto-mode-alist (cons (format "\\.%s$" x) 'emacs-faust-ide-mode)))
+;;       faust-file-extension-test)
 
 ;; (list (mapcar (lambda (x)
 ;;                 (cons x 'emacs-faust-ide-mode))
@@ -101,7 +108,7 @@
 
 (setq
  emacs-faust-ide-regexp-lib "\\\"\\([^\\\"\\\\(]+\\.lib\\)\\\""
- emacs-faust-ide-regexp-dsp (concat "\"\\([^\"\\(]+\\.\\(" (mapconcat 'identity faust-file-extension-test "\\|") "\\)\\)\""))
+ emacs-faust-ide-regexp-dsp (concat "\"\\([^\"\\(]+\\.\\(" faust-extension "\\)\\)\""))
 
 (easy-menu-define
   emacs-faust-ide-minor-mode-green-menu
