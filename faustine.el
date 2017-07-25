@@ -68,16 +68,10 @@
   :type '(repeat string)
   :group 'emacs-faust-ide)
 
-;; (mapc (lambda (x)
-;;           (message "ext: %s" x))
-;;       faust-file-extension-test)
-
-;; (add-to-list 'auto-mode-alist '("\\.dsp\\'" . emacs-faust-ide-mode))
-
 ;;;###autoload
 (mapc (lambda (x)
-          (add-to-list 'auto-mode-alist (cons (format "\\.%s$" x) 'emacs-faust-ide-mode)))
-          faust-file-extension-test)
+        (add-to-list 'auto-mode-alist (cons (format "\\.%s$" x) 'emacs-faust-ide-mode)))
+      faust-file-extension-test)
 
 ;; (list (mapcar (lambda (x)
 ;;                 (cons x 'emacs-faust-ide-mode))
@@ -106,8 +100,8 @@
   'action #'emacs-faust-ide-link-dsp)
 
 (setq
- emacs-faust-ide-regexp-lib "\"\\(.*[^\\]\.lib\\)\""
- emacs-faust-ide-regexp-dsp (concat "\\(\\\\[\\\\\"]\\|[^\\\\\"]\\)*." (format "%s" faust-file-extension)))
+ emacs-faust-ide-regexp-lib "\\\"\\([^\\\"\\\\(]+\\.lib\\)\\\""
+ emacs-faust-ide-regexp-dsp (concat "\"\\([^\"\\(]+\\.\\(" (mapconcat 'identity faust-file-extension-test "\\|") "\\)\\)\""))
 
 (easy-menu-define
   emacs-faust-ide-minor-mode-green-menu
@@ -117,8 +111,6 @@
     ["Faust output buffer" emacs-faust-ide-toggle-output-buffer t]
     ("Build & compile"
      ["Generate source code" emacs-faust-ide-source-code t])))
-
-(setq common-menu )
 
 (easy-menu-define
   my-mode-mapemacs-faust-ide-minor-mode-red-menu
@@ -320,7 +312,7 @@ Available commands while editing Faust (*.dsp) files:
   (add-hook 'find-file-hook 'emacs-faust-ide-syntax-check-continuous-hook nil t)
   (add-hook 'find-file-hook 'emacs-faust-ide-buttonize-buffer-lib nil t)
   (add-hook 'find-file-hook 'emacs-faust-ide-buttonize-buffer-dsp nil t)
-  (setq mode-name "emacs-faust-ide-mode")
+  (setq mode-name "Faust mode")
   (set-syntax-table emacs-faust-ide-mode-syntax-table)
   (setq-local comment-start "// ")
   (setq-local comment-end "")
@@ -348,11 +340,9 @@ Available commands while editing Faust (*.dsp) files:
   (setq ac-user-dictionary (append faust-keywords faust-functions faust-ui-keywords))
   (setq ac-auto-show-menu t)
   (setq ac-auto-start t)
-
   (setq major-mode 'emacs-faust-ide-mode)
   (message "########### MODE OK & build-backend : %s" build-backend)
-  (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook)
-  )
+  (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
 ;; Functions
 
@@ -370,7 +360,9 @@ Available commands while editing Faust (*.dsp) files:
   (find-file (format "%s%s"
                      faust-libs-dir
                      (buffer-substring
-                      (button-start button) (button-end button)))))
+                      (button-start button) (button-end button))))
+  (emacs-faust-ide-mode)
+  (emacs-faust-ide-buttonize-buffer-lib))
 
 (defun emacs-faust-ide-link-dsp (button)
   "Open Faust file"
@@ -386,7 +378,7 @@ Available commands while editing Faust (*.dsp) files:
   (save-excursion
     (goto-char (point-min))
     (while (re-search-forward emacs-faust-ide-regexp-dsp nil t)
-      (make-button (match-beginning 0) (match-end 0) :type 'emacs-faust-ide-link-dsp))))
+      (make-button (match-beginning 1) (match-end 1) :type 'emacs-faust-ide-link-dsp))))
 
 (defun emacs-faust-ide-buttonize-buffer-lib ()
   "turn all file paths into buttons"
@@ -394,7 +386,7 @@ Available commands while editing Faust (*.dsp) files:
   (save-excursion
     (goto-char (point-min))
     (while (re-search-forward emacs-faust-ide-regexp-lib nil t)
-      (make-button (match-beginning 0) (match-end 0) :type 'emacs-faust-ide-link-lib))))
+      (make-button (match-beginning 1) (match-end 1) :type 'emacs-faust-ide-link-lib))))
 
 (defun test-mouse ()
   (interactive)
@@ -554,8 +546,7 @@ Available commands while editing Faust (*.dsp) files:
           (emacs-faust-ide-build-temp-file dirfiles temp-file-name dsp-buffer-name display-mode)
           (emacs-faust-ide-show temp-file-name))
       (progn (message "Woops!")
-             (log-to-buffer "Diagram" (format "Error: %s" command-output))))
-    ))
+             (log-to-buffer "Diagram" (format "Error: %s" command-output))))))
 
 (defun emacs-faust-ide-build-temp-file (list temp-file-name diagram display-mode)
   "Build a minimal HTML (web) page to display Faust diagram(s)."
