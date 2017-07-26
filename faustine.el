@@ -472,7 +472,7 @@ Available commands while editing Faust (*.dsp) files:
     (pop-to-buffer output-buffer-name nil t)
     (emacs-faust-ide-output-mode)
     (goto-char (point-max))
-    (insert (format "Process Mdoc started"))
+    (insert "plop")plop
     (call-process "/bin/bash" nil t nil "-c" (format "faust2mathdoc %s" dsp-buffer-name))
     (other-window -1)
     (pop-to-buffer dsp-buffer nil t))
@@ -514,6 +514,24 @@ Available commands while editing Faust (*.dsp) files:
                 (get-buffer-window output-buffer-name `visible) -16 nil))
             (window-resize (get-buffer-window output-buffer-name `visible) -16 nil))))))
 
+(defun dsp-files (fname)
+  "Find all Faust links in FNAME"
+      (if (not (string-prefix-p ".#" (file-name-nondirectory fname)))
+        (with-temp-buffer
+          (insert-file-contents-literally fname)
+          (goto-char (point-min))
+          (while (re-search-forward emacs-faust-ide-regexp-dsp nil t)
+            (when (match-string 0)
+              (let ((url (match-string 1))
+                    (title (match-string 2))
+                    ;; (line-one (what-line))
+                    )
+                (message "%s" url)
+                )))))
+      )
+
+(dsp-files "~/src/kik/kik.dsp")
+
 (defun emacs-faust-ide-diagram (&optional build-all)
   "Generate Faust diagram(s)."
   (interactive)
@@ -537,14 +555,14 @@ Available commands while editing Faust (*.dsp) files:
              (log-to-buffer "Diagram" (format "Error: %s" command-output))))
     ))
 
-(setq myotherlist nil)
-(setq mylist (directory-files (file-name-directory buffer-file-name) nil ))
+;; (setq myotherlist nil)
+;; (setq mylist (directory-files (file-name-directory buffer-file-name) nil ))
 
-(message "%s" mylist)
+;; (message "%s" mylist)
 
-(setq mylist (list "plop"))
+;; (setq mylist (list "plop"))
 
-(mapconcat 'identity mylist " ")
+;; (mapconcat 'identity mylist " ")
 
 (defun emacs-faust-ide-build-temp-file (list temp-file-name diagram display-mode)
   "Build a minimal HTML (web) page to display Faust diagram(s)."
