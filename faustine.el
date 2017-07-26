@@ -522,13 +522,12 @@ Available commands while editing Faust (*.dsp) files:
   (let ((mylist nil)
         (files-to-build
          (if build-all
-             (append (directory-files (file-name-directory buffer-file-name) nil (concat "^[a-z0-9A-Z]?+\\." faust-extension "$")))
-           (append dsp-buffer-name)))
+             (directory-files (file-name-directory buffer-file-name) nil (concat "^[a-z0-9A-Z]?+\\." faust-extension "$"))
+           (list dsp-buffer-name)))
         (display-mode (if build-all "all" "single")))
-    ;; (message "##### faust2svg %s" files-to-build)
-    ;; (message "########## Plop: %s" (format "%s" (concat files-to-build)))
-    (setq command-output (shell-command-to-string (concat "faust2svg " files-to-build)))
-    (concat "faust2svg " files-to-build)
+    (message "##### ftb %s" diagram-page-name)
+    (message "faust2svg %s" files-to-build)
+    (setq command-output (shell-command-to-string (format "faust2svg %s" (mapconcat 'identity files-to-build " "))))
     (if (string= "" command-output)
         (progn
           (log-to-buffer "Diagram" "finished")
@@ -537,6 +536,15 @@ Available commands while editing Faust (*.dsp) files:
       (progn (message "Woops!")
              (log-to-buffer "Diagram" (format "Error: %s" command-output))))
     ))
+
+(setq myotherlist nil)
+(setq mylist (directory-files (file-name-directory buffer-file-name) nil ))
+
+(message "%s" mylist)
+
+(setq mylist (list "plop"))
+
+(mapconcat 'identity mylist " ")
 
 (defun emacs-faust-ide-build-temp-file (list temp-file-name diagram display-mode)
   "Build a minimal HTML (web) page to display Faust diagram(s)."
