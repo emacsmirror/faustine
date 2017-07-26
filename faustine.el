@@ -516,16 +516,17 @@ Available commands while editing Faust (*.dsp) files:
 
 (defun dsp-files (fname)
   "Find all Faust links in FNAME"
-        (with-temp-buffer
-          (insert-file-contents-literally fname)
-          (goto-char (point-min))
-          (while (re-search-forward faustine-regexp-dsp nil t)
-            (when (match-string 0)
-              (let ((url (match-string 1)))
-                (message "link: %s" url)
-                )))))
+  (with-temp-buffer
+    (insert-file-contents-literally fname)
+    (goto-char (point-min))
+    (setq mylist '())
+    (while (re-search-forward faustine-regexp-dsp nil t)
+      (when (match-string 0)
+        (let ((url (match-string 1)))
+          (add-to-list 'mylist url))))
+    (identity mylist)))
 
-(dsp-files "~/src/kik/kik.dsp")
+;; (dsp-files "~/src/kik/kik.dsp")
 
 (defun faustine-diagram (&optional build-all)
   "Generate Faust diagram(s)."
