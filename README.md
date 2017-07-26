@@ -1,4 +1,5 @@
-# Emacs Faust IDE
+# Faustine
+## Edit, visualise, build and run Faust code
 
 A Faust code editor for Emacs ; Not ready for production yet.
 
