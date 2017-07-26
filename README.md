@@ -7,7 +7,7 @@ Faustine is a Faust code editor for Emacs ; Not ready for production yet.
 
 ## What does it do?
 - Faust code syntax hightlighting plus indentation
-- Build/compile with resizable output window
+- Build/compile with configurable output window
 - Graphic diagrams generation and vizualisation in the browser
 - From function name to online documentation
 - Browse generated C++ code inside Emacs

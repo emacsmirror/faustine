@@ -190,8 +190,8 @@
     "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
 
 (defgroup faustine nil
-  "Emacs Faust IDE - A lightweight IDE.
-Customize `build-backend' for a lucky build"
+  "Faustine - A lightweight Emacs Faust IDE.
+Customize `build-backend' for a lucky build."
   :group 'applications)
 
 (defcustom build-backend 'faust2jaqt
@@ -285,7 +285,7 @@ Customize `build-backend' for a lucky build"
 
 ;;;###autoload
 (define-derived-mode faustine-mode fundamental-mode "Emacs Faust IDE Mode" "
-Emacs Faust IDE is a lightweight IDE that leverages the mighty power of the faust executable.
+Faustine is a lightweight IDE that leverages the mighty power of the faust executable.
 
 Use \\[faustine-set-preferences] to set it up.
 Available commands while editing Faust (*.dsp) files:
@@ -522,8 +522,8 @@ Available commands while editing Faust (*.dsp) files:
     (setq mylist '())
     (while (re-search-forward faustine-regexp-dsp nil t)
       (when (match-string 0)
-        (let ((url (match-string 1)))
-          (add-to-list 'mylist url))))
+        (let ((uri (match-string 1)))
+          (add-to-list 'mylist uri))))
     (identity mylist)))
 
 ;; (dsp-files "~/src/kik/kik.dsp")
