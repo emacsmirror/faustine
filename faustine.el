@@ -132,7 +132,6 @@ Customize `build-backend' for a lucky build."
 
 (defcustom build-backend 'faust2jaqt
   "The Faust code-to-executable build backend."
-  ;;:type 'symbol
   :type '(choice
           (const :tag "faust2alsa" faust2alsa)
           (const :tag "faust2firefox" faust2firefox)
@@ -607,14 +606,14 @@ Available commands while editing Faust (*.dsp) files:
     (goto-char (point-max))
     (insert "\nProcess Build started\n")
     (if build-all
-        (progn (setq files-to-build (project-files dsp-buffer-name '()))
+        (progn (setq files-to-build (mapconcat 'identity (project-files dsp-buffer-name '()) " "))
                (message "Building ALL: %s" files-to-build))
       (progn (message "Building just %s" dsp-buffer)
              (setq files-to-build dsp-buffer)))
     (start-process-shell-command
      "Build"
      (current-buffer)
-     (format "%s %s" build-backend (mapconcat 'identity files-to-build " ")))
+     (format "%s %s" build-backend files-to-build))
     (other-window -1)
     (message "files: %s" files-to-build)
     (pop-to-buffer dsp-buffer nil t)))
