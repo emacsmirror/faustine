@@ -52,6 +52,12 @@
 (defvar faustine-regexp-dsp)
 (defvar faustine-regexp-lib)
 
+(defvar ac-modes)
+(defvar ac-user-dictionary)
+(defvar ac-auto-show-menu)
+(defvar ac-auto-start)
+(defvar ac-sources)
+
 (defcustom output-buffer-name "*Faust*"
   "The name of the Faust output Buffer. Surround it with \"*\" to hide it in special buffers."
   :type '(string)
