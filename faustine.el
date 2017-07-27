@@ -91,7 +91,7 @@
 (easy-menu-define
   faustine-minor-mode-green-menu
   faustine-minor-mode-green-map
-  ""
+  "Green bug menu"
   '("Faust build: OK"
     ["Faust output buffer" faustine-toggle-output-buffer t]
     ("Build & compile"
@@ -100,7 +100,7 @@
 (easy-menu-define
   my-mode-mapfaustine-minor-mode-red-menu
   faustine-minor-mode-red-map
-  "Re bug menu"
+  "Red bug menu"
   '("Faust build: Error"
     ["Faust output buffer" faustine-toggle-output-buffer t]
     ("Sub Menu"
@@ -390,7 +390,7 @@ Available commands while editing Faust (*.dsp) files:
   (faustine-build 1))
 
 (defun faustine-diagram-all ()
-  "Build all executables using `faustine-build'"
+  "Build all executables using `faustine-diagram'"
   (interactive)
   (faustine-diagram 1))
 
@@ -483,10 +483,8 @@ Available commands while editing Faust (*.dsp) files:
   (interactive)
   (if (get-buffer-window output-buffer-name `visible)
       (delete-window (get-buffer-window output-buffer-name `visible))
-
     (let ((oldbuf (current-buffer)))
       (with-current-buffer (get-buffer-create output-buffer-name)
-
         (display-buffer output-buffer-name)
         (if (> (+ 1 -16)
                (window-resizable
