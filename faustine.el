@@ -514,19 +514,23 @@ Available commands while editing Faust (*.dsp) files:
                 (get-buffer-window output-buffer-name `visible) -16 nil))
             (window-resize (get-buffer-window output-buffer-name `visible) -16 nil))))))
 
-(defun dsp-files (fname)
-  "Find all Faust links in FNAME"
+(defvar mylist '())
+
+(defun dsp-files (fname blist)
+  "Recursively find all Faust links in FNAME, put them in BLIST, return it."
+  (interactive)
+  (add-to-list 'blist (expand-file-name fname))
   (with-temp-buffer
     (insert-file-contents-literally fname)
     (goto-char (point-min))
-    (setq mylist '())
     (while (re-search-forward faustine-regexp-dsp nil t)
       (when (match-string 0)
-        (let ((uri (match-string 1)))
-          (add-to-list 'mylist uri))))
-    (identity mylist)))
+        (let ((uri (expand-file-name (match-string 1))))
+          (if (not (member uri blist))
+              (setq blist (dsp-files uri blist))))))
+    (identity blist)))
 
-;; (dsp-files "~/src/kik/kik.dsp")
+;; (dsp-files "kik.dsp" '())
 
 (defun faustine-diagram (&optional build-all)
   "Generate Faust diagram(s)."
