@@ -58,6 +58,76 @@
 (defvar ac-auto-start)
 (defvar ac-sources)
 
+(defgroup faustine nil
+  "Faustine - A lightweight Emacs Faust IDE.
+Customize `build-backend' for a lucky build."
+  :group 'tools)
+
+(defgroup keyboard-shortcuts nil
+  "Faustine keyboard shortcuts"
+  :group 'faustine)
+
+
+;; (defvar faustine-mode-map
+;;    (let ((map (make-sparse-keymap)))
+;;      (define-key map [(control c) (control b)] 'faustine-build)
+;;      (define-key map [?\C-c ?\C-\S-b] 'faustine-build-all)
+;;      (define-key map [?\C-c ?\C-d] 'faustine-diagram)
+;;      (define-key map [?\C-c ?\C-\S-d] 'faustine-diagram-all)
+;;      (define-key map [?\C-c ?\C-h] 'faustine-online-doc)
+;;      (define-key map [?\C-c ?\C-o] 'faustine-toggle-output-buffer)
+;;      (define-key map [?\C-c ?\C-m] 'faustine-mdoc)
+;;      (define-key map [?\C-c ?\C-r] 'faustine-run)
+;;      (define-key map [?\C-c ?\C-s] 'faustine-source-code)
+;;      (define-key map [?\C-c ?\C-c] 'faustine-syntax-check)
+;;      map)
+;;    "Keymap for `faustine-mode'.")
+
+(defcustom build "C-c C-b"
+  "plop"
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom build-all "C-c C-S-b"
+  "plop"
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom diagram "C-c C-d"
+  "plop"
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom diagram-all "C-c C-S-d"
+  "plop"
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom online-doc "C-c C-h"
+  "plop"
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom toggle-output-buffer "C-c C-o"
+  "plop"
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom mdoc "C-c C-m"
+  "plop"
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom run "C-c C-r"
+  "plop"
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom source-code "C-c C-s"
+  "plop"
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
 (defcustom output-buffer-name "*Faust*"
   "The name of the Faust output Buffer. Surround it with \"*\" to hide it in special buffers."
   :type '(string)
@@ -76,6 +146,52 @@
 (defcustom faust-extension "dsp"
   "The Faust files extension."
   :type '(string)
+  :group 'faustine)
+
+(defcustom build-backend 'faust2jaqt
+  "The Faust code-to-executable build backend."
+  ;;:type 'symbol
+  :type '(choice
+          (const :tag "faust2alsa" faust2alsa)
+          (const :tag "faust2firefox" faust2firefox)
+          (const :tag "faust2netjackconsole" faust2netjackconsole)
+          (const :tag "faust2sigviewer" faust2sigviewer)
+          (const :tag "faust2alsaconsole" faust2alsaconsole)
+          (const :tag "faust2graph" faust2graph)
+          (const :tag "faust2netjackqt" faust2netjackqt)
+          (const :tag "faust2smartkeyb" faust2smartkeyb)
+          (const :tag "faust2android" faust2android)
+          (const :tag "faust2graphviewer" faust2graphviewer)
+          (const :tag "faust2octave" faust2octave)
+          (const :tag "faust2sndfile" faust2sndfile)
+          (const :tag "faust2androidunity" faust2androidunity)
+          (const :tag "faust2ios" faust2ios)
+          (const :tag "faust2osxiosunity" faust2osxiosunity)
+          (const :tag "faust2supercollider" faust2supercollider)
+          (const :tag "faust2api" faust2api)
+          (const :tag "faust2jack" faust2jack)
+          (const :tag "faust2owl" faust2owl)
+          (const :tag "faust2svg" faust2svg)
+          (const :tag "faust2asmjs" faust2asmjs)
+          (const :tag "faust2jackconsole" faust2jackconsole)
+          (const :tag "faust2paqt" faust2paqt)
+          (const :tag "faust2unity" faust2unity)
+          (const :tag "faust2atomsnippets" faust2atomsnippets)
+          (const :tag "faust2jackinternal" faust2jackinternal)
+          (const :tag "faust2pdf" faust2pdf)
+          (const :tag "faust2vst" faust2vst)
+          (const :tag "faust2au" faust2au)
+          (const :tag "faust2jackserver" faust2jackserver)
+          (const :tag "faust2plot" faust2plot)
+          (const :tag "faust2vsti" faust2vsti)
+          (const :tag "faust2bela" faust2bela)
+          (const :tag "faust2jaqt" faust2jaqt)
+          (const :tag "faust2png" faust2png)
+          (const :tag "faust2w32max6" faust2w32max6)
+          (const :tag "faust2caqt" faust2caqt)
+          (const :tag "faust2juce" faust2juce)
+          (const :tag "faust2puredata" faust2puredata)
+          (const :tag "faust2w32msp" faust2w32msp))
   :group 'faustine)
 
 ;;;###autoload
@@ -200,68 +316,54 @@
   '("button" "checkbox" "vslider" "hslider" "nentry"
     "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
 
-(defgroup faustine nil
-  "Faustine - A lightweight Emacs Faust IDE.
-Customize `build-backend' for a lucky build."
-  :group 'applications)
 
-(defcustom build-backend 'faust2jaqt
-  "The Faust code-to-executable build backend."
-  ;;:type 'symbol
-  :type '(choice
-          (const :tag "faust2alsa" faust2alsa)
-          (const :tag "faust2firefox" faust2firefox)
-          (const :tag "faust2netjackconsole" faust2netjackconsole)
-          (const :tag "faust2sigviewer" faust2sigviewer)
-          (const :tag "faust2alsaconsole" faust2alsaconsole)
-          (const :tag "faust2graph" faust2graph)
-          (const :tag "faust2netjackqt" faust2netjackqt)
-          (const :tag "faust2smartkeyb" faust2smartkeyb)
-          (const :tag "faust2android" faust2android)
-          (const :tag "faust2graphviewer" faust2graphviewer)
-          (const :tag "faust2octave" faust2octave)
-          (const :tag "faust2sndfile" faust2sndfile)
-          (const :tag "faust2androidunity" faust2androidunity)
-          (const :tag "faust2ios" faust2ios)
-          (const :tag "faust2osxiosunity" faust2osxiosunity)
-          (const :tag "faust2supercollider" faust2supercollider)
-          (const :tag "faust2api" faust2api)
-          (const :tag "faust2jack" faust2jack)
-          (const :tag "faust2owl" faust2owl)
-          (const :tag "faust2svg" faust2svg)
-          (const :tag "faust2asmjs" faust2asmjs)
-          (const :tag "faust2jackconsole" faust2jackconsole)
-          (const :tag "faust2paqt" faust2paqt)
-          (const :tag "faust2unity" faust2unity)
-          (const :tag "faust2atomsnippets" faust2atomsnippets)
-          (const :tag "faust2jackinternal" faust2jackinternal)
-          (const :tag "faust2pdf" faust2pdf)
-          (const :tag "faust2vst" faust2vst)
-          (const :tag "faust2au" faust2au)
-          (const :tag "faust2jackserver" faust2jackserver)
-          (const :tag "faust2plot" faust2plot)
-          (const :tag "faust2vsti" faust2vsti)
-          (const :tag "faust2bela" faust2bela)
-          (const :tag "faust2jaqt" faust2jaqt)
-          (const :tag "faust2png" faust2png)
-          (const :tag "faust2w32max6" faust2w32max6)
-          (const :tag "faust2caqt" faust2caqt)
-          (const :tag "faust2juce" faust2juce)
-          (const :tag "faust2puredata" faust2puredata)
-          (const :tag "faust2w32msp" faust2w32msp))
-  :group 'faustine)
+;; (defcustom build "C-c C-b"
+;;   :type '(string)
+;;   :group 'keyboard-shortcuts)
+
+;; (defcustom build-all "C-c C-S-b"
+;;   :type '(string)
+;;   :group 'keyboard-shortcuts)
+
+;; (defcustom diagram "C-c C-S-d"
+;;   :type '(string)
+;;   :group 'keyboard-shortcuts)
+
+;; (defcustom diagram-all "C-c C-S-d"
+;;   :type '(string)
+;;   :group 'keyboard-shortcuts)
+
+;; (defcustom online-doc "C-c C-h"
+;;   :type '(string)
+;;   :group 'keyboard-shortcuts)
+
+;; (defcustom toggle-output-buffer "C-c C-o"
+;;   :type '(string)
+;;   :group 'keyboard-shortcuts)
+
+;; (defcustom mdoc "C-c C-m"
+;;   :type '(string)
+;;   :group 'keyboard-shortcuts)
+
+;; (defcustom run "C-c C-r"
+;;   :type '(string)
+;;   :group 'keyboard-shortcuts)
+
+;; (defcustom source-code "C-c C-s"
+;;   :type '(string)
+;;   :group 'keyboard-shortcuts)
 
 (defvar faustine-mode-map
    (let ((map (make-sparse-keymap)))
-     (define-key map [?\C-c ?\C-b] 'faustine-build)
-     (define-key map [?\C-c ?\C-\S-b] 'faustine-build-all)
-     (define-key map [?\C-c ?\C-d] 'faustine-diagram)
-     (define-key map [?\C-c ?\C-\S-d] 'faustine-diagram-all)
-     (define-key map [?\C-c ?\C-h] 'faustine-online-doc)
-     (define-key map [?\C-c ?\C-o] 'faustine-toggle-output-buffer)
-     (define-key map [?\C-c ?\C-m] 'faustine-mdoc)
-     (define-key map [?\C-c ?\C-r] 'faustine-run)
-     (define-key map [?\C-c ?\C-s] 'faustine-source-code)
+     (define-key map (kbd build) 'faustine-build)
+     (define-key map (kbd build-all) 'faustine-build-all)
+     (define-key map (kbd diagram) 'faustine-diagram)
+     (define-key map (kbd diagram-all) 'faustine-diagram-all)
+     (define-key map (kbd online-doc) 'faustine-online-doc)
+     (define-key map (kbd toggle-output-buffer) 'faustine-toggle-output-buffer)
+     (define-key map (kbd mdoc) 'faustine-mdoc)
+     (define-key map (kbd run) 'faustine-run)
+     (define-key map (kbd source-code) 'faustine-source-code)
      (define-key map [?\C-c ?\C-c] 'faustine-syntax-check)
      map)
    "Keymap for `faustine-mode'.")
@@ -304,8 +406,8 @@ Available commands while editing Faust (*.dsp) files:
 \\{faustine-mode-map}"
 
   (kill-all-local-variables)
-  (add-hook 'after-save-hook 'faustine-syntax-check-continuous-hook nil t)
-  (add-hook 'find-file-hook 'faustine-syntax-check-continuous-hook nil t)
+  (add-hook 'after-save-hook 'faustine-syntax-check nil t)
+  (add-hook 'find-file-hook 'faustine-syntax-check nil t)
   (add-hook 'find-file-hook 'faustine-buttonize-buffer-lib nil t)
   (add-hook 'find-file-hook 'faustine-buttonize-buffer-dsp nil t)
   (setq mode-name "Faust")
@@ -347,10 +449,6 @@ Available commands while editing Faust (*.dsp) files:
   "Use `cutomize-group' to set up Emacs Faust IDE preferences "
   (interactive)
   (customize-group 'faustine))
-
-(defun faustine-syntax-check-continuous-hook ()
-  "Used in `after-save-hook'."
-    (faustine-syntax-check))
 
 (defun faustine-link-lib (button)
   "Open library file"
