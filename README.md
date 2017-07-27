@@ -13,7 +13,7 @@ Faustine is a [Faust](http://faust.grame.fr) major mode for [GNU Emacs](https://
 - From function name to online documentation
 - Inter-linked library files
 - Browse generated C++ code inside Emacs
-- Fully configurable (build type/target/architecture/toolkit, preferences, etc.) via `customize-group emacs-faust-ide RET`
+- Fully configurable (build type/target/architecture/toolkit, keyboard shortcuts, etc.) via `customize-group faustine RET`
 - Automatic keyword completion
 - Modeline indicator of the state of the code
 

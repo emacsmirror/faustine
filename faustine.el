@@ -65,47 +65,47 @@ Customize `build-backend' for a lucky build."
   "Faustine keyboard shortcuts"
   :group 'faustine)
 
-(defcustom build "C-c C-b"
+(defcustom faustine-build "C-c C-b"
   "Build the current buffer/file executable using the `build-backend' script. "
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom build-all "C-c C-S-b"
+(defcustom faustine-build-all "C-c C-S-b"
   "Build all project files."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom diagram "C-c C-d"
+(defcustom faustine-diagram "C-c C-d"
   "Generate the current buffer/file Faust diagram."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom diagram-all "C-c C-S-d"
+(defcustom faustine-diagram-all "C-c C-S-d"
   "Generate all project files Faust diagrams."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom online-doc "C-c C-h"
+(defcustom faustine-online-doc "C-c C-h"
   "Websearch the selected string on the faust.grame.fr library web site."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom toggle-output-buffer "C-c C-o"
+(defcustom faustine-toggle-output-buffer "C-c C-o"
   "Show/hide Faust output buffer"
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom mdoc "C-c C-m"
+(defcustom faustine-mdoc "C-c C-m"
   "Generate Faust mdoc of the current faust buffer/file."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom run "C-c C-r"
+(defcustom faustine-run "C-c C-r"
   "Run the current buffer/file executable."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom source-code "C-c C-s"
+(defcustom faustine-source-code "C-c C-s"
   "Generate C++ source code of the current faust buffer/file."
   :type '(string)
   :group 'keyboard-shortcuts)
@@ -244,7 +244,6 @@ Customize `build-backend' for a lucky build."
    (propertize
     "Syntax: ERROR"
     :help-echo "Tst string"
-    :follow-link 'test-mouse
     'display
     `(image :type xpm
             :ascent center
@@ -297,54 +296,17 @@ Customize `build-backend' for a lucky build."
   '("button" "checkbox" "vslider" "hslider" "nentry"
     "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
 
-
-;; (defcustom build "C-c C-b"
-;;   :type '(string)
-;;   :group 'keyboard-shortcuts)
-
-;; (defcustom build-all "C-c C-S-b"
-;;   :type '(string)
-;;   :group 'keyboard-shortcuts)
-
-;; (defcustom diagram "C-c C-S-d"
-;;   :type '(string)
-;;   :group 'keyboard-shortcuts)
-
-;; (defcustom diagram-all "C-c C-S-d"
-;;   :type '(string)
-;;   :group 'keyboard-shortcuts)
-
-;; (defcustom online-doc "C-c C-h"
-;;   :type '(string)
-;;   :group 'keyboard-shortcuts)
-
-;; (defcustom toggle-output-buffer "C-c C-o"
-;;   :type '(string)
-;;   :group 'keyboard-shortcuts)
-
-;; (defcustom mdoc "C-c C-m"
-;;   :type '(string)
-;;   :group 'keyboard-shortcuts)
-
-;; (defcustom run "C-c C-r"
-;;   :type '(string)
-;;   :group 'keyboard-shortcuts)
-
-;; (defcustom source-code "C-c C-s"
-;;   :type '(string)
-;;   :group 'keyboard-shortcuts)
-
 (defvar faustine-mode-map
    (let ((map (make-sparse-keymap)))
-     (define-key map (kbd build) 'faustine-build)
-     (define-key map (kbd build-all) 'faustine-build-all)
-     (define-key map (kbd diagram) 'faustine-diagram)
-     (define-key map (kbd diagram-all) 'faustine-diagram-all)
-     (define-key map (kbd online-doc) 'faustine-online-doc)
-     (define-key map (kbd toggle-output-buffer) 'faustine-toggle-output-buffer)
-     (define-key map (kbd mdoc) 'faustine-mdoc)
-     (define-key map (kbd run) 'faustine-run)
-     (define-key map (kbd source-code) 'faustine-source-code)
+     (define-key map (kbd faustine-build) 'faustine-build)
+     (define-key map (kbd faustine-build-all) 'faustine-build-all)
+     (define-key map (kbd faustine-diagram) 'faustine-diagram)
+     (define-key map (kbd faustine-diagram-all) 'faustine-diagram-all)
+     (define-key map (kbd faustine-online-doc) 'faustine-online-doc)
+     (define-key map (kbd faustine-toggle-output-buffer) 'faustine-toggle-output-buffer)
+     (define-key map (kbd faustine-mdoc) 'faustine-mdoc)
+     (define-key map (kbd faustine-run) 'faustine-run)
+     (define-key map (kbd faustine-source-code) 'faustine-source-code)
      (define-key map [?\C-c ?\C-c] 'faustine-syntax-check)
      map)
    "Keymap for `faustine-mode'.")
@@ -381,7 +343,7 @@ Customize `build-backend' for a lucky build."
 (define-derived-mode faustine-mode fundamental-mode "Emacs Faust IDE Mode" "
 Faustine is a lightweight IDE that leverages the mighty power of the faust executable.
 
-Use \\[faustine-set-preferences] to set it up.
+Use \\[faustine-configure] to set it up.
 Available commands while editing Faust (*.dsp) files:
 
 \\{faustine-mode-map}"
@@ -415,19 +377,17 @@ Available commands while editing Faust (*.dsp) files:
                             ("Process Diagram started" . font-lock-keyword-face)
                             ("ERROR" . font-lock-warning-face)))
 
-  ;; (auto-complete-mode 1)
   (add-to-list 'ac-modes 'faustine-mode)
   (setq ac-user-dictionary (append faust-keywords faust-functions faust-ui-keywords))
   (setq ac-auto-show-menu t)
   (setq ac-auto-start t)
   (setq major-mode 'faustine-mode)
-  (message "########### MODE OK & build-backend : %s" build-backend)
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
 ;; Functions
 
-(defun faustine-set-preferences ()
-  "Use `cutomize-group' to set up Emacs Faust IDE preferences "
+(defun faustine-configure ()
+  "Use `cutomize-group' to set up Faustine preferences "
   (interactive)
   (customize-group 'faustine))
 
@@ -442,7 +402,6 @@ Available commands while editing Faust (*.dsp) files:
 
 (defun faustine-link-dsp (button)
   "Open Faust file"
-  (message "####### XXX: %s" (file-name-directory buffer-file-name))
   (find-file (format "%s%s"
                      (file-name-directory buffer-file-name)
                      (buffer-substring
@@ -463,10 +422,6 @@ Available commands while editing Faust (*.dsp) files:
     (goto-char (point-min))
     (while (re-search-forward faustine-regexp-lib nil t)
       (make-button (match-beginning 1) (match-end 1) :type 'faustine-link-lib))))
-
-(defun test-mouse ()
-  (interactive)
-  (message "plop"))
 
 (defun faustine-online-doc (start end)
   "Websearch selected string on the faust.grame.fr library web site."
@@ -503,7 +458,6 @@ Available commands while editing Faust (*.dsp) files:
   (interactive)
   (setq dsp-buffer (buffer-name))
   (setq-local output-check (shell-command-to-string (format "faust %s > /dev/null" dsp-buffer)))
-  ;; (message "Output: (%s)" output-check)
   (if (string= "" output-check)
       (progn
         (faustine-minor-mode-red 0)
@@ -560,16 +514,17 @@ Available commands while editing Faust (*.dsp) files:
       (font-lock-fontify-buffer)
       (goto-char (point-max))
       (newline)
-      (insert (format "%s | Process: %s\nEvent: %s"
+      (insert (format "%s | Process: %s\nEvent: %s\n"
                       (format-time-string "%H:%M:%S")
                       process
                       (replace-regexp-in-string "\n" " " event)))
       (if (get-buffer-window output-buffer-name `visible)
           (progn (setq other-window-scroll-buffer output-buffer-name)
-                 (scroll-other-window))))))
+                 (scroll-other-window)))
+      (goto-char (point-max)))))
 
 (defun faustine-toggle-output-buffer ()
-  "Show/hide Faust output buffer"
+  "Show/hide Faust output buffer."
   (interactive)
   (if (get-buffer-window output-buffer-name `visible)
       (delete-window (get-buffer-window output-buffer-name `visible))
@@ -596,27 +551,16 @@ Available commands while editing Faust (*.dsp) files:
     (identity blist)))
 
 (defun faustine-build (&optional build-all)
-  "Build the executable(s) using the `build-backend' executable. If BUILD-ALL is set, build all .dsp files in the current directory."
+  "Build the current buffer/file executable(s) using the `build-backend' script. If BUILD-ALL is set, build all `faust-extension` files referenced by this one."
   (interactive)
   (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
-  (with-current-buffer (get-buffer-create output-buffer-name)
-    (pop-to-buffer output-buffer-name nil t)
-    (faustine-output-mode)
-    (goto-char (point-max))
-    (insert "\nProcess Build started\n")
-    (if build-all
-        (progn (setq files-to-build (mapconcat 'identity (project-files dsp-buffer-name '()) " "))
-               (message "Building ALL: %s" files-to-build))
-      (progn (message "Building just %s" dsp-buffer)
-             (setq files-to-build dsp-buffer)))
-    (start-process-shell-command
-     "Build"
-     (current-buffer)
-     (format "%s %s" build-backend files-to-build))
-    (other-window -1)
-    (message "files: %s" files-to-build)
-    (pop-to-buffer dsp-buffer nil t)))
+  (log-to-buffer "Build" "started")
+  (let ((files-to-build (if build-all
+                            (mapconcat 'identity (project-files dsp-buffer-name '()) " ")
+                          dsp-buffer)))
+    (start-process-shell-command "Build"
+                                 output-buffer-name (format "%s %s" build-backend files-to-build))))
 
 (defun faustine-diagram (&optional build-all)
   "Generate Faust diagram(s)."
