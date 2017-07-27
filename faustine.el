@@ -516,9 +516,10 @@ Available commands while editing Faust (*.dsp) files:
 
 (defvar mylist '())
 
-(defun dsp-files (fname blist)
-  "Recursively find all Faust links in FNAME, put them in BLIST, return it."
+(defun project-files (fname blist)
+  "Recursively find all Faust links in FNAME, canonicalize and put them in BLIST, return it."
   (interactive)
+  ;; (message "Name:%s List: %s" fname blist)
   (add-to-list 'blist (expand-file-name fname))
   (with-temp-buffer
     (insert-file-contents-literally fname)
@@ -526,8 +527,11 @@ Available commands while editing Faust (*.dsp) files:
     (while (re-search-forward faustine-regexp-dsp nil t)
       (when (match-string 0)
         (let ((uri (expand-file-name (match-string 1))))
+          ;; (message "uri: %s" blist)
           (if (not (member uri blist))
-              (setq blist (dsp-files uri blist))))))
+              (setq blist (project-files uri blist)))
+
+          )))
     (identity blist)))
 
 ;; (dsp-files "kik.dsp" '())
@@ -540,7 +544,7 @@ Available commands while editing Faust (*.dsp) files:
   (let ((mylist nil)
         (files-to-build
          (if build-all
-             (directory-files (file-name-directory buffer-file-name) nil (concat "^[a-z0-9A-Z]?+\\." faust-extension "$"))
+             (project-files dsp-buffer-name '())
            (list dsp-buffer-name)))
         (display-mode (if build-all "all" "single")))
     (message "##### ftb %s" diagram-page-name)
@@ -629,9 +633,10 @@ img.scaled {
                      dsp-dir
                      dsp-element
                      dsp-dir
-                     dsp-element
-                     dsp-file-name
-                     dsp-file-name) nil temp-file-name 'append 0 nil nil)))
+                     (file-name-nondirectory dsp-element)
+                     (file-name-nondirectory dsp-file-name)
+                     (file-name-nondirectory dsp-file-name)
+                     ) nil temp-file-name 'append 0 nil nil)))
       (setq list (cdr list)))
     (write-region "</div>
 </body>
