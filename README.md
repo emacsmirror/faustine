@@ -6,10 +6,12 @@ Faustine is a Faust code editor for Emacs ; Not ready for production yet.
 [FAUST](http://faust.grame.fr) (Functional Audio Stream) is a functional programming language specifically designed for real-time signal processing and synthesis. FAUST targets high-performance signal processing applications and audio plug-ins for a variety of platforms and standards.
 
 ## What does it do?
+- Project-based (all inter-linked Faust files)
 - Faust code syntax hightlighting plus indentation
 - Build/compile with configurable output window
 - Graphic diagrams generation and vizualisation in the browser
 - From function name to online documentation
+- Inter-linked library files
 - Browse generated C++ code inside Emacs
 - Fully configurable (build type/target, toolkit, preferences, etc.) via `customize-group emacs-faust-ide RET`
 - Automatic keyword completion
@@ -25,7 +27,7 @@ Faustine is a Faust code editor for Emacs ; Not ready for production yet.
 ```
 - Require the file in your `~/.emacs`:
 `(require 'emacs-faust-ide nil 'noerror)`
-- Open a .dsp file
+- Open a .dsp file (or use `faustine-configure` to set your own Faust file extension)
 - Use `C-h m` for help and commands
 
 ### Can I thank you?
