@@ -91,7 +91,7 @@
 (easy-menu-define
   faustine-minor-mode-green-menu
   faustine-minor-mode-green-map
-  ""
+  "Green bug menu"
   '("Faust build: OK"
     ["Faust output buffer" faustine-toggle-output-buffer t]
     ("Build & compile"
@@ -100,7 +100,7 @@
 (easy-menu-define
   my-mode-mapfaustine-minor-mode-red-menu
   faustine-minor-mode-red-map
-  "Re bug menu"
+  "Red bug menu"
   '("Faust build: Error"
     ["Faust output buffer" faustine-toggle-output-buffer t]
     ("Sub Menu"
@@ -190,8 +190,8 @@
     "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
 
 (defgroup faustine nil
-  "Emacs Faust IDE - A lightweight IDE.
-Customize `build-backend' for a lucky build"
+  "Faustine - A lightweight Emacs Faust IDE.
+Customize `build-backend' for a lucky build."
   :group 'applications)
 
 (defcustom build-backend 'faust2jaqt
@@ -285,7 +285,7 @@ Customize `build-backend' for a lucky build"
 
 ;;;###autoload
 (define-derived-mode faustine-mode fundamental-mode "Emacs Faust IDE Mode" "
-Emacs Faust IDE is a lightweight IDE that leverages the mighty power of the faust executable.
+Faustine is a lightweight IDE that leverages the mighty power of the faust executable.
 
 Use \\[faustine-set-preferences] to set it up.
 Available commands while editing Faust (*.dsp) files:
@@ -390,30 +390,9 @@ Available commands while editing Faust (*.dsp) files:
   (faustine-build 1))
 
 (defun faustine-diagram-all ()
-  "Build all executables using `faustine-build'"
+  "Build all executables using `faustine-diagram'"
   (interactive)
   (faustine-diagram 1))
-
-(defun faustine-build (&optional build-all)
-  "Build the executable(s) using the `build-backend' executable. If BUILD-ALL is set, build all .dsp files in the current directory."
-  (interactive)
-  (setq dsp-buffer (current-buffer))
-  (with-current-buffer (get-buffer-create output-buffer-name)
-    (pop-to-buffer output-buffer-name nil t)
-    (faustine-output-mode)
-    (goto-char (point-max))
-    (insert "Process Build started\n")
-    (if build-all
-        (progn (setq-local files-to-build "*.dsp")
-               (message "Building ALL"))
-      (progn (message "Building just %s" dsp-buffer)
-             (setq files-to-build dsp-buffer)))
-    (start-process-shell-command
-     "Build"
-     (current-buffer)
-     (format "%s %s" build-backend files-to-build))
-    (other-window -1)
-    (pop-to-buffer dsp-buffer nil t)))
 
 (defun faustine-source-code ()
   "Generate Faust c++ code of the current faust file, display it in a buffer."
@@ -497,68 +476,77 @@ Available commands while editing Faust (*.dsp) files:
                       (replace-regexp-in-string "\n" " " event)))
       (if (get-buffer-window output-buffer-name `visible)
           (progn (setq other-window-scroll-buffer output-buffer-name)
-                 (scroll-other-window 1))))))
+                 (scroll-other-window))))))
 
 (defun faustine-toggle-output-buffer ()
   "Show output buffer"
   (interactive)
   (if (get-buffer-window output-buffer-name `visible)
       (delete-window (get-buffer-window output-buffer-name `visible))
-
     (let ((oldbuf (current-buffer)))
       (with-current-buffer (get-buffer-create output-buffer-name)
-
         (display-buffer output-buffer-name)
         (if (> (+ 1 -16)
                (window-resizable
                 (get-buffer-window output-buffer-name `visible) -16 nil))
             (window-resize (get-buffer-window output-buffer-name `visible) -16 nil))))))
 
-(defun dsp-files (fname)
-  "Find all Faust links in FNAME"
+(defun project-files (fname blist)
+  "Recursively find all Faust links in FNAME, canonicalize and put them in BLIST, return it."
+  (interactive)
+  (add-to-list 'blist (expand-file-name fname))
   (with-temp-buffer
     (insert-file-contents-literally fname)
     (goto-char (point-min))
-    (setq mylist '())
     (while (re-search-forward faustine-regexp-dsp nil t)
       (when (match-string 0)
-        (let ((url (match-string 1)))
-          (add-to-list 'mylist url))))
-    (identity mylist)))
+        (let ((uri (expand-file-name (match-string 1))))
+          (if (not (member uri blist))
+              (setq blist (project-files uri blist))))))
+    (identity blist)))
 
-;; (dsp-files "~/src/kik/kik.dsp")
+(defun faustine-build (&optional build-all)
+  "Build the executable(s) using the `build-backend' executable. If BUILD-ALL is set, build all .dsp files in the current directory."
+  (interactive)
+  (setq dsp-buffer (current-buffer))
+  (setq dsp-buffer-name (buffer-name))
+  (with-current-buffer (get-buffer-create output-buffer-name)
+    (pop-to-buffer output-buffer-name nil t)
+    (faustine-output-mode)
+    (goto-char (point-max))
+    (insert "\nProcess Build started\n")
+    (if build-all
+        (progn (setq files-to-build (project-files dsp-buffer-name '()))
+               (message "Building ALL: %s" files-to-build))
+      (progn (message "Building just %s" dsp-buffer)
+             (setq files-to-build dsp-buffer)))
+    (start-process-shell-command
+     "Build"
+     (current-buffer)
+     (format "%s %s" build-backend (mapconcat 'identity files-to-build " ")))
+    (other-window -1)
+    (message "files: %s" files-to-build)
+    (pop-to-buffer dsp-buffer nil t)))
 
 (defun faustine-diagram (&optional build-all)
   "Generate Faust diagram(s)."
   (interactive)
   (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
+  (log-to-buffer "Diagram" "started")
   (let ((mylist nil)
         (files-to-build
          (if build-all
-             (directory-files (file-name-directory buffer-file-name) nil (concat "^[a-z0-9A-Z]?+\\." faust-extension "$"))
+             (project-files dsp-buffer-name '())
            (list dsp-buffer-name)))
         (display-mode (if build-all "all" "single")))
-    (message "##### ftb %s" diagram-page-name)
-    (message "faust2svg %s" files-to-build)
     (setq command-output (shell-command-to-string (format "faust2svg %s" (mapconcat 'identity files-to-build " "))))
     (if (string= "" command-output)
         (progn
           (log-to-buffer "Diagram" "finished")
           (faustine-build-temp-file files-to-build diagram-page-name dsp-buffer-name display-mode)
           (faustine-show diagram-page-name))
-      (progn (message "Woops!")
-             (log-to-buffer "Diagram" (format "Error: %s" command-output))))
-    ))
-
-;; (setq myotherlist nil)
-;; (setq mylist (directory-files (file-name-directory buffer-file-name) nil ))
-
-;; (message "%s" mylist)
-
-;; (setq mylist (list "plop"))
-
-;; (mapconcat 'identity mylist " ")
+      (log-to-buffer "Diagram" (format "Error: %s" command-output)))))
 
 (defun faustine-build-temp-file (list temp-file-name diagram display-mode)
   "Build a minimal HTML (web) page to display Faust diagram(s)."
@@ -625,9 +613,10 @@ img.scaled {
                      dsp-dir
                      dsp-element
                      dsp-dir
-                     dsp-element
-                     dsp-file-name
-                     dsp-file-name) nil temp-file-name 'append 0 nil nil)))
+                     (file-name-nondirectory dsp-element)
+                     (file-name-nondirectory dsp-file-name)
+                     (file-name-nondirectory dsp-file-name)
+                     ) nil temp-file-name 'append 0 nil nil)))
       (setq list (cdr list)))
     (write-region "</div>
 </body>
