@@ -37,8 +37,6 @@
 ;; Code:
 
 (require 'smie)
-(require 'easymenu)
-(require 'auto-complete-mode nil 'noerror)
 
 (defvar display-mode)
 (defvar temp-file-name)
@@ -67,64 +65,48 @@ Customize `build-backend' for a lucky build."
   "Faustine keyboard shortcuts"
   :group 'faustine)
 
-
-;; (defvar faustine-mode-map
-;;    (let ((map (make-sparse-keymap)))
-;;      (define-key map [(control c) (control b)] 'faustine-build)
-;;      (define-key map [?\C-c ?\C-\S-b] 'faustine-build-all)
-;;      (define-key map [?\C-c ?\C-d] 'faustine-diagram)
-;;      (define-key map [?\C-c ?\C-\S-d] 'faustine-diagram-all)
-;;      (define-key map [?\C-c ?\C-h] 'faustine-online-doc)
-;;      (define-key map [?\C-c ?\C-o] 'faustine-toggle-output-buffer)
-;;      (define-key map [?\C-c ?\C-m] 'faustine-mdoc)
-;;      (define-key map [?\C-c ?\C-r] 'faustine-run)
-;;      (define-key map [?\C-c ?\C-s] 'faustine-source-code)
-;;      (define-key map [?\C-c ?\C-c] 'faustine-syntax-check)
-;;      map)
-;;    "Keymap for `faustine-mode'.")
-
 (defcustom build "C-c C-b"
-  "plop"
+  "Build the current buffer/file executable using the `build-backend' script. "
   :type '(string)
   :group 'keyboard-shortcuts)
 
 (defcustom build-all "C-c C-S-b"
-  "plop"
+  "Build all project files."
   :type '(string)
   :group 'keyboard-shortcuts)
 
 (defcustom diagram "C-c C-d"
-  "plop"
+  "Generate the current buffer/file Faust diagram."
   :type '(string)
   :group 'keyboard-shortcuts)
 
 (defcustom diagram-all "C-c C-S-d"
-  "plop"
+  "Generate all project files Faust diagrams."
   :type '(string)
   :group 'keyboard-shortcuts)
 
 (defcustom online-doc "C-c C-h"
-  "plop"
+  "Websearch the selected string on the faust.grame.fr library web site."
   :type '(string)
   :group 'keyboard-shortcuts)
 
 (defcustom toggle-output-buffer "C-c C-o"
-  "plop"
+  "Show/hide Faust output buffer"
   :type '(string)
   :group 'keyboard-shortcuts)
 
 (defcustom mdoc "C-c C-m"
-  "plop"
+  "Generate Faust mdoc of the current faust buffer/file."
   :type '(string)
   :group 'keyboard-shortcuts)
 
 (defcustom run "C-c C-r"
-  "plop"
+  "Run the current buffer/file executable."
   :type '(string)
   :group 'keyboard-shortcuts)
 
 (defcustom source-code "C-c C-s"
-  "plop"
+  "Generate C++ source code of the current faust buffer/file."
   :type '(string)
   :group 'keyboard-shortcuts)
 
@@ -588,7 +570,7 @@ Available commands while editing Faust (*.dsp) files:
                  (scroll-other-window))))))
 
 (defun faustine-toggle-output-buffer ()
-  "Show output buffer"
+  "Show/hide Faust output buffer"
   (interactive)
   (if (get-buffer-window output-buffer-name `visible)
       (delete-window (get-buffer-window output-buffer-name `visible))
