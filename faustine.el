@@ -5,7 +5,7 @@
 ;; specifically designed for real-time signal processing and synthesis.
 ;; FAUST targets high-performance signal processing applications and audio plug-ins
 ;; for a variety of platforms and standards.
-;; http://faust.grame.fr "plop.lib"
+;; http://faust.grame.fr
 ;;
 ;; Copyright (C) 2017, 2018 Yassin Philip
 ;; URL: https://bitbucket.org/yassinphilip/faustine
@@ -38,8 +38,27 @@
 
 (require 'smie)
 (require 'easymenu)
+(require 'auto-complete-mode nil 'noerror)
 
-(defcustom output-buffer-name "Faust output"
+(defvar display-mode)
+(defvar temp-file-name)
+(defvar output-visible)
+(defvar dsp-buffer)
+(defvar faustine-output-openp)
+(defvar dsp-buffer-name)
+(defvar files-to-build)
+(defvar output-check)
+(defvar command-output)
+(defvar faustine-regexp-dsp)
+(defvar faustine-regexp-lib)
+
+(defvar ac-modes)
+(defvar ac-user-dictionary)
+(defvar ac-auto-show-menu)
+(defvar ac-auto-start)
+(defvar ac-sources)
+
+(defcustom output-buffer-name "*Faust*"
   "The name of the Faust output Buffer. Surround it with \"*\" to hide it in special buffers."
   :type '(string)
   :group 'faustine)
@@ -66,13 +85,11 @@
 
 (defvar faustine-minor-mode-green-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-2] 'test-mouse)
     map)
   "Keymap for `faustine-minor-mode-green'.")
 
 (defvar faustine-minor-mode-red-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-2] 'test-mouse)
     map)
   "Keymap for `faustine-minor-mode-red'.")
 
@@ -94,8 +111,13 @@
   "Green bug menu"
   '("Faust build: OK"
     ["Faust output buffer" faustine-toggle-output-buffer t]
-    ("Build & compile"
-     ["Generate source code" faustine-source-code t])))
+    ["Generate C++ code" faustine-source-code t]
+    ["Generate diagram" faustine-diagram t]
+    ["Build executable" faustine-build t]
+    ["Run executable" faustine-run t]
+    ("Project"
+    ["Generate all diagrams" faustine-diagram-all t]
+    ["Build all executables" faustine-build-all t])))
 
 (easy-menu-define
   my-mode-mapfaustine-minor-mode-red-menu
@@ -108,17 +130,6 @@
 
 (easy-menu-define jrk-menu global-map "MyMenu"
   '("My Files"))
-
-(defvar faustine-module-path (file-name-directory load-file-name))
-
-(defvar display-mode)
-(defvar temp-file-name)
-(defvar output-visible)
-(defvar dsp-buffer)
-(defvar faustine-output-openp)
-(defvar dsp-buffer-name)
-(defvar files-to-build)
-(defvar output-check)
 
 (defvar faustine-minor-mode-green-bug
   (list
@@ -297,7 +308,7 @@ Available commands while editing Faust (*.dsp) files:
   (add-hook 'find-file-hook 'faustine-syntax-check-continuous-hook nil t)
   (add-hook 'find-file-hook 'faustine-buttonize-buffer-lib nil t)
   (add-hook 'find-file-hook 'faustine-buttonize-buffer-dsp nil t)
-  (setq mode-name "Faust mode")
+  (setq mode-name "Faust")
   (set-syntax-table faustine-mode-syntax-table)
   (setq-local comment-start "// ")
   (setq-local comment-end "")
@@ -321,7 +332,8 @@ Available commands while editing Faust (*.dsp) files:
                             ("Process Diagram started" . font-lock-keyword-face)
                             ("ERROR" . font-lock-warning-face)))
 
-  (auto-complete-mode t)
+  ;; (auto-complete-mode 1)
+  (add-to-list 'ac-modes 'faustine-mode)
   (setq ac-user-dictionary (append faust-keywords faust-functions faust-ui-keywords))
   (setq ac-auto-show-menu t)
   (setq ac-auto-start t)
@@ -451,7 +463,6 @@ Available commands while editing Faust (*.dsp) files:
     (pop-to-buffer output-buffer-name nil t)
     (faustine-output-mode)
     (goto-char (point-max))
-    (insert "plop")plop
     (call-process "/bin/bash" nil t nil "-c" (format "faust2mathdoc %s" dsp-buffer-name))
     (other-window -1)
     (pop-to-buffer dsp-buffer nil t))
@@ -593,7 +604,7 @@ img.scaled {
           (let* ((dsp-element (file-name-sans-extension (car list)))
                  (i 0)
                  (dsp-file-name (car list))
-                 (class (if (equal diagram (car list))
+                 (class (if (equal diagram (file-name-nondirectory (car list)))
                             "focus"
                           "normal"))
                  (order (if (equal diagram (car list))
