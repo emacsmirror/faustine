@@ -66,13 +66,11 @@
 
 (defvar faustine-minor-mode-green-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-2] 'test-mouse)
     map)
   "Keymap for `faustine-minor-mode-green'.")
 
 (defvar faustine-minor-mode-red-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-2] 'test-mouse)
     map)
   "Keymap for `faustine-minor-mode-red'.")
 
@@ -94,8 +92,13 @@
   "Green bug menu"
   '("Faust build: OK"
     ["Faust output buffer" faustine-toggle-output-buffer t]
-    ("Build & compile"
-     ["Generate source code" faustine-source-code t])))
+    ["Generate C++ code" faustine-source-code t]
+    ["Generate diagram" faustine-diagram t]
+    ["Build executable" faustine-build t]
+    ["Run executable" faustine-run t]
+    ("Project"
+    ["Generate all diagrams" faustine-diagram-all t]
+    ["Build all executables" faustine-build-all t])))
 
 (easy-menu-define
   my-mode-mapfaustine-minor-mode-red-menu
@@ -593,7 +596,7 @@ img.scaled {
           (let* ((dsp-element (file-name-sans-extension (car list)))
                  (i 0)
                  (dsp-file-name (car list))
-                 (class (if (equal diagram (car list))
+                 (class (if (equal diagram (file-name-nondirectory (car list)))
                             "focus"
                           "normal"))
                  (order (if (equal diagram (car list))
