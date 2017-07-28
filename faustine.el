@@ -396,6 +396,7 @@ Available commands while editing Faust (*.dsp) files:
                             ("ERROR" . font-lock-warning-face)))
 
   (when (require 'company nil 'noerror)
+    (add-to-list 'company-backends 'company-faust-backend)
     (company-mode 1))
 
   ;; (when (require 'auto-complete nil 'noerror)
@@ -409,17 +410,17 @@ Available commands while editing Faust (*.dsp) files:
 
 ;; Functions
 
-(defun company-faustine-backend (command &optional arg &rest ignored)
+(defun company-faust-backend (command &optional arg &rest ignored)
   (interactive (list 'interactive))
 
   (cl-case command
-    (interactive (company-begin-backend 'company-faustine-backend))
+    (interactive (company-begin-backend 'company-faust-backend))
     (prefix (and (eq major-mode 'faustine-mode)
                  (company-grab-symbol)))
     (candidates
      (cl-remove-if-not
       (lambda (c) (string-prefix-p arg c))
-      faust-keywords))))
+      (append faust-keywords faust-functions faust-ui-keywords)))))
 
 (defun faustine-configure ()
   "Use `cutomize-group' to set up Faustine preferences "
