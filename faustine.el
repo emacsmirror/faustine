@@ -11,7 +11,7 @@
 ;; URL: https://bitbucket.org/yassinphilip/faustine
 ;;
 ;; Author: Yassin Philip <xaccrocheur@gmail.com>
-;; Keywords: faust
+;; Keywords: tools, modes, faust
 ;; Version 0.5b
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -37,6 +37,9 @@
 ;; Code:
 
 (require 'smie)
+(require 'cl-lib)
+;; (require 'auto-complete)
+;; (ac-config-default)
 
 (defvar display-mode)
 (defvar temp-file-name)
@@ -50,11 +53,11 @@
 (defvar faustine-regexp-dsp)
 (defvar faustine-regexp-lib)
 
-(defvar ac-modes)
-(defvar ac-user-dictionary)
-(defvar ac-auto-show-menu)
-(defvar ac-auto-start)
-(defvar ac-sources)
+;; (defvar ac-modes)
+;; (defvar ac-user-dictionary)
+;; (defvar ac-auto-show-menu)
+;; (defvar ac-auto-start)
+;; (defvar ac-sources)
 
 (defgroup faustine nil
   "Faustine - A lightweight Emacs Faust IDE.
@@ -263,21 +266,21 @@ Customize `build-backend' for a lucky build."
 (put 'faustine-minor-mode-green-bug 'risky-local-variable t)
 (put 'faustine-minor-mode-red-bug 'risky-local-variable t)
 
-(add-hook 'faustine-mode-hook
-          (lambda ()
-            (setq ac-sources '(ac-source-words-in-buffer
-                               ac-source-symbols
-                               ac-source-abbrev
-                               ac-source-dictionary
-                               ac-source-features
-                               ac-source-filename
-                               ac-source-files-in-current-dir
-                               ac-source-functions
-                               ac-source-symbols
-                               ac-source-variables
-                               ac-source-words-in-all-buffer
-                               ac-source-words-in-buffer
-                               ac-source-words-in-same-mode-buffers))))
+;; (add-hook 'faustine-mode-hook
+;;           (lambda ()
+;;             (setq ac-sources '(ac-source-words-in-buffer
+;;                                ac-source-symbols
+;;                                ac-source-abbrev
+;;                                ac-source-dictionary
+;;                                ac-source-features
+;;                                ac-source-filename
+;;                                ac-source-files-in-current-dir
+;;                                ac-source-functions
+;;                                ac-source-symbols
+;;                                ac-source-variables
+;;                                ac-source-words-in-all-buffer
+;;                                ac-source-words-in-buffer
+;;                                ac-source-words-in-same-mode-buffers))))
 
 (define-minor-mode faustine-minor-mode-green
   "Minor mode to display a green bug in the mode-line."
@@ -289,13 +292,13 @@ Customize `build-backend' for a lucky build."
   :lighter faustine-minor-mode-red-bug
   :keymap faustine-minor-mode-red-map)
 
-(defvar faust-keywords
+(defconst faust-keywords
   '("process" "with" "case" "seq" "par" "sum" "prod"
     "include" "import" "component" "library" "environment" "declare"
     "define" "undef" "error" "pragma" "ident"
     "if" "def" "else" "elif" "endif" "line" "warning"))
 
-(defvar faust-functions
+(defconst faust-functions
   '("mem" "prefix" "int" "float"
     "rdtable" "rwtable" "select2" "select3"
     "ffunction" "fconstant" "fvariable"
@@ -303,7 +306,7 @@ Customize `build-backend' for a lucky build."
     "log" "log10" "pow" "sqrt" "abs" "min" "max" "fmod"
     "remainder" "floor" "ceil" "rint"))
 
-(defvar faust-ui-keywords
+(defconst faust-ui-keywords
   '("button" "checkbox" "vslider" "hslider" "nentry"
     "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
 
@@ -376,7 +379,9 @@ Available commands while editing Faust (*.dsp) files:
   (use-local-map faustine-mode-map)
 
   (font-lock-add-keywords 'faustine-output-mode
-                          '(("finished" . font-lock-keyword-face)
+                          '(("Process" . font-lock-constant-face)
+                            ("Event" . font-lock-constant-face)
+                            ("finished" . font-lock-keyword-face)
                             ("started" . font-lock-keyword-face)
                             ("Build" . font-lock-string-face)
                             ("Mdoc" . font-lock-string-face)
@@ -390,14 +395,31 @@ Available commands while editing Faust (*.dsp) files:
                             ("Process Diagram started" . font-lock-keyword-face)
                             ("ERROR" . font-lock-warning-face)))
 
-  (add-to-list 'ac-modes 'faustine-mode)
-  (setq ac-user-dictionary (append faust-keywords faust-functions faust-ui-keywords))
-  (setq ac-auto-show-menu t)
-  (setq ac-auto-start t)
+  (when (require 'company nil 'noerror)
+    (company-mode 1))
+
+  ;; (when (require 'auto-complete nil 'noerror)
+    ;; (add-to-list 'ac-modes 'faustine-mode))
+
+  ;; (setq ac-user-dictionary (append faust-keywords faust-functions faust-ui-keywords))
+  ;; (setq ac-auto-show-menu t)
+  ;; (setq ac-auto-start t)
   (setq major-mode 'faustine-mode)
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
 ;; Functions
+
+(defun company-faustine-backend (command &optional arg &rest ignored)
+  (interactive (list 'interactive))
+
+  (cl-case command
+    (interactive (company-begin-backend 'company-faustine-backend))
+    (prefix (and (eq major-mode 'faustine-mode)
+                 (company-grab-symbol)))
+    (candidates
+     (cl-remove-if-not
+      (lambda (c) (string-prefix-p arg c))
+      faust-keywords))))
 
 (defun faustine-configure ()
   "Use `cutomize-group' to set up Faustine preferences "
