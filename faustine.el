@@ -532,31 +532,24 @@ Available commands while editing Faust (*.dsp) files:
     (set-process-sentinel
      (start-process-shell-command
       "Mdoc"
-      output-buffer-name (format "faust2mathdoc %s" files-to-build)) 'log-to-buffer)
+      output-buffer-name (format "faust2mathdoc %s" files-to-build)) 'mdoc-sentinel)
 
     ;; (start-process-shell-command
     ;;  "Mdoc"
     ;;  output-buffer-name (format "faust2mathdoc %s" files-to-build))
     ))
 
-
-
-(defun log-to-buffer-test (process event)
-  "Run the program, print the status to the output buffer, scroll buffer down."
-  (let ((oldbuf (current-buffer)))
-    (with-current-buffer (get-buffer-create output-buffer-name)
-      (faustine-output-mode)
-      (font-lock-fontify-buffer)
-      (goto-char (point-max))
-      (newline)
-      (insert (format "%s | Process: %s\nEvent: %s\n"
-                      (format-time-string "%H:%M:%S")
-                      process
-                      (replace-regexp-in-string "\n" " " event)))
-      (if (get-buffer-window output-buffer-name `visible)
-          (progn (setq other-window-scroll-buffer output-buffer-name)
-                 (scroll-other-window)))
-      (goto-char (point-max)))))
+(defun mdoc-sentinel (process event)
+  "mdoc sentinel"
+  (setq pdf-file (format "%s-mdoc/pdf/%s.pdf"
+                               (file-name-sans-extension
+                                dsp-buffer-name)
+                               (file-name-sans-extension
+                                dsp-buffer-name)))
+  (log-to-buffer process event)
+  (message "e: %s" event)
+  (when (string-prefix-p "finished" event)
+              (faustine-show pdf-file)))
 
 (defun log-to-buffer (process event)
   "Run the program, print the status to the output buffer, scroll buffer down."
