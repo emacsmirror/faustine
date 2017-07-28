@@ -41,7 +41,6 @@
 
 (defvar display-mode)
 (defvar temp-file-name)
-(defvar pdf-file)
 (defvar output-visible)
 (defvar dsp-buffer)
 (defvar dsp-buffer-name)
@@ -512,12 +511,10 @@ Available commands while editing Faust (*.dsp) files:
 (defun faustine-mdoc (&optional build-all)
   "Generate Faust mdoc of the current faust file, display it in a buffer."
   (interactive)
-  (setq dsp-buffer (current-buffer))
-  (setq dsp-buffer-name (buffer-name))
   (log-to-buffer "Mdoc" "started")
   (let ((files-to-build (if build-all
-                            (mapconcat 'identity (project-files dsp-buffer-name '()) " ")
-                          dsp-buffer)))
+                            (mapconcat 'identity (project-files (buffer-name) '()) " ")
+                          (current-buffer))))
     (set-process-sentinel
      (start-process-shell-command
       "Mdoc"
@@ -525,14 +522,15 @@ Available commands while editing Faust (*.dsp) files:
 
 (defun mdoc-sentinel (process event)
   "mdoc sentinel"
-  (setq pdf-file (format "%s-mdoc/pdf/%s.pdf"
-                               (file-name-sans-extension
-                                dsp-buffer-name)
-                               (file-name-sans-extension
-                                dsp-buffer-name)))
-  (log-to-buffer process event)
-  (when (string-prefix-p "finished" event)
-              (faustine-show pdf-file)))
+  (let ((pdf-file (format "%s-mdoc/pdf/%s.pdf"
+                          (file-name-sans-extension
+                           (buffer-name))
+                          (file-name-sans-extension
+                           (buffer-name)))))
+    (log-to-buffer process event)
+    (when (string-prefix-p "finished" event)
+      (faustine-show pdf-file))))
+
 
 (defun log-to-buffer (process event)
   "Run the program, print the status to the output buffer, scroll buffer down."
