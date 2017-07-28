@@ -37,8 +37,6 @@
 ;; Code:
 
 (require 'smie)
-;; (require 'auto-complete)
-;; (ac-config-default)
 
 (defvar display-mode)
 (defvar temp-file-name)
@@ -51,12 +49,6 @@
 (defvar command-output)
 (defvar faustine-regexp-dsp)
 (defvar faustine-regexp-lib)
-
-;; (defvar ac-modes)
-;; (defvar ac-user-dictionary)
-;; (defvar ac-auto-show-menu)
-;; (defvar ac-auto-start)
-;; (defvar ac-sources)
 
 (defgroup faustine nil
   "Faustine - A lightweight Emacs Faust IDE.
@@ -265,22 +257,6 @@ Customize `build-backend' for a lucky build."
 (put 'faustine-minor-mode-green-bug 'risky-local-variable t)
 (put 'faustine-minor-mode-red-bug 'risky-local-variable t)
 
-;; (add-hook 'faustine-mode-hook
-;;           (lambda ()
-;;             (setq ac-sources '(ac-source-words-in-buffer
-;;                                ac-source-symbols
-;;                                ac-source-abbrev
-;;                                ac-source-dictionary
-;;                                ac-source-features
-;;                                ac-source-filename
-;;                                ac-source-files-in-current-dir
-;;                                ac-source-functions
-;;                                ac-source-symbols
-;;                                ac-source-variables
-;;                                ac-source-words-in-all-buffer
-;;                                ac-source-words-in-buffer
-;;                                ac-source-words-in-same-mode-buffers))))
-
 (define-minor-mode faustine-minor-mode-green
   "Minor mode to display a green bug in the mode-line."
   :lighter faustine-minor-mode-green-bug
@@ -376,8 +352,8 @@ Available commands while editing Faust (*.dsp) files:
 
   (smie-setup nil #'ignore)
 
-  (setq c-default-style "linux"
-        c-basic-offset 4)
+  ;; (setq c-default-style "linux"
+  ;;       c-basic-offset 4)
 
   (use-local-map faustine-mode-map)
 
@@ -402,13 +378,6 @@ Available commands while editing Faust (*.dsp) files:
     (require 'cl-lib)
     (add-to-list 'company-backends 'company-faust-backend)
     (company-mode))
-
-  ;; (when (require 'auto-complete nil 'noerror)
-    ;; (add-to-list 'ac-modes 'faustine-mode))
-
-  ;; (setq ac-user-dictionary (append faust-keywords faust-functions faust-ui-keywords))
-  ;; (setq ac-auto-show-menu t)
-  ;; (setq ac-auto-start t)
   (setq major-mode 'faustine-mode)
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
