@@ -37,7 +37,6 @@
 ;; Code:
 
 (require 'smie)
-(require 'cl-lib)
 ;; (require 'auto-complete)
 ;; (ac-config-default)
 
@@ -395,9 +394,10 @@ Available commands while editing Faust (*.dsp) files:
                             ("Process Diagram started" . font-lock-keyword-face)
                             ("ERROR" . font-lock-warning-face)))
 
-  (when (require 'company nil 'noerror)
-    (add-to-list 'company-backends 'company-faust-backend)
-    (company-mode 1))
+  ;; (when (require 'company nil 'noerror)
+  ;;   (require 'cl-lib)
+  ;;   (add-to-list 'company-backends 'company-faust-backend)
+  ;;   (company-mode))
 
   ;; (when (require 'auto-complete nil 'noerror)
     ;; (add-to-list 'ac-modes 'faustine-mode))
