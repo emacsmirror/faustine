@@ -37,8 +37,6 @@
 ;; Code:
 
 (require 'smie)
-(require 'easymenu)
-(require 'auto-complete-mode nil 'noerror)
 
 (defvar display-mode)
 (defvar temp-file-name)
@@ -58,8 +56,72 @@
 (defvar ac-auto-start)
 (defvar ac-sources)
 
+(defgroup faustine nil
+  "Faustine - A lightweight Emacs Faust IDE.
+Customize `build-backend' for a lucky build."
+  :group 'tools)
+
+(defgroup keyboard-shortcuts nil
+  "Faustine keyboard shortcuts"
+  :group 'faustine)
+
+(defcustom faustine-configure "C-c C-p"
+  "Configure Faustine."
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom faustine-build "C-c C-b"
+  "Build the current buffer/file executable using the `build-backend' script."
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom faustine-build-all "C-c C-S-b"
+  "Build all project files."
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom faustine-diagram "C-c C-d"
+  "Generate the current buffer/file Faust diagram."
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom faustine-diagram-all "C-c C-S-d"
+  "Generate all project files Faust diagrams."
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom faustine-online-doc "C-c C-h"
+  "Websearch the selected string on the faust.grame.fr library web site."
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom faustine-toggle-output-buffer "C-c C-o"
+  "Show/hide Faust output buffer"
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom faustine-mdoc "C-c C-m"
+  "Generate Faust mdoc of the current faust buffer/file."
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom faustine-run "C-c C-r"
+  "Run the current buffer/file executable."
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom faustine-source-code "C-c C-s"
+  "Generate C++ source code of the current faust buffer/file."
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
 (defcustom output-buffer-name "*Faust*"
-  "The name of the Faust output Buffer. Surround it with \"*\" to hide it in special buffers."
+  "The name of the Faust output buffer. Surround it with \"*\" to hide it in special buffers."
+  :type '(string)
+  :group 'faustine)
+
+(defcustom c++-buffer-name "*Faust C++*"
+  "The name of the Faust C++ code output buffer. Surround it with \"*\" to hide it in special buffers."
   :type '(string)
   :group 'faustine)
 
@@ -76,6 +138,51 @@
 (defcustom faust-extension "dsp"
   "The Faust files extension."
   :type '(string)
+  :group 'faustine)
+
+(defcustom build-backend 'faust2jaqt
+  "The Faust code-to-executable build backend."
+  :type '(choice
+          (const :tag "faust2alsa" faust2alsa)
+          (const :tag "faust2firefox" faust2firefox)
+          (const :tag "faust2netjackconsole" faust2netjackconsole)
+          (const :tag "faust2sigviewer" faust2sigviewer)
+          (const :tag "faust2alsaconsole" faust2alsaconsole)
+          (const :tag "faust2graph" faust2graph)
+          (const :tag "faust2netjackqt" faust2netjackqt)
+          (const :tag "faust2smartkeyb" faust2smartkeyb)
+          (const :tag "faust2android" faust2android)
+          (const :tag "faust2graphviewer" faust2graphviewer)
+          (const :tag "faust2octave" faust2octave)
+          (const :tag "faust2sndfile" faust2sndfile)
+          (const :tag "faust2androidunity" faust2androidunity)
+          (const :tag "faust2ios" faust2ios)
+          (const :tag "faust2osxiosunity" faust2osxiosunity)
+          (const :tag "faust2supercollider" faust2supercollider)
+          (const :tag "faust2api" faust2api)
+          (const :tag "faust2jack" faust2jack)
+          (const :tag "faust2owl" faust2owl)
+          (const :tag "faust2svg" faust2svg)
+          (const :tag "faust2asmjs" faust2asmjs)
+          (const :tag "faust2jackconsole" faust2jackconsole)
+          (const :tag "faust2paqt" faust2paqt)
+          (const :tag "faust2unity" faust2unity)
+          (const :tag "faust2atomsnippets" faust2atomsnippets)
+          (const :tag "faust2jackinternal" faust2jackinternal)
+          (const :tag "faust2pdf" faust2pdf)
+          (const :tag "faust2vst" faust2vst)
+          (const :tag "faust2au" faust2au)
+          (const :tag "faust2jackserver" faust2jackserver)
+          (const :tag "faust2plot" faust2plot)
+          (const :tag "faust2vsti" faust2vsti)
+          (const :tag "faust2bela" faust2bela)
+          (const :tag "faust2jaqt" faust2jaqt)
+          (const :tag "faust2png" faust2png)
+          (const :tag "faust2w32max6" faust2w32max6)
+          (const :tag "faust2caqt" faust2caqt)
+          (const :tag "faust2juce" faust2juce)
+          (const :tag "faust2puredata" faust2puredata)
+          (const :tag "faust2w32msp" faust2w32msp))
   :group 'faustine)
 
 ;;;###autoload
@@ -110,6 +217,7 @@
   faustine-minor-mode-green-map
   "Green bug menu"
   '("Faust build: OK"
+    ["Preferences" faustine-configure t]
     ["Faust output buffer" faustine-toggle-output-buffer t]
     ["Generate C++ code" faustine-source-code t]
     ["Generate diagram" faustine-diagram t]
@@ -147,7 +255,6 @@
    (propertize
     "Syntax: ERROR"
     :help-echo "Tst string"
-    :follow-link 'test-mouse
     'display
     `(image :type xpm
             :ascent center
@@ -200,68 +307,18 @@
   '("button" "checkbox" "vslider" "hslider" "nentry"
     "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
 
-(defgroup faustine nil
-  "Faustine - A lightweight Emacs Faust IDE.
-Customize `build-backend' for a lucky build."
-  :group 'applications)
-
-(defcustom build-backend 'faust2jaqt
-  "The Faust code-to-executable build backend."
-  ;;:type 'symbol
-  :type '(choice
-          (const :tag "faust2alsa" faust2alsa)
-          (const :tag "faust2firefox" faust2firefox)
-          (const :tag "faust2netjackconsole" faust2netjackconsole)
-          (const :tag "faust2sigviewer" faust2sigviewer)
-          (const :tag "faust2alsaconsole" faust2alsaconsole)
-          (const :tag "faust2graph" faust2graph)
-          (const :tag "faust2netjackqt" faust2netjackqt)
-          (const :tag "faust2smartkeyb" faust2smartkeyb)
-          (const :tag "faust2android" faust2android)
-          (const :tag "faust2graphviewer" faust2graphviewer)
-          (const :tag "faust2octave" faust2octave)
-          (const :tag "faust2sndfile" faust2sndfile)
-          (const :tag "faust2androidunity" faust2androidunity)
-          (const :tag "faust2ios" faust2ios)
-          (const :tag "faust2osxiosunity" faust2osxiosunity)
-          (const :tag "faust2supercollider" faust2supercollider)
-          (const :tag "faust2api" faust2api)
-          (const :tag "faust2jack" faust2jack)
-          (const :tag "faust2owl" faust2owl)
-          (const :tag "faust2svg" faust2svg)
-          (const :tag "faust2asmjs" faust2asmjs)
-          (const :tag "faust2jackconsole" faust2jackconsole)
-          (const :tag "faust2paqt" faust2paqt)
-          (const :tag "faust2unity" faust2unity)
-          (const :tag "faust2atomsnippets" faust2atomsnippets)
-          (const :tag "faust2jackinternal" faust2jackinternal)
-          (const :tag "faust2pdf" faust2pdf)
-          (const :tag "faust2vst" faust2vst)
-          (const :tag "faust2au" faust2au)
-          (const :tag "faust2jackserver" faust2jackserver)
-          (const :tag "faust2plot" faust2plot)
-          (const :tag "faust2vsti" faust2vsti)
-          (const :tag "faust2bela" faust2bela)
-          (const :tag "faust2jaqt" faust2jaqt)
-          (const :tag "faust2png" faust2png)
-          (const :tag "faust2w32max6" faust2w32max6)
-          (const :tag "faust2caqt" faust2caqt)
-          (const :tag "faust2juce" faust2juce)
-          (const :tag "faust2puredata" faust2puredata)
-          (const :tag "faust2w32msp" faust2w32msp))
-  :group 'faustine)
-
 (defvar faustine-mode-map
    (let ((map (make-sparse-keymap)))
-     (define-key map [?\C-c ?\C-b] 'faustine-build)
-     (define-key map [?\C-c ?\C-\S-b] 'faustine-build-all)
-     (define-key map [?\C-c ?\C-d] 'faustine-diagram)
-     (define-key map [?\C-c ?\C-\S-d] 'faustine-diagram-all)
-     (define-key map [?\C-c ?\C-h] 'faustine-online-doc)
-     (define-key map [?\C-c ?\C-o] 'faustine-toggle-output-buffer)
-     (define-key map [?\C-c ?\C-m] 'faustine-mdoc)
-     (define-key map [?\C-c ?\C-r] 'faustine-run)
-     (define-key map [?\C-c ?\C-s] 'faustine-source-code)
+     (define-key map (kbd faustine-build) 'faustine-build)
+     (define-key map (kbd faustine-build-all) 'faustine-build-all)
+     (define-key map (kbd faustine-diagram) 'faustine-diagram)
+     (define-key map (kbd faustine-diagram-all) 'faustine-diagram-all)
+     (define-key map (kbd faustine-online-doc) 'faustine-online-doc)
+     (define-key map (kbd faustine-configure) 'faustine-configure)
+     (define-key map (kbd faustine-toggle-output-buffer) 'faustine-toggle-output-buffer)
+     (define-key map (kbd faustine-mdoc) 'faustine-mdoc)
+     (define-key map (kbd faustine-run) 'faustine-run)
+     (define-key map (kbd faustine-source-code) 'faustine-source-code)
      (define-key map [?\C-c ?\C-c] 'faustine-syntax-check)
      map)
    "Keymap for `faustine-mode'.")
@@ -291,21 +348,21 @@ Customize `build-backend' for a lucky build."
     (,faust-keywords-regexp . font-lock-keyword-face)))
 
 (define-derived-mode faustine-output-mode fundamental-mode
-  "Emacs Faust IDE output buffer mode."
+  "Faust output"
   (font-lock-fontify-buffer))
 
 ;;;###autoload
 (define-derived-mode faustine-mode fundamental-mode "Emacs Faust IDE Mode" "
 Faustine is a lightweight IDE that leverages the mighty power of the faust executable.
 
-Use \\[faustine-set-preferences] to set it up.
+Use \\[faustine-configure] to set it up.
 Available commands while editing Faust (*.dsp) files:
 
 \\{faustine-mode-map}"
 
   (kill-all-local-variables)
-  (add-hook 'after-save-hook 'faustine-syntax-check-continuous-hook nil t)
-  (add-hook 'find-file-hook 'faustine-syntax-check-continuous-hook nil t)
+  (add-hook 'after-save-hook 'faustine-syntax-check nil t)
+  (add-hook 'find-file-hook 'faustine-syntax-check nil t)
   (add-hook 'find-file-hook 'faustine-buttonize-buffer-lib nil t)
   (add-hook 'find-file-hook 'faustine-buttonize-buffer-dsp nil t)
   (setq mode-name "Faust")
@@ -322,6 +379,7 @@ Available commands while editing Faust (*.dsp) files:
                           '(("finished" . font-lock-keyword-face)
                             ("started" . font-lock-keyword-face)
                             ("Build" . font-lock-string-face)
+                            ("Mdoc" . font-lock-string-face)
                             ("Diagram" . font-lock-string-face)
                             ("ERROR" . font-lock-warning-face)
                             ("exited abnormally with code" . font-lock-warning-face)))
@@ -332,25 +390,19 @@ Available commands while editing Faust (*.dsp) files:
                             ("Process Diagram started" . font-lock-keyword-face)
                             ("ERROR" . font-lock-warning-face)))
 
-  ;; (auto-complete-mode 1)
   (add-to-list 'ac-modes 'faustine-mode)
   (setq ac-user-dictionary (append faust-keywords faust-functions faust-ui-keywords))
   (setq ac-auto-show-menu t)
   (setq ac-auto-start t)
   (setq major-mode 'faustine-mode)
-  (message "########### MODE OK & build-backend : %s" build-backend)
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
 ;; Functions
 
-(defun faustine-set-preferences ()
-  "Use `cutomize-group' to set up Emacs Faust IDE preferences "
+(defun faustine-configure ()
+  "Use `cutomize-group' to set up Faustine preferences "
   (interactive)
   (customize-group 'faustine))
-
-(defun faustine-syntax-check-continuous-hook ()
-  "Used in `after-save-hook'."
-    (faustine-syntax-check))
 
 (defun faustine-link-lib (button)
   "Open library file"
@@ -363,7 +415,6 @@ Available commands while editing Faust (*.dsp) files:
 
 (defun faustine-link-dsp (button)
   "Open Faust file"
-  (message "####### XXX: %s" (file-name-directory buffer-file-name))
   (find-file (format "%s%s"
                      (file-name-directory buffer-file-name)
                      (buffer-substring
@@ -384,10 +435,6 @@ Available commands while editing Faust (*.dsp) files:
     (goto-char (point-min))
     (while (re-search-forward faustine-regexp-lib nil t)
       (make-button (match-beginning 1) (match-end 1) :type 'faustine-link-lib))))
-
-(defun test-mouse ()
-  (interactive)
-  (message "plop"))
 
 (defun faustine-online-doc (start end)
   "Websearch selected string on the faust.grame.fr library web site."
@@ -410,8 +457,8 @@ Available commands while editing Faust (*.dsp) files:
   "Generate Faust c++ code of the current faust file, display it in a buffer."
   (interactive)
   (setq dsp-buffer (current-buffer))
-  (with-current-buffer (get-buffer-create "Faust c++")
-    (pop-to-buffer "Faust c++" nil t)
+  (with-current-buffer (get-buffer-create c++-buffer-name)
+    (pop-to-buffer c++-buffer-name nil t)
     (erase-buffer)
     (c++-mode)
     (call-process "/bin/bash" nil t nil "-c" (format "faust %s" dsp-buffer))
@@ -424,7 +471,6 @@ Available commands while editing Faust (*.dsp) files:
   (interactive)
   (setq dsp-buffer (buffer-name))
   (setq-local output-check (shell-command-to-string (format "faust %s > /dev/null" dsp-buffer)))
-  ;; (message "Output: (%s)" output-check)
   (if (string= "" output-check)
       (progn
         (faustine-minor-mode-red 0)
@@ -454,24 +500,50 @@ Available commands while editing Faust (*.dsp) files:
   (interactive)
   (browse-url-of-file file))
 
-(defun faustine-mdoc ()
+;; (defun faustine-mdoc ()
+;;   "Generate Faust mdoc of the current faust file, display it in a buffer."
+;;   (interactive)
+;;   (setq dsp-buffer (current-buffer))
+;;   (setq dsp-buffer-name (buffer-name))
+;;   (with-current-buffer (get-buffer-create output-buffer-name)
+;;     (pop-to-buffer output-buffer-name nil t)
+;;     (faustine-output-mode)
+;;     (goto-char (point-max))
+;;     (call-process "/bin/bash" nil t nil "-c" (format "faust2mathdoc %s" dsp-buffer-name))
+;;     (other-window -1)
+;;     (pop-to-buffer dsp-buffer nil t))
+;;   (setq temp-file-name (format "%s-mdoc/pdf/%s.pdf"
+;;                                (file-name-sans-extension
+;;                                  dsp-buffer-name)
+;;                                (file-name-sans-extension
+;;                                  dsp-buffer-name)))
+;;   (faustine-show temp-file-name))
+
+
+(defun faustine-mdoc (&optional build-all)
   "Generate Faust mdoc of the current faust file, display it in a buffer."
   (interactive)
   (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
-  (with-current-buffer (get-buffer-create output-buffer-name)
-    (pop-to-buffer output-buffer-name nil t)
-    (faustine-output-mode)
-    (goto-char (point-max))
-    (call-process "/bin/bash" nil t nil "-c" (format "faust2mathdoc %s" dsp-buffer-name))
-    (other-window -1)
-    (pop-to-buffer dsp-buffer nil t))
-  (setq temp-file-name (format "%s-mdoc/pdf/%s.pdf"
+  (log-to-buffer "Mdoc" "started")
+  (let ((files-to-build (if build-all
+                            (mapconcat 'identity (project-files dsp-buffer-name '()) " ")
+                          dsp-buffer)))
+    (set-process-sentinel
+     (start-process-shell-command
+      "Mdoc"
+      output-buffer-name (format "faust2mathdoc %s" files-to-build)) 'mdoc-sentinel)))
+
+(defun mdoc-sentinel (process event)
+  "mdoc sentinel"
+  (setq pdf-file (format "%s-mdoc/pdf/%s.pdf"
                                (file-name-sans-extension
-                                 dsp-buffer-name)
+                                dsp-buffer-name)
                                (file-name-sans-extension
-                                 dsp-buffer-name)))
-  (faustine-show temp-file-name))
+                                dsp-buffer-name)))
+  (log-to-buffer process event)
+  (when (string-prefix-p "finished" event)
+              (faustine-show pdf-file)))
 
 (defun log-to-buffer (process event)
   "Run the program, print the status to the output buffer, scroll buffer down."
@@ -481,16 +553,17 @@ Available commands while editing Faust (*.dsp) files:
       (font-lock-fontify-buffer)
       (goto-char (point-max))
       (newline)
-      (insert (format "%s | Process: %s\nEvent: %s"
+      (insert (format "%s | Process: %s\nEvent: %s\n"
                       (format-time-string "%H:%M:%S")
                       process
                       (replace-regexp-in-string "\n" " " event)))
       (if (get-buffer-window output-buffer-name `visible)
           (progn (setq other-window-scroll-buffer output-buffer-name)
-                 (scroll-other-window))))))
+                 (scroll-other-window)))
+      (goto-char (point-max)))))
 
 (defun faustine-toggle-output-buffer ()
-  "Show output buffer"
+  "Show/hide Faust output buffer."
   (interactive)
   (if (get-buffer-window output-buffer-name `visible)
       (delete-window (get-buffer-window output-buffer-name `visible))
@@ -517,27 +590,16 @@ Available commands while editing Faust (*.dsp) files:
     (identity blist)))
 
 (defun faustine-build (&optional build-all)
-  "Build the executable(s) using the `build-backend' executable. If BUILD-ALL is set, build all .dsp files in the current directory."
+  "Build the current buffer/file executable(s) using the `build-backend' script. If BUILD-ALL is set, build all `faust-extension` files referenced by this one."
   (interactive)
   (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
-  (with-current-buffer (get-buffer-create output-buffer-name)
-    (pop-to-buffer output-buffer-name nil t)
-    (faustine-output-mode)
-    (goto-char (point-max))
-    (insert "\nProcess Build started\n")
-    (if build-all
-        (progn (setq files-to-build (project-files dsp-buffer-name '()))
-               (message "Building ALL: %s" files-to-build))
-      (progn (message "Building just %s" dsp-buffer)
-             (setq files-to-build dsp-buffer)))
-    (start-process-shell-command
-     "Build"
-     (current-buffer)
-     (format "%s %s" build-backend (mapconcat 'identity files-to-build " ")))
-    (other-window -1)
-    (message "files: %s" files-to-build)
-    (pop-to-buffer dsp-buffer nil t)))
+  (log-to-buffer "Build" "started")
+  (let ((files-to-build (if build-all
+                            (mapconcat 'identity (project-files dsp-buffer-name '()) " ")
+                          dsp-buffer)))
+    (start-process-shell-command "Build"
+                                 output-buffer-name (format "%s %s" build-backend files-to-build))))
 
 (defun faustine-diagram (&optional build-all)
   "Generate Faust diagram(s)."

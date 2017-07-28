@@ -1,19 +1,19 @@
 # Faustine
 ## Edit, visualise, build and run Faust code
 
-Faustine is a Faust code editor for Emacs ; Not ready for production yet.
+Faustine is a [Faust](http://faust.grame.fr) major mode for [GNU Emacs](https://www.gnu.org/software/emacs/).
 
-[FAUST](http://faust.grame.fr) (Functional Audio Stream) is a functional programming language specifically designed for real-time signal processing and synthesis. FAUST targets high-performance signal processing applications and audio plug-ins for a variety of platforms and standards.
+[Faust](http://faust.grame.fr) (Functional Audio Stream) is a functional programming language specifically designed for real-time signal processing and synthesis. FAUST targets high-performance signal processing applications and audio plug-ins for a variety of platforms and standards.
 
 ## What does it do?
-- Project-based (all inter-linked Faust files)
-- Faust code syntax hightlighting plus indentation
+- Project-based (inter-linked Faust files)
+- Faust code syntax hightlighting and indentation
 - Build/compile with configurable output window
 - Graphic diagrams generation and vizualisation in the browser
 - From function name to online documentation
 - Inter-linked library files
 - Browse generated C++ code inside Emacs
-- Fully configurable (build type/target, toolkit, preferences, etc.) via `customize-group emacs-faust-ide RET`
+- Fully configurable (build type/target/architecture/toolkit, keyboard shortcuts, etc.) via `customize-group faustine RET`
 - Automatic keyword completion
 - Modeline indicator of the state of the code
 
