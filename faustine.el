@@ -65,8 +65,13 @@ Customize `build-backend' for a lucky build."
   "Faustine keyboard shortcuts"
   :group 'faustine)
 
+(defcustom faustine-configure "C-c C-p"
+  "Configure Faustine."
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
 (defcustom faustine-build "C-c C-b"
-  "Build the current buffer/file executable using the `build-backend' script. "
+  "Build the current buffer/file executable using the `build-backend' script."
   :type '(string)
   :group 'keyboard-shortcuts)
 
@@ -111,7 +116,12 @@ Customize `build-backend' for a lucky build."
   :group 'keyboard-shortcuts)
 
 (defcustom output-buffer-name "*Faust*"
-  "The name of the Faust output Buffer. Surround it with \"*\" to hide it in special buffers."
+  "The name of the Faust output buffer. Surround it with \"*\" to hide it in special buffers."
+  :type '(string)
+  :group 'faustine)
+
+(defcustom c++-buffer-name "*Faust C++*"
+  "The name of the Faust C++ code output buffer. Surround it with \"*\" to hide it in special buffers."
   :type '(string)
   :group 'faustine)
 
@@ -207,6 +217,7 @@ Customize `build-backend' for a lucky build."
   faustine-minor-mode-green-map
   "Green bug menu"
   '("Faust build: OK"
+    ["Preferences" faustine-configure t]
     ["Faust output buffer" faustine-toggle-output-buffer t]
     ["Generate C++ code" faustine-source-code t]
     ["Generate diagram" faustine-diagram t]
@@ -303,6 +314,7 @@ Customize `build-backend' for a lucky build."
      (define-key map (kbd faustine-diagram) 'faustine-diagram)
      (define-key map (kbd faustine-diagram-all) 'faustine-diagram-all)
      (define-key map (kbd faustine-online-doc) 'faustine-online-doc)
+     (define-key map (kbd faustine-configure) 'faustine-configure)
      (define-key map (kbd faustine-toggle-output-buffer) 'faustine-toggle-output-buffer)
      (define-key map (kbd faustine-mdoc) 'faustine-mdoc)
      (define-key map (kbd faustine-run) 'faustine-run)
@@ -336,7 +348,7 @@ Customize `build-backend' for a lucky build."
     (,faust-keywords-regexp . font-lock-keyword-face)))
 
 (define-derived-mode faustine-output-mode fundamental-mode
-  "Emacs Faust IDE output buffer mode."
+  "Faust output"
   (font-lock-fontify-buffer))
 
 ;;;###autoload
@@ -444,8 +456,8 @@ Available commands while editing Faust (*.dsp) files:
   "Generate Faust c++ code of the current faust file, display it in a buffer."
   (interactive)
   (setq dsp-buffer (current-buffer))
-  (with-current-buffer (get-buffer-create "Faust c++")
-    (pop-to-buffer "Faust c++" nil t)
+  (with-current-buffer (get-buffer-create c++-buffer-name)
+    (pop-to-buffer c++-buffer-name nil t)
     (erase-buffer)
     (c++-mode)
     (call-process "/bin/bash" nil t nil "-c" (format "faust %s" dsp-buffer))
@@ -487,24 +499,64 @@ Available commands while editing Faust (*.dsp) files:
   (interactive)
   (browse-url-of-file file))
 
-(defun faustine-mdoc ()
+;; (defun faustine-mdoc ()
+;;   "Generate Faust mdoc of the current faust file, display it in a buffer."
+;;   (interactive)
+;;   (setq dsp-buffer (current-buffer))
+;;   (setq dsp-buffer-name (buffer-name))
+;;   (with-current-buffer (get-buffer-create output-buffer-name)
+;;     (pop-to-buffer output-buffer-name nil t)
+;;     (faustine-output-mode)
+;;     (goto-char (point-max))
+;;     (call-process "/bin/bash" nil t nil "-c" (format "faust2mathdoc %s" dsp-buffer-name))
+;;     (other-window -1)
+;;     (pop-to-buffer dsp-buffer nil t))
+;;   (setq temp-file-name (format "%s-mdoc/pdf/%s.pdf"
+;;                                (file-name-sans-extension
+;;                                  dsp-buffer-name)
+;;                                (file-name-sans-extension
+;;                                  dsp-buffer-name)))
+;;   (faustine-show temp-file-name))
+
+
+(defun faustine-mdoc (&optional build-all)
   "Generate Faust mdoc of the current faust file, display it in a buffer."
   (interactive)
   (setq dsp-buffer (current-buffer))
   (setq dsp-buffer-name (buffer-name))
-  (with-current-buffer (get-buffer-create output-buffer-name)
-    (pop-to-buffer output-buffer-name nil t)
-    (faustine-output-mode)
-    (goto-char (point-max))
-    (call-process "/bin/bash" nil t nil "-c" (format "faust2mathdoc %s" dsp-buffer-name))
-    (other-window -1)
-    (pop-to-buffer dsp-buffer nil t))
-  (setq temp-file-name (format "%s-mdoc/pdf/%s.pdf"
-                               (file-name-sans-extension
-                                 dsp-buffer-name)
-                               (file-name-sans-extension
-                                 dsp-buffer-name)))
-  (faustine-show temp-file-name))
+  (log-to-buffer "Mdoc" "started")
+  (let ((files-to-build (if build-all
+                            (mapconcat 'identity (project-files dsp-buffer-name '()) " ")
+                          dsp-buffer)))
+
+    (set-process-sentinel
+     (start-process-shell-command
+      "Mdoc"
+      output-buffer-name (format "faust2mathdoc %s" files-to-build)) 'log-to-buffer)
+
+    ;; (start-process-shell-command
+    ;;  "Mdoc"
+    ;;  output-buffer-name (format "faust2mathdoc %s" files-to-build))
+    ))
+
+
+
+(defun log-to-buffer-test (process event)
+  "Run the program, print the status to the output buffer, scroll buffer down."
+  (let ((oldbuf (current-buffer)))
+    (with-current-buffer (get-buffer-create output-buffer-name)
+      (faustine-output-mode)
+      (font-lock-fontify-buffer)
+      (goto-char (point-max))
+      (newline)
+      (insert (format "%s | Process: %s\nEvent: %s\n"
+                      (format-time-string "%H:%M:%S")
+                      process
+                      (replace-regexp-in-string "\n" " " event)))
+      (if (get-buffer-window output-buffer-name `visible)
+          (progn (setq other-window-scroll-buffer output-buffer-name)
+                 (scroll-other-window)))
+      (goto-char (point-max)))))
 
 (defun log-to-buffer (process event)
   "Run the program, print the status to the output buffer, scroll buffer down."
