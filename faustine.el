@@ -354,7 +354,7 @@ Customize `build-backend' for a lucky build."
   (font-lock-fontify-buffer))
 
 ;;;###autoload
-(define-derived-mode faustine-mode fundamental-mode "Emacs Faust IDE Mode" "
+(define-derived-mode faustine-mode prog-mode "Emacs Faust IDE Mode" "
 Faustine is a lightweight IDE that leverages the mighty power of the faust executable.
 
 Use \\[faustine-configure] to set it up.
@@ -373,7 +373,11 @@ Available commands while editing Faust (*.dsp) files:
   (setq-local comment-end "")
   (setq-local font-lock-defaults
               '(faustine-mode-font-lock-keywords))
+
   (smie-setup nil #'ignore)
+
+  (setq c-default-style "linux"
+        c-basic-offset 4)
 
   (use-local-map faustine-mode-map)
 
@@ -394,10 +398,10 @@ Available commands while editing Faust (*.dsp) files:
                             ("Process Diagram started" . font-lock-keyword-face)
                             ("ERROR" . font-lock-warning-face)))
 
-  ;; (when (require 'company nil 'noerror)
-  ;;   (require 'cl-lib)
-  ;;   (add-to-list 'company-backends 'company-faust-backend)
-  ;;   (company-mode))
+  (when (require 'company nil 'noerror)
+    (require 'cl-lib)
+    (add-to-list 'company-backends 'company-faust-backend)
+    (company-mode))
 
   ;; (when (require 'auto-complete nil 'noerror)
     ;; (add-to-list 'ac-modes 'faustine-mode))
