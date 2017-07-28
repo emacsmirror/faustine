@@ -37,18 +37,20 @@
 ;; Code:
 
 (require 'smie)
+(require 'cl-lib)
 
 (defvar display-mode)
 (defvar temp-file-name)
+(defvar pdf-file)
 (defvar output-visible)
 (defvar dsp-buffer)
-(defvar faustine-output-openp)
 (defvar dsp-buffer-name)
 (defvar files-to-build)
 (defvar output-check)
 (defvar command-output)
 (defvar faustine-regexp-dsp)
 (defvar faustine-regexp-lib)
+(defvar company-backends)
 
 (defgroup faustine nil
   "Faustine - A lightweight Emacs Faust IDE.
@@ -339,23 +341,22 @@ Available commands while editing Faust (*.dsp) files:
 \\{faustine-mode-map}"
 
   (kill-all-local-variables)
+
+  (setq mode-name "Faust"
+        major-mode 'faustine-mode
+        comment-start "// "
+        comment-end ""
+        font-lock-defaults '(faustine-mode-font-lock-keywords))
+
   (add-hook 'after-save-hook 'faustine-syntax-check nil t)
   (add-hook 'find-file-hook 'faustine-syntax-check nil t)
   (add-hook 'find-file-hook 'faustine-buttonize-buffer-lib nil t)
   (add-hook 'find-file-hook 'faustine-buttonize-buffer-dsp nil t)
-  (setq mode-name "Faust")
+
   (set-syntax-table faustine-mode-syntax-table)
-  (setq-local comment-start "// ")
-  (setq-local comment-end "")
-  (setq-local font-lock-defaults
-              '(faustine-mode-font-lock-keywords))
+  (use-local-map faustine-mode-map)
 
   (smie-setup nil #'ignore)
-
-  ;; (setq c-default-style "linux"
-  ;;       c-basic-offset 4)
-
-  (use-local-map faustine-mode-map)
 
   (font-lock-add-keywords 'faustine-output-mode
                           '(("Process" . font-lock-constant-face)
@@ -368,26 +369,18 @@ Available commands while editing Faust (*.dsp) files:
                             ("ERROR" . font-lock-warning-face)
                             ("exited abnormally with code" . font-lock-warning-face)))
 
-  (font-lock-add-keywords 'c++-mode
-                          '(("Process Build finished" . font-lock-keyword-face)
-                            ("Process Build started" . font-lock-keyword-face)
-                            ("Process Diagram started" . font-lock-keyword-face)
-                            ("ERROR" . font-lock-warning-face)))
+  (add-to-list 'company-backends 'faustine-company-backend)
+  ;; (company-mode)
 
-  (when (require 'company nil 'noerror)
-    (require 'cl-lib)
-    (add-to-list 'company-backends 'company-faust-backend)
-    (company-mode))
-  (setq major-mode 'faustine-mode)
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
 ;; Functions
 
-(defun company-faust-backend (command &optional arg &rest ignored)
+(defun faustine-company-backend (command &optional arg &rest ignored)
   (interactive (list 'interactive))
 
   (cl-case command
-    (interactive (company-begin-backend 'company-faust-backend))
+    (interactive (company-begin-backend 'faustine-company-backend))
     (prefix (and (eq major-mode 'faustine-mode)
                  (company-grab-symbol)))
     (candidates
