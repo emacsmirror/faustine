@@ -379,6 +379,7 @@ Available commands while editing Faust (*.dsp) files:
                           '(("finished" . font-lock-keyword-face)
                             ("started" . font-lock-keyword-face)
                             ("Build" . font-lock-string-face)
+                            ("Mdoc" . font-lock-string-face)
                             ("Diagram" . font-lock-string-face)
                             ("ERROR" . font-lock-warning-face)
                             ("exited abnormally with code" . font-lock-warning-face)))
@@ -528,16 +529,10 @@ Available commands while editing Faust (*.dsp) files:
   (let ((files-to-build (if build-all
                             (mapconcat 'identity (project-files dsp-buffer-name '()) " ")
                           dsp-buffer)))
-
     (set-process-sentinel
      (start-process-shell-command
       "Mdoc"
-      output-buffer-name (format "faust2mathdoc %s" files-to-build)) 'mdoc-sentinel)
-
-    ;; (start-process-shell-command
-    ;;  "Mdoc"
-    ;;  output-buffer-name (format "faust2mathdoc %s" files-to-build))
-    ))
+      output-buffer-name (format "faust2mathdoc %s" files-to-build)) 'mdoc-sentinel)))
 
 (defun mdoc-sentinel (process event)
   "mdoc sentinel"
@@ -547,7 +542,6 @@ Available commands while editing Faust (*.dsp) files:
                                (file-name-sans-extension
                                 dsp-buffer-name)))
   (log-to-buffer process event)
-  (message "e: %s" event)
   (when (string-prefix-p "finished" event)
               (faustine-show pdf-file)))
 
