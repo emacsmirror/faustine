@@ -129,7 +129,7 @@ Surround it with \"*\" to hide it in special buffers."
 
 (defcustom faustine-faust-libs-dir "/usr/local/share/faust/"
   "The Faust library directory for direct linking.
-This is only for use with `faustine-online-doc'."
+This is only for use with the command `faustine-online-doc'."
   :type '(string)
   :group 'faustine)
 
@@ -191,12 +191,12 @@ This is only for use with `faustine-online-doc'."
 (defvar faustine-green-mode-map
   (let ((map (make-sparse-keymap)))
     map)
-  "Keymap for `faustine-green-mode'.")
+  "Keymap for the function `faustine-green-mode'.")
 
 (defvar faustine-red-mode-map
   (let ((map (make-sparse-keymap)))
     map)
-  "Keymap for `faustine-red-mode'.")
+  "Keymap for the function `faustine-red-mode'.")
 
 (define-button-type 'faustine-link-lib
   'follow-link t
@@ -430,12 +430,12 @@ Build a button with START and END."
                         (url-hexify-string q)))))
 
 (defun faustine-build-all ()
-  "Build all executables using `faustine-build'."
+  "Build all executables using the command `faustine-build'."
   (interactive)
   (faustine-build 1))
 
 (defun faustine-diagram-all ()
-  "Build all executables using `faustine-diagram'."
+  "Build all executables using the command `faustine-diagram'."
   (interactive)
   (faustine-diagram 1))
 
@@ -658,4 +658,5 @@ img.scaled {
 </html>\n" nil faustine-diagram-page-name 'append 0 nil nil)))
 
 (provide 'faustine)
+
 ;;; faustine.el ends here
