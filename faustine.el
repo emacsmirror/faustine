@@ -40,7 +40,7 @@
 (require 'smie)
 
 ;;;###autoload
-(add-to-list 'auto-mode-alist "\\.dsp$" 'faustine-mode))
+(add-to-list 'auto-mode-alist "\\.dsp$" 'faustine-mode)
 
 ;; (add-to-list 'auto-mode-alist (cons (concat "\\." faustine-faust-extension "$") 'faustine-mode))
 
