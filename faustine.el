@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t -*-
 ;; faustine.el --- a Faust code editor for Emacs
 ;; Package-Requires: ((emacs "24"))
 ;;
@@ -39,12 +40,9 @@
 (require 'smie)
 (require 'cl-lib)
 
-(defvar display-mode)
+;; (defvar display-mode)
 (defvar temp-file-name)
 (defvar output-visible)
-(defvar dsp-buffer)
-(defvar dsp-buffer-name)
-(defvar files-to-build)
 (defvar output-check)
 (defvar command-output)
 (defvar faustine-regexp-dsp)
@@ -479,29 +477,34 @@ Available commands while editing Faust (*.dsp) files:
   (interactive)
   (browse-url-of-file file))
 
+(defvar faustine-process-source-buffer nil
+  "Source buffer from which the current process is generating mdoc.")
+
+(make-variable-buffer-local 'faustine-process-source-buffer)
+
 (defun faustine-mdoc (&optional build-all)
-  "Generate Faust mdoc of the current faust file, display it in a buffer."
+  "Generate mdoc of the current file, display it in a buffer."
   (interactive)
-  (log-to-buffer "Mdoc" "started")
-  (let ((files-to-build (if build-all
-                            (mapconcat 'identity (project-files (buffer-name) '()) " ")
-                          (current-buffer))))
-    (set-process-sentinel
-     (start-process-shell-command
-      "Mdoc"
-      output-buffer-name (format "faust2mathdoc %s" files-to-build)) 'mdoc-sentinel)))
+  (let* ((files-to-build (if build-all
+                             (mapconcat 'identity (project-files (buffer-name) '()) " ")
+                           (current-buffer)))
+         (process (start-process-shell-command "Mdoc"
+                                               output-buffer-name
+                                               (format "faust2svg %s" files-to-build))))
+    (with-current-buffer (process-buffer process)
+      (setq faustine-process-source-buffer (current-buffer)))
+    (set-process-sentinel process 'mdoc-sentinel)))
 
 (defun mdoc-sentinel (process event)
   "mdoc sentinel"
   (let ((pdf-file (format "%s-mdoc/pdf/%s.pdf"
                           (file-name-sans-extension
-                           (buffer-name))
+                           (buffer-name faustine-process-source-buffer))
                           (file-name-sans-extension
-                           (buffer-name)))))
+                           (buffer-name faustine-process-source-buffer)))))
     (log-to-buffer process event)
     (when (string-prefix-p "finished" event)
       (faustine-show pdf-file))))
-
 
 (defun log-to-buffer (process event)
   "Run the program, print the status to the output buffer, scroll buffer down."
