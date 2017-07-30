@@ -39,16 +39,6 @@
 
 (require 'smie)
 
-(defvar faustine-path (file-name-directory (or load-file-name (buffer-file-name))))
-(defvar ac-sources)
-(defvar ac-modes)
-(defvar ac-user-dictionary)
-
-(defvar faustine-process-source-buffer nil
-  "Source buffer from which the current process is generating mdoc.")
-
-(make-variable-buffer-local 'faustine-process-source-buffer)
-
 (defgroup faustine nil
   "Faustine - A lightweight Emacs Faust IDE"
   :group 'tools)
@@ -135,7 +125,6 @@ This is only for use with the command `faustine-online-doc'."
   :type '(string)
   :group 'faustine)
 
-;;;###autoload
 (defcustom faustine-faust-extension "dsp"
   "The Faust files extension."
   :type '(string)
@@ -185,6 +174,15 @@ This is only for use with the command `faustine-online-doc'."
           (const :tag "faust2puredata" faust2puredata)
           (const :tag "faust2w32msp" faust2w32msp))
   :group 'faustine)
+
+(defvar ac-sources)
+(defvar ac-modes)
+(defvar ac-user-dictionary)
+(defvar faustine-path (file-name-directory (or load-file-name (buffer-file-name))))
+(defvar faustine-process-source-buffer nil
+  "Source buffer from which the current process is generating mdoc.")
+
+(make-variable-buffer-local 'faustine-process-source-buffer)
 
 (defvar faustine-green-mode-map
   (let ((map (make-sparse-keymap)))
