@@ -656,7 +656,8 @@ img.scaled {
 </html>\n" nil faustine-diagram-page-name 'append 0 nil nil)))
 
 ;;;###autoload
-(add-to-list 'auto-mode-alist "\\dsp.$" 'faustine-mode)
+(add-to-list 'auto-mode-alist
+               '("\\dsp.$" . faustine-mode))
 
 (provide 'faustine)
 
