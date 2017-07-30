@@ -13,7 +13,7 @@ Faustine is a [Faust](http://faust.grame.fr) major mode for [GNU Emacs](https://
 - From function name to online documentation
 - Inter-linked library files
 - Browse generated C++ code inside Emacs
-- Fully configurable (build type/target/architecture/toolkit, keyboard shortcuts, etc.) via `customize-group RET faustine RET` or `faustine-configure` (C-c C-p)
+- Fully configurable (build type/target/architecture/toolkit, keyboard shortcuts, etc.)
 - Automatic keyword completion
 - Modeline indicator of the state of the code
 
@@ -28,7 +28,11 @@ Faustine is a [Faust](http://faust.grame.fr) major mode for [GNU Emacs](https://
 
 - Require the file in your init file:
 `(require 'faustine)`
-- Open a .dsp file (or use `faustine-configure` to set your own Faust file extension)
+
+## How do I use it?
+- Open a .dsp file (or use `faustine-configure` (`C-c C-p`) to set your own Faust file extension)
++ Use `faustine-diagram` (`C-c C-d`) to view the diagram of the current Faust file
+  * Use `faustine-diagram-all` (`C-c C-S-d`) to view the diagrams of the linked (component) Faust files
 - Use `C-h m` for help and commands
 
 ### Can I thank you?
