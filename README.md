@@ -22,16 +22,19 @@ Faustine is a [Faust](http://faust.grame.fr) major mode for [GNU Emacs](https://
 - Ensure this directory is in the PATH :
 
 ```lisp
-(let ((default-directory "~/.emacs.d/elisp/"))
+(let ((default-directory "~/.emacs.d/lisp/"))
   (normal-top-level-add-subdirs-to-load-path))
 ```
-- Require the file in your `~/.emacs`:
-`(require 'emacs-faust-ide nil 'noerror)`
+
+- Require the file in your init file:
+`(require 'faustine)`
 - Open a .dsp file (or use `faustine-configure` to set your own Faust file extension)
 - Use `C-h m` for help and commands
 
 ### Can I thank you?
+
 There are several ways you can help (by order of magnificence) :
+
 - Subscribe to [my YouTube channel](https://www.youtube.com/c/YassinPhilip-ManyRecords)
 - Buy my music on [Bandcamp](https://yassinphilip.bandcamp.com) (I'm told I'm on iTunes, Spotify, Google Music and stuff but I never seem to sell a single song)
 - Make a [donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=yassinphil%40gmail%2ecom&lc=BM&item_name=Yassin%20Philip&no_note=0&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest)
