@@ -185,8 +185,7 @@ This is only for use with the command `faustine-online-doc'."
           (const :tag "faust2w32msp" faust2w32msp))
   :group 'faustine)
 
-;;;###autoload
-(add-to-list 'auto-mode-alist (cons (concat "\\." faustine-faust-extension "$") 'faustine-mode))
+;; (add-to-list 'auto-mode-alist (cons (concat "\\." faustine-faust-extension "$") 'faustine-mode))
 
 ;; (defvar faustine-module-path (file-name-directory load-file-name))
 
@@ -249,7 +248,6 @@ This is only for use with the command `faustine-online-doc'."
     `(image :type xpm
             :ascent center
             :file ,(concat mypath "/icons/greenbug.xpm")))))
-
 
 (defvar faustine-red-mode-bug
   (list
@@ -661,6 +659,9 @@ img.scaled {
     (write-region "</div>
 </body>
 </html>\n" nil faustine-diagram-page-name 'append 0 nil nil)))
+
+;;;###autoload
+(add-to-list 'auto-mode-alist "\\dsp.$" 'faustine-mode)
 
 (provide 'faustine)
 
