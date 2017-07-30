@@ -39,16 +39,6 @@
 
 (require 'smie)
 
-(defvar mypath (file-name-directory (or load-file-name (buffer-file-name))))
-
-(defvar ac-sources)
-(defvar ac-user-dictionary)
-
-(defvar faustine-process-source-buffer nil
-  "Source buffer from which the current process is generating mdoc.")
-
-(make-variable-buffer-local 'faustine-process-source-buffer)
-
 (defgroup faustine nil
   "Faustine - A lightweight Emacs Faust IDE"
   :group 'tools)
@@ -185,9 +175,14 @@ This is only for use with the command `faustine-online-doc'."
           (const :tag "faust2w32msp" faust2w32msp))
   :group 'faustine)
 
-;; (add-to-list 'auto-mode-alist (cons (concat "\\." faustine-faust-extension "$") 'faustine-mode))
+(defvar ac-sources)
+(defvar ac-modes)
+(defvar ac-user-dictionary)
+(defvar faustine-path (file-name-directory (or load-file-name (buffer-file-name))))
+(defvar faustine-process-source-buffer nil
+  "Source buffer from which the current process is generating mdoc.")
 
-;; (defvar faustine-module-path (file-name-directory load-file-name))
+(make-variable-buffer-local 'faustine-process-source-buffer)
 
 (defvar faustine-green-mode-map
   (let ((map (make-sparse-keymap)))
@@ -247,7 +242,7 @@ This is only for use with the command `faustine-online-doc'."
     'display
     `(image :type xpm
             :ascent center
-            :file ,(concat mypath "/icons/greenbug.xpm")))))
+            :file ,(expand-file-name "icons/greenbug.xpm" faustine-path)))))
 
 (defvar faustine-red-mode-bug
   (list
@@ -258,7 +253,7 @@ This is only for use with the command `faustine-online-doc'."
     'display
     `(image :type xpm
             :ascent center
-            :file ,(expand-file-name "icons/redbug.xpm" mypath)))))
+            :file ,(expand-file-name "icons/redbug.xpm" faustine-path)))))
 
 (put 'faustine-green-mode-bug 'risky-local-variable t)
 (put 'faustine-red-mode-bug 'risky-local-variable t)
@@ -346,8 +341,6 @@ Available commands while editing Faust (*.dsp) files:
 
   (kill-all-local-variables)
 
-;;  (setq mypath (expand-file-name (buffer-name)))
-
   (setq mode-name "Faust"
         major-mode 'faustine-mode
         comment-start "// "
@@ -376,15 +369,14 @@ Available commands while editing Faust (*.dsp) files:
                             ("ERROR" . font-lock-warning-face)
                             ("exited abnormally with code" . font-lock-warning-face)))
 
-  (auto-complete-mode t)
   (setq ac-user-dictionary (append
                             faustine-faust-keywords
                             faustine-faust-functions
                             faustine-faust-ui-keywords))
 
-  ;; (setq ac-auto-show-menu t)
-  ;; (setq ac-auto-start t)
-
+  (add-to-list 'ac-modes 'faustine-mode)
+  (add-to-list 'auto-mode-alist
+               '((concat "\\." faustine-faust-extension "\\'") . faustine-mode))
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
 ;; Functions
@@ -562,22 +554,27 @@ If BUILD-ALL is set, generate all linked files."
     (identity blist)))
 
 (defun faustine-build (&optional build-all)
-  "Build the current buffer/file executable(s) using the `faustine-build-backend' script.  If BUILD-ALL is set, build all `faustine-faust-extension` files referenced by this one."
+  "Build the current buffer/file executable(s).
+If BUILD-ALL is set, build all Faust files referenced by this one."
   (interactive)
   (faustine-log-to-buffer "Build" "started")
   (let ((files-to-build (if build-all
                             (mapconcat 'identity (faustine-project-files (buffer-name) '()) " ")
                           (current-buffer))))
     (start-process-shell-command "Build"
-                                 faustine-output-buffer-name (format "%s %s" faustine-build-backend files-to-build))))
+                                 faustine-output-buffer-name
+                                 (format "%s %s" faustine-build-backend files-to-build))))
 
 (defun faustine-diagram (&optional build-all)
-  "Generate Faust diagram(s).  If BUILD-ALL is set, build all `faustine-faust-extension` files referenced by this one."
+  "Generate Faust diagram(s).
+If BUILD-ALL is set, build all `faustine-faust-extension` files referenced by this one."
   (interactive)
   (faustine-log-to-buffer "Diagram" "started")
   (let ((mylist nil)
-        (files-to-build (if build-all (faustine-project-files (buffer-name) '()) (list (buffer-name))))
-        (display-mode (if build-all "all" "single")))
+        (files-to-build
+         (if build-all (faustine-project-files (buffer-name) '()) (list (buffer-name))))
+        (display-mode
+         (if build-all "all" "single")))
     (let ((command-output (shell-command-to-string (format "faust2svg %s" (mapconcat 'identity files-to-build " ")))))
       (if (string= "" command-output)
         (progn
@@ -587,7 +584,8 @@ If BUILD-ALL is set, generate all linked files."
         (faustine-log-to-buffer "Diagram" (format "Error: %s" command-output))))))
 
 (defun faustine-build-temp-file (list diagram display-mode)
-  "Build a minimal HTML (web) page to display Faust diagram(s).  LIST is the list of files to display, DIAGRAM is the current file, and DISPLAY-MODE is the mode."
+  "Build a minimal HTML (web) page to display Faust diagram(s).
+LIST is the list of files to display, DIAGRAM is the current file, and DISPLAY-MODE is the mode."
   (if (file-regular-p faustine-diagram-page-name)
       (delete-file faustine-diagram-page-name))
 
@@ -661,7 +659,8 @@ img.scaled {
 </html>\n" nil faustine-diagram-page-name 'append 0 nil nil)))
 
 ;;;###autoload
-(add-to-list 'auto-mode-alist "\\dsp.$" 'faustine-mode)
+(add-to-list 'auto-mode-alist
+               '("\\.dsp\\'" . faustine-mode))
 
 (provide 'faustine)
 
