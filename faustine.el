@@ -39,6 +39,8 @@
 
 (require 'smie)
 
+(defvar mypath (file-name-directory (or load-file-name (buffer-file-name))))
+
 (defvar ac-sources)
 (defvar ac-user-dictionary)
 
@@ -183,10 +185,9 @@ This is only for use with the command `faustine-online-doc'."
           (const :tag "faust2w32msp" faust2w32msp))
   :group 'faustine)
 
-;;;###autoload
-(add-to-list 'auto-mode-alist (cons (concat "\\." faustine-faust-extension "$") 'faustine-mode))
+;; (add-to-list 'auto-mode-alist (cons (concat "\\." faustine-faust-extension "$") 'faustine-mode))
 
-(defvar faustine-module-path (file-name-directory load-file-name))
+;; (defvar faustine-module-path (file-name-directory load-file-name))
 
 (defvar faustine-green-mode-map
   (let ((map (make-sparse-keymap)))
@@ -246,7 +247,7 @@ This is only for use with the command `faustine-online-doc'."
     'display
     `(image :type xpm
             :ascent center
-            :file ,(expand-file-name "greenbug.xpm" faustine-module-path)))))
+            :file ,(concat mypath "/icons/greenbug.xpm")))))
 
 (defvar faustine-red-mode-bug
   (list
@@ -257,7 +258,7 @@ This is only for use with the command `faustine-online-doc'."
     'display
     `(image :type xpm
             :ascent center
-            :file ,(expand-file-name "redbug.xpm" faustine-module-path)))))
+            :file ,(expand-file-name "icons/redbug.xpm" mypath)))))
 
 (put 'faustine-green-mode-bug 'risky-local-variable t)
 (put 'faustine-red-mode-bug 'risky-local-variable t)
@@ -344,6 +345,8 @@ Available commands while editing Faust (*.dsp) files:
 \\{faustine-mode-map}"
 
   (kill-all-local-variables)
+
+;;  (setq mypath (expand-file-name (buffer-name)))
 
   (setq mode-name "Faust"
         major-mode 'faustine-mode
@@ -656,6 +659,9 @@ img.scaled {
     (write-region "</div>
 </body>
 </html>\n" nil faustine-diagram-page-name 'append 0 nil nil)))
+
+;;;###autoload
+(add-to-list 'auto-mode-alist "\\dsp.$" 'faustine-mode)
 
 (provide 'faustine)
 
