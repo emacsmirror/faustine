@@ -39,8 +39,9 @@
 
 (require 'smie)
 
+
 ;; (add-to-list 'auto-mode-alist (cons (concat "\\." faustine-faust-extension "$") 'faustine-mode))
-(defvar mypath (file-name-directory (or load-file-name (buffer-file-name))))
+(defvar faustine-path (file-name-directory (or load-file-name (buffer-file-name))))
 
 (defvar ac-sources)
 (defvar ac-user-dictionary)
@@ -244,7 +245,7 @@ This is only for use with the command `faustine-online-doc'."
     'display
     `(image :type xpm
             :ascent center
-            :file ,(expand-file-name "icons/greenbug.xpm" mypath)))))
+            :file ,(expand-file-name "icons/greenbug.xpm" faustine-path)))))
 
 (defvar faustine-red-mode-bug
   (list
@@ -255,7 +256,7 @@ This is only for use with the command `faustine-online-doc'."
     'display
     `(image :type xpm
             :ascent center
-            :file ,(expand-file-name "icons/redbug.xpm" mypath)))))
+            :file ,(expand-file-name "icons/redbug.xpm" faustine-path)))))
 
 (put 'faustine-green-mode-bug 'risky-local-variable t)
 (put 'faustine-red-mode-bug 'risky-local-variable t)
