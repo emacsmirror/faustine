@@ -657,7 +657,7 @@ img.scaled {
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist
-               '("\\dsp.$'" . faustine-mode))
+               '("\\.dsp\\'" . faustine-mode))
 
 (provide 'faustine)
 
