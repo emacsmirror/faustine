@@ -475,10 +475,6 @@ Build a button with START and END."
   (if faustine-pop-output-buffer
       (faustine-open-output-buffer)))
 
-(defun faustine-show (file)
-  "Show FILE in a web page using default browser."
-  (browse-url-of-file file))
-
 (defun faustine-mdoc (&optional build-all)
   "Generate mdoc of the current file, display it in a buffer.
 If BUILD-ALL is set, generate all linked files."
@@ -502,7 +498,7 @@ If BUILD-ALL is set, generate all linked files."
                            (buffer-name faustine-process-source-buffer)))))
     (faustine-log-to-buffer process event)
     (when (string-prefix-p "finished" event)
-      (faustine-show pdf-file))
+      (browse-url-of-file pdf-file))
     (if faustine-pop-output-buffer
         (faustine-open-output-buffer))))
 
@@ -580,7 +576,7 @@ If BUILD-ALL is set, build all `faustine-faust-extension` files referenced by th
         (progn
           (faustine-log-to-buffer "Diagram" "finished")
           (faustine-build-temp-file files-to-build (buffer-name) display-mode)
-          (faustine-show faustine-diagram-page-name))
+          (browse-url-of-file faustine-diagram-page-name))
         (faustine-log-to-buffer "Diagram" (format "Error: %s" command-output))))))
 
 (defun faustine-build-temp-file (list diagram display-mode)
