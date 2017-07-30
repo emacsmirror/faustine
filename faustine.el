@@ -39,9 +39,7 @@
 
 (require 'smie)
 
-;; (add-to-list 'auto-mode-alist (cons (concat "\\." faustine-faust-extension "$") 'faustine-mode))
 (defvar faustine-path (file-name-directory (or load-file-name (buffer-file-name))))
-
 (defvar ac-sources)
 (defvar ac-modes)
 (defvar ac-user-dictionary)
