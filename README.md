@@ -31,15 +31,16 @@ Faustine is a [Faust](http://faust.grame.fr) major mode for [GNU Emacs](https://
 
 ## How do I use it?
 - Open a .dsp file (or use `faustine-configure` (`C-c C-p`) to set your own Faust file extension)
-- Look at you modeline, in the bottom of the buffer: The bug is green when your Faust code compiles without errors, and red otherwise. This icon is also a menu where you can access Faustine's main functions and commands.
+- Use `faustine-toggle-output-buffer` (`C-c C-o`) to view the Faust build output
+- Look at the modeline, in the bottom of the buffer: The bug is green when your Faust code compiles without errors, and red otherwise. This icon is also a menu where you can access Faustine's main functions and commands.
 - Use `faustine-diagram` (`C-c C-d`) to view the diagram of the current Faust file
     - Use `faustine-diagram-all` (`C-c C-S-d`) to view the diagrams of the linked (component) Faust files
 - Use `faustine-build` (`C-c C-b`) to build the executable of the current Faust file
     - Use `faustine-build-all` (`C-c C-S-d`) to build the executables of the linked (component) Faust files
-- Use `faustine-build` (`C-c C-b`) to build the executable of the current Faust file
 - Use `faustine-source-code` (`C-c C-s`) to view the C++ code of the current Faust file
 - Use `faustine-mdoc` (`C-c C-m`) to view the Mdoc of the current Faust file
 - Use `faustine-configure` (`C-c C-p`) to set your options/preferences
+- Select a Faust function, and use `C-c C-h` to view its definition/docstring
 - Use `C-h m` for help and commands
 
 ### Can I thank you?
