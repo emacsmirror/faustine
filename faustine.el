@@ -39,7 +39,6 @@
 
 (require 'smie)
 
-
 ;; (add-to-list 'auto-mode-alist (cons (concat "\\." faustine-faust-extension "$") 'faustine-mode))
 (defvar faustine-path (file-name-directory (or load-file-name (buffer-file-name))))
 
@@ -372,7 +371,7 @@ Available commands while editing Faust (*.dsp) files:
                             ("ERROR" . font-lock-warning-face)
                             ("exited abnormally with code" . font-lock-warning-face)))
 
-  (auto-complete-mode t)
+  ;; (auto-complete-mode t)
   (setq ac-user-dictionary (append
                             faustine-faust-keywords
                             faustine-faust-functions
@@ -380,6 +379,8 @@ Available commands while editing Faust (*.dsp) files:
 
   ;; (setq ac-auto-show-menu t)
   ;; (setq ac-auto-start t)
+
+  (add-to-list 'ac-modes 'faustine-mode)
 
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
