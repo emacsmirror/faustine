@@ -204,10 +204,11 @@ This is only for use with the command `faustine-online-doc'."
 
 (defconst faustine-regexp-dsp
   (concat "\"\\([^\"\\(]+\\.\\(" faustine-faust-extension "\\)\\)\"")
-  "The regexp to search for something.faust in double quotes.")
+  "The regexp to search for \"something.faust\".")
+
 (defconst faustine-regexp-lib
   "\\\"\\([^\\\"\\\\(]+\\.lib\\)\\\""
-  "The regexp to search for something.lib in double quotes.")
+  "The regexp to search for \"something.lib\".")
 
 (easy-menu-define
   faustine-green-mode-menu
@@ -375,8 +376,7 @@ Available commands while editing Faust (*.dsp) files:
                             faustine-faust-ui-keywords))
 
   (add-to-list 'ac-modes 'faustine-mode)
-  (add-to-list 'auto-mode-alist
-               '((concat "\\." faustine-faust-extension "\\'") . faustine-mode))
+
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
 ;; Functions
@@ -418,7 +418,7 @@ Available commands while editing Faust (*.dsp) files:
 
 (defun faustine-online-doc (start end)
   "Websearch selected string on the faust.grame.fr library web site.
-Build a button with START and END."
+Build a button from START to END."
   (interactive "r")
   (let ((q (buffer-substring-no-properties start end)))
     (browse-url (concat "http://faust.grame.fr/library.html#"
@@ -427,12 +427,12 @@ Build a button with START and END."
 (defun faustine-build-all ()
   "Build all executables using the command `faustine-build'."
   (interactive)
-  (faustine-build 1))
+  (faustine-build t))
 
 (defun faustine-diagram-all ()
   "Build all executables using the command `faustine-diagram'."
   (interactive)
-  (faustine-diagram 1))
+  (faustine-diagram t))
 
 (defun faustine-source-code ()
   "Generate Faust c++ code of the current faust file, display it in a buffer."
@@ -586,40 +586,57 @@ LIST is the list of files to display, DIAGRAM is the current file, and DISPLAY-M
       (delete-file faustine-diagram-page-name))
 
   (let*
-      ((flex-value (if (equal display-mode "all") "3 1" "100%")))
-    (write-region (format "<html>
+      ((flex-value (if (equal display-mode "all")
+                       ""
+                     "100%")))
+    (write-region (format "<!DOCTYPE html>
+<html>
 </head>
 <style>
+
 html {
-  background-color: #ccc;
-  font-family: sans-serif;
+    background-color: #ccc;
+    font-family: sans-serif;
+    color: #333;
+}
+h1 {
+    font-size: 80%%;
+    margin: 0 0 0 0;
+}
+figcaption span {
+    float:right;
 }
 div.wrap {
-  display:flex;
-  flex-flow: row wrap;
+    display:flex;
+/*    flex-flow: row wrap; */
+    flex-wrap: wrap;
+    justify-content: space-around;
 }
 div.item {
-  float: right;
-  width: 30%%;
-  border: thin silver solid;
-  margin: 0.2em;
-  padding: 0.1em;
-  order:2;
-/*  flex: 3 1; */
-  flex: %s;
+    float: right;
+    width: 30%%;
+    border: thin silver solid;
+    margin: 0.2em;
+    padding: 0.1em;
+    order:2;
+    /*  flex: 3 1; */
+    flex: %s;
 }
 div.focus {
-  border: thick red solid;
-  order:1;
+    order:1;
+}
+div.focus img {
+    outline: thick #f8aa71 solid;
 }
 img.scaled {
-  width: 100%%;
+    width: 100%%;
 }
 </style>
 <title>Faust diagram</title>
 </head>
 <body>
-<div class='wrap'><h4>Render %s</h4>\n" flex-value (current-time-string)) nil faustine-diagram-page-name)
+<h1>Rendered on %s</h1>
+<div class='wrap'>\n" flex-value (current-time-string)) nil faustine-diagram-page-name)
     (while list
       (if (file-regular-p (car list))
           (let* ((dsp-element (file-name-sans-extension (car list)))
@@ -632,22 +649,25 @@ img.scaled {
                             0
                           (+ 1 i)))
                  (dsp-dir (file-name-directory buffer-file-name)))
+            (setq svg-dir (format "%s%s-svg/" dsp-dir (file-name-nondirectory dsp-element)))
+            (setq svg-file (concat svg-dir "/process.svg"))
             (write-region
              (format "
 <div class='item %s'>
-  <a href='%s%s-svg/process.svg'>
-<img class=scaled src='%s%s-svg/process.svg'
+  <a href='%s'>
+<img class='scaled %s' src='%s'
     alt='%s'></a>
-  <figcaption>%s</figcaption>
+  <figcaption>%s<span><a href='%s' title='All diagrams in %s'>plop</a></span></figcaption>
 </div>
 \n"
                      class
-                     dsp-dir
-                     dsp-element
-                     dsp-dir
-                     (file-name-nondirectory dsp-element)
+                     svg-file
+                     class
+                     svg-file
+                     (file-name-nondirectory svg-file)
                      (file-name-nondirectory dsp-file-name)
-                     (file-name-nondirectory dsp-file-name)
+                     svg-dir
+                     svg-dir
                      ) nil faustine-diagram-page-name 'append 0 nil nil)))
       (setq list (cdr list)))
     (write-region "</div>
@@ -657,6 +677,11 @@ img.scaled {
 ;;;###autoload
 (add-to-list 'auto-mode-alist
                '("\\.dsp\\'" . faustine-mode))
+
+(message "Extension: %s" faustine-faust-extension)
+
+;; (add-to-list 'auto-mode-alist
+             ;; '((concat "\\." faustine-faust-extension "\\'") . faustine-mode))
 
 (provide 'faustine)
 
