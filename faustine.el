@@ -595,14 +595,41 @@ LIST is the list of files to display, DIAGRAM is the current file, and DISPLAY-M
 <style>
 
 html {
-    background-color: #ccc;
+    background-color: #ddd;
     font-family: sans-serif;
     color: #333;
+background-color:#269;
+background-image: linear-gradient(white 2px, transparent 2px),
+linear-gradient(90deg, white 2px, transparent 2px),
+linear-gradient(rgba(255,255,255,.3) 1px, transparent 1px),
+linear-gradient(90deg, rgba(255,255,255,.3) 1px, transparent 1px);
+background-size:100px 100px, 100px 100px, 20px 20px, 20px 20px;
+background-position:-2px -2px, -2px -2px, -1px -1px, -1px -1px;
+}
+
+a:link {
+    color: #F44800;
+}
+
+a:visited {
+    color: #922400;
+}
+
+a:hover {
+    color: white;
+}
+
+a:active {
+    color: orange;
 }
 h1 {
     font-size: 80%%;
     margin: 0 0 0 0;
 }
+
+figcaption {
+}
+
 figcaption span {
     float:right;
 }
@@ -612,21 +639,25 @@ div.wrap {
     flex-wrap: wrap;
     justify-content: space-around;
 }
+
 div.item {
+    color: #eee;
     float: right;
     width: 30%%;
+    height:100%%;
+    background-color: rgba(10,10,10,0.8);
     border: thin silver solid;
     margin: 0.2em;
     padding: 0.1em;
     order:2;
-    /*  flex: 3 1; */
     flex: %s;
 }
+
 div.focus {
     order:1;
 }
 div.focus img {
-    outline: thick #f8aa71 solid;
+    outline: 2px #F44800 solid;
 }
 img.scaled {
     width: 100%%;
@@ -654,9 +685,7 @@ img.scaled {
             (write-region
              (format "
 <div class='item %s'>
-  <a href='%s'>
-<img class='scaled %s' src='%s'
-    alt='%s'></a>
+  <a href='%s'><img class='scaled %s' src='%s' alt='%s'></a>
   <figcaption>%s<span><a href='%s' title='All diagrams in %s'>%s</a></span></figcaption>
 </div>
 \n"
