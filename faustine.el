@@ -332,7 +332,7 @@ This is only for use with the command `faustine-online-doc'."
   (font-lock-fontify-buffer))
 
 ;;;###autoload
-(define-derived-mode faustine-mode prog-mode "Emacs Faust IDE Mode" "
+(define-derived-mode faustine-mode prog-mode "Faustine - A lightweight Emacs Faust IDE" "
 Faustine is a lightweight IDE that leverages the mighty power of the faust executable.
 
 Use \\[faustine-configure] to set it up.
@@ -378,8 +378,6 @@ Available commands while editing Faust (*.dsp) files:
   (add-to-list 'ac-modes 'faustine-mode)
 
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
-
-;; Functions
 
 (defun faustine-configure ()
   "Use `cutomize-group' to set up Faustine preferences."
@@ -616,7 +614,7 @@ background-size:16px 16px;
 }
 
 a:link {
-    color: #eee;
+    color: #ddd;
 }
 a:visited {
     color: #aaa;
@@ -642,7 +640,7 @@ div.wrap {
     justify-content: space-around;
 }
 div.item {
-    color: #fff;
+    color: #eee;
     float: right;
     width: 30%%;
     height:100%%;
@@ -654,10 +652,12 @@ div.item {
     flex: %s;
 }
 div.focus {
+    color: #F44800;
+    background-color: rgba(50,50,50,0.9);
     order:1;
 }
 div.focus img {
-    outline: 2px #F44800 solid;
+/*    outline: 2px #F44800 solid; */
 }
 img.scaled {
     width: 100%%;
@@ -680,8 +680,8 @@ img.scaled {
                             0
                           (+ 1 i)))
                  (dsp-dir (file-name-directory buffer-file-name)))
-            (setq svg-dir (format "%s%s-svg/" dsp-dir (file-name-nondirectory dsp-element)))
-            (setq svg-file (concat svg-dir "process.svg"))
+            (defvar svg-dir (format "%s%s-svg/" dsp-dir (file-name-nondirectory dsp-element)))
+            (defvar svg-file (concat svg-dir "process.svg"))
             (write-region
              (format "
 <div class='item %s'>
@@ -710,9 +710,6 @@ img.scaled {
                '("\\.dsp\\'" . faustine-mode))
 
 (message "Extension: %s" faustine-faust-extension)
-
-;; (add-to-list 'auto-mode-alist
-             ;; '((concat "\\." faustine-faust-extension "\\'") . faustine-mode))
 
 (provide 'faustine)
 
