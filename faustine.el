@@ -598,38 +598,40 @@ html {
     background-color: #ddd;
     font-family: sans-serif;
     color: #333;
-background-color:#269;
-background-image: linear-gradient(white 2px, transparent 2px),
-linear-gradient(90deg, white 2px, transparent 2px),
-linear-gradient(rgba(255,255,255,.3) 1px, transparent 1px),
-linear-gradient(90deg, rgba(255,255,255,.3) 1px, transparent 1px);
-background-size:100px 100px, 100px 100px, 20px 20px, 20px 20px;
-background-position:-2px -2px, -2px -2px, -1px -1px, -1px -1px;
+/*
+background:
+linear-gradient(45deg, #92baac 45px, transparent 45px)64px 64px,
+linear-gradient(45deg, #92baac 45px, transparent 45px,transparent 91px, #e1ebbd 91px, #e1ebbd 135px, transparent 135px),
+linear-gradient(-45deg, #92baac 23px, transparent 23px, transparent 68px,#92baac 68px,#92baac 113px,transparent 113px,transparent 158px,#92baac 158px);
+background-color:#e1ebbd;
+background-size: 128px 128px;
+*/
+background:
+radial-gradient(black 15%%, transparent 16%%) 0 0,
+radial-gradient(black 15%%, transparent 16%%) 8px 8px,
+radial-gradient(rgba(255,255,255,.1) 15%%, transparent 20%%) 0 1px,
+radial-gradient(rgba(255,255,255,.1) 15%%, transparent 20%%) 8px 9px;
+background-color:#282828;
+background-size:16px 16px;
 }
 
 a:link {
+    color: #eee;
+}
+a:visited {
+    color: #aaa;
+}
+a:hover {
     color: #F44800;
 }
-
-a:visited {
-    color: #922400;
-}
-
-a:hover {
-    color: white;
-}
-
 a:active {
-    color: orange;
+    color: #fff;
 }
 h1 {
+    color: #eee;
     font-size: 80%%;
     margin: 0 0 0 0;
 }
-
-figcaption {
-}
-
 figcaption span {
     float:right;
 }
@@ -639,20 +641,18 @@ div.wrap {
     flex-wrap: wrap;
     justify-content: space-around;
 }
-
 div.item {
-    color: #eee;
+    color: #fff;
     float: right;
     width: 30%%;
     height:100%%;
     background-color: rgba(10,10,10,0.8);
-    border: thin silver solid;
+    border: thin dimgrey solid;
     margin: 0.2em;
     padding: 0.1em;
     order:2;
     flex: %s;
 }
-
 div.focus {
     order:1;
 }
@@ -681,11 +681,11 @@ img.scaled {
                           (+ 1 i)))
                  (dsp-dir (file-name-directory buffer-file-name)))
             (setq svg-dir (format "%s%s-svg/" dsp-dir (file-name-nondirectory dsp-element)))
-            (setq svg-file (concat svg-dir "/process.svg"))
+            (setq svg-file (concat svg-dir "process.svg"))
             (write-region
              (format "
 <div class='item %s'>
-  <a href='%s'><img class='scaled %s' src='%s' alt='%s'></a>
+  <a href='%s'><img class='scaled %s' src='%s' alt='%s' title='Click to view %s'></a>
   <figcaption>%s<span><a href='%s' title='All diagrams in %s'>%s</a></span></figcaption>
 </div>
 \n"
@@ -693,7 +693,8 @@ img.scaled {
                      svg-file
                      class
                      svg-file
-                     (file-name-nondirectory svg-file)
+                     svg-file
+                     svg-file
                      (file-name-nondirectory dsp-file-name)
                      svg-dir
                      svg-dir
