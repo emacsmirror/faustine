@@ -667,7 +667,7 @@ img.scaled {
 </head>
 <body>
 <h1>Rendered on %s</h1>
-<div class='wrap'>\n" flex-value (current-time-string)) nil faustine-diagram-page-name)
+<div class='wrap'>\n" flex-value (format-time-string "%A %B %d, %H:%M:%S")) nil faustine-diagram-page-name)
     (while list
       (if (file-regular-p (car list))
           (let* ((dsp-element (file-name-sans-extension (car list)))
