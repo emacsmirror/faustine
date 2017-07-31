@@ -657,7 +657,7 @@ img.scaled {
   <a href='%s'>
 <img class='scaled %s' src='%s'
     alt='%s'></a>
-  <figcaption>%s<span><a href='%s' title='All diagrams in %s'>plop</a></span></figcaption>
+  <figcaption>%s<span><a href='%s' title='All diagrams in %s'>%s</a></span></figcaption>
 </div>
 \n"
                      class
@@ -668,6 +668,7 @@ img.scaled {
                      (file-name-nondirectory dsp-file-name)
                      svg-dir
                      svg-dir
+                     (file-name-nondirectory (directory-file-name svg-dir))
                      ) nil faustine-diagram-page-name 'append 0 nil nil)))
       (setq list (cdr list)))
     (write-region "</div>
