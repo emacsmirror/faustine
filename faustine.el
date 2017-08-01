@@ -332,7 +332,7 @@ This is only for use with the command `faustine-online-doc'."
   (font-lock-fontify-buffer))
 
 ;;;###autoload
-(define-derived-mode faustine-mode prog-mode "Emacs Faust IDE Mode" "
+(define-derived-mode faustine-mode prog-mode "Faustine - A lightweight Emacs Faust IDE" "
 Faustine is a lightweight IDE that leverages the mighty power of the faust executable.
 
 Use \\[faustine-configure] to set it up.
@@ -359,7 +359,7 @@ Available commands while editing Faust (*.dsp) files:
   (smie-setup nil #'ignore)
 
   (font-lock-add-keywords 'faustine-output-mode
-                          '(("Process" . font-lock-constant-face)
+                          '(("File" . font-lock-constant-face)
                             ("Event" . font-lock-constant-face)
                             ("finished" . font-lock-keyword-face)
                             ("started" . font-lock-keyword-face)
@@ -378,8 +378,6 @@ Available commands while editing Faust (*.dsp) files:
   (add-to-list 'ac-modes 'faustine-mode)
 
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
-
-;; Functions
 
 (defun faustine-configure ()
   "Use `cutomize-group' to set up Faustine preferences."
@@ -503,21 +501,21 @@ If BUILD-ALL is set, generate all linked files."
         (faustine-open-output-buffer))))
 
 (defun faustine-log-to-buffer (process event)
-  "Print status to output buffer, scroll buffer down; Log PROCESS and EVENT to output buffer."
-  (let ((oldbuf (current-buffer)))
+  "Log PROCESS and EVENT to output buffer, scroll buffer down."
+  (let ((oldbuf (current-buffer))
+        (bufname (buffer-name)))
     (with-current-buffer (get-buffer-create faustine-output-buffer-name)
       (faustine-output-mode)
       (font-lock-fontify-buffer)
-      (goto-char (point-max))
-      (newline)
-      (insert (format "%s | Process %s: %s\n"
+      (message "Buf: %s" oldbuf)
+      (insert (format "%s | %s %s %s\n"
                       (format-time-string "%H:%M:%S")
+                      bufname
                       process
                       (replace-regexp-in-string "\n" " " event)))
-      (if (get-buffer-window faustine-output-buffer-name `visible)
-          (progn (setq other-window-scroll-buffer faustine-output-buffer-name)
-                 (scroll-other-window)))
-      (goto-char (point-max)))))
+      (when (get-buffer-window faustine-output-buffer-name `visible)
+          (with-selected-window (get-buffer-window (current-buffer))
+            (goto-char (point-max)))))))
 
 (defun faustine-toggle-output-buffer ()
   "Show/hide Faust output buffer."
@@ -616,7 +614,7 @@ background-size:16px 16px;
 }
 
 a:link {
-    color: #eee;
+    color: #ddd;
 }
 a:visited {
     color: #aaa;
@@ -642,7 +640,7 @@ div.wrap {
     justify-content: space-around;
 }
 div.item {
-    color: #fff;
+    color: #eee;
     float: right;
     width: 30%%;
     height:100%%;
@@ -654,10 +652,12 @@ div.item {
     flex: %s;
 }
 div.focus {
+    color: #F44800;
+    background-color: rgba(50,50,50,0.9);
     order:1;
 }
 div.focus img {
-    outline: 2px #F44800 solid;
+/*    outline: 2px #F44800 solid; */
 }
 img.scaled {
     width: 100%%;
@@ -667,7 +667,7 @@ img.scaled {
 </head>
 <body>
 <h1>Rendered on %s</h1>
-<div class='wrap'>\n" flex-value (current-time-string)) nil faustine-diagram-page-name)
+<div class='wrap'>\n" flex-value (format-time-string "%A %B %d, %H:%M:%S")) nil faustine-diagram-page-name)
     (while list
       (if (file-regular-p (car list))
           (let* ((dsp-element (file-name-sans-extension (car list)))
@@ -679,9 +679,9 @@ img.scaled {
                  (order (if (equal diagram (car list))
                             0
                           (+ 1 i)))
-                 (dsp-dir (file-name-directory buffer-file-name)))
-            (setq svg-dir (format "%s%s-svg/" dsp-dir (file-name-nondirectory dsp-element)))
-            (setq svg-file (concat svg-dir "process.svg"))
+                 (dsp-dir (file-name-directory buffer-file-name))
+                 (svg-dir (format "%s%s-svg/" dsp-dir (file-name-nondirectory dsp-element)))
+                 (svg-file (concat svg-dir "process.svg")))
             (write-region
              (format "
 <div class='item %s'>
@@ -710,9 +710,6 @@ img.scaled {
                '("\\.dsp\\'" . faustine-mode))
 
 (message "Extension: %s" faustine-faust-extension)
-
-;; (add-to-list 'auto-mode-alist
-             ;; '((concat "\\." faustine-faust-extension "\\'") . faustine-mode))
 
 (provide 'faustine)
 
