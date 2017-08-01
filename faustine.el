@@ -359,7 +359,7 @@ Available commands while editing Faust (*.dsp) files:
   (smie-setup nil #'ignore)
 
   (font-lock-add-keywords 'faustine-output-mode
-                          '(("Process" . font-lock-constant-face)
+                          '(("File" . font-lock-constant-face)
                             ("Event" . font-lock-constant-face)
                             ("finished" . font-lock-keyword-face)
                             ("started" . font-lock-keyword-face)
@@ -502,12 +502,15 @@ If BUILD-ALL is set, generate all linked files."
 
 (defun faustine-log-to-buffer (process event)
   "Log PROCESS and EVENT to output buffer, scroll buffer down."
-  (let ((oldbuf (current-buffer)))
+  (let ((oldbuf (current-buffer))
+        (bufname (buffer-name)))
     (with-current-buffer (get-buffer-create faustine-output-buffer-name)
       (faustine-output-mode)
       (font-lock-fontify-buffer)
-      (insert (format "%s | Process %s: %s\n"
+      (message "Buf: %s" oldbuf)
+      (insert (format "%s | %s %s %s\n"
                       (format-time-string "%H:%M:%S")
+                      bufname
                       process
                       (replace-regexp-in-string "\n" " " event)))
       (when (get-buffer-window faustine-output-buffer-name `visible)
