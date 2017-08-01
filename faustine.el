@@ -501,7 +501,7 @@ If BUILD-ALL is set, generate all linked files."
         (faustine-open-output-buffer))))
 
 (defun faustine-log-to-buffer (process event)
-  "Print status to output buffer, scroll buffer down; Log PROCESS and EVENT to output buffer."
+  "Log PROCESS and EVENT to output buffer, scroll buffer down."
   (let ((oldbuf (current-buffer)))
     (with-current-buffer (get-buffer-create faustine-output-buffer-name)
       (faustine-output-mode)
@@ -510,8 +510,9 @@ If BUILD-ALL is set, generate all linked files."
                       (format-time-string "%H:%M:%S")
                       process
                       (replace-regexp-in-string "\n" " " event)))
-      (with-selected-window (get-buffer-window (current-buffer))
-        (goto-char (point-max))))))
+      (when (get-buffer-window faustine-output-buffer-name `visible)
+          (with-selected-window (get-buffer-window (current-buffer))
+            (goto-char (point-max)))))))
 
 (defun faustine-toggle-output-buffer ()
   "Show/hide Faust output buffer."
