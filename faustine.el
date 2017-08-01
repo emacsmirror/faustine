@@ -579,7 +579,7 @@ LIST is the list of files to display, DIAGRAM is the current file, and DISPLAY-M
   (if (file-regular-p faustine-diagram-page-name)
       (delete-file faustine-diagram-page-name))
 
-  (let*
+  (let
       ((flex-value (if (equal display-mode "all")
                        ""
                      "100%")))
