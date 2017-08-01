@@ -506,16 +506,12 @@ If BUILD-ALL is set, generate all linked files."
     (with-current-buffer (get-buffer-create faustine-output-buffer-name)
       (faustine-output-mode)
       (font-lock-fontify-buffer)
-      (goto-char (point-max))
-      (newline)
       (insert (format "%s | Process %s: %s\n"
                       (format-time-string "%H:%M:%S")
                       process
                       (replace-regexp-in-string "\n" " " event)))
-      (if (get-buffer-window faustine-output-buffer-name `visible)
-          (progn (setq other-window-scroll-buffer faustine-output-buffer-name)
-                 (scroll-other-window)))
-      (goto-char (point-max)))))
+      (with-selected-window (get-buffer-window (current-buffer))
+        (goto-char (point-max))))))
 
 (defun faustine-toggle-output-buffer ()
   "Show/hide Faust output buffer."
@@ -679,9 +675,9 @@ img.scaled {
                  (order (if (equal diagram (car list))
                             0
                           (+ 1 i)))
-                 (dsp-dir (file-name-directory buffer-file-name)))
-            (defvar svg-dir (format "%s%s-svg/" dsp-dir (file-name-nondirectory dsp-element)))
-            (defvar svg-file (concat svg-dir "process.svg"))
+                 (dsp-dir (file-name-directory buffer-file-name))
+                 (svg-dir (format "%s%s-svg/" dsp-dir (file-name-nondirectory dsp-element)))
+                 (svg-file (concat svg-dir "process.svg")))
             (write-region
              (format "
 <div class='item %s'>
