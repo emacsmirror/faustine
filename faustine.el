@@ -105,6 +105,11 @@
   :type '(string)
   :group 'keyboard-shortcuts)
 
+(defcustom faustine-kb-syntax-check "C-c C-c"
+  "Check if Faust code buffer compiles."
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
 (defcustom faustine-pop-output-buffer nil
   "Pop open the Faust output buffer at each command call."
   :type '(boolean)
@@ -307,10 +312,9 @@ This is only for use with the command `faustine-online-doc'."
      (define-key map (kbd faustine-kb-mdoc) 'faustine-mdoc)
      (define-key map (kbd faustine-kb-run) 'faustine-run)
      (define-key map (kbd faustine-kb-source-code) 'faustine-source-code)
-     (define-key map [?\C-c ?\C-c] 'faustine-syntax-check)
+     (define-key map (kbd faustine-kb-syntax-check) 'faustine-syntax-check)
      map)
    "Keymap for `faustine-mode'.")
-
 
  (defvar faustine-mode-syntax-table
    (let ((st (make-syntax-table)))
@@ -376,6 +380,7 @@ Available commands while editing Faust (*.dsp) files:
   (define-key faustine-mode-map (kbd faustine-kb-mdoc) 'faustine-mdoc)
   (define-key faustine-mode-map (kbd faustine-kb-run) 'faustine-run)
   (define-key faustine-mode-map (kbd faustine-kb-source-code) 'faustine-source-code)
+  (define-key faustine-mode-map (kbd faustine-kb-syntax-check) 'faustine-syntax-check)
 
   (smie-setup nil #'ignore)
 
