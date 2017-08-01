@@ -47,52 +47,60 @@
   "Faustine keyboard shortcuts"
   :group 'faustine)
 
-(defcustom faustine-configure "C-c C-p"
+(defcustom faustine-kb-configure "C-c C-p"
   "Configure Faustine."
-  :type '(string)
-  :group 'keyboard-shortcuts)
+  :type 'string
+  :group 'faustine)
 
-(defcustom faustine-build "C-c C-b"
+(defcustom faustine-diagram-theme 'plop
+  "The Faust code-to-executable build backend."
+  :type '(choice
+          (const :tag 'plop "faust2alsa")
+          (const :tag 'faust2puredata "faust2puredata")
+          (const :tag 'faust2w32msp "faust2w32msp"))
+  :group 'faustine)
+
+(defcustom faustine-kb-build "C-c C-b"
   "Build the current buffer/file executable using the `faustine-build-backend' script."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-build-all "C-c C-S-b"
+(defcustom faustine-kb-build-all "C-c C-S-b"
   "Build all project files."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-diagram "C-c C-d"
+(defcustom faustine-kb-diagram "C-c C-d"
   "Generate the current buffer/file Faust diagram."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-diagram-all "C-c C-S-d"
+(defcustom faustine-kb-diagram-all "C-c C-S-d"
   "Generate all project files Faust diagrams."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-online-doc "C-c C-h"
+(defcustom faustine-kb-online-doc "C-c C-h"
   "Websearch the selected string on the faust.grame.fr library web site."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-toggle-output-buffer "C-c C-o"
+(defcustom faustine-kb-toggle-output-buffer "C-c C-o"
   "Show/hide Faust output buffer."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-mdoc "C-c C-m"
+(defcustom faustine-kb-mdoc "C-c C-m"
   "Generate Faust mdoc of the current faust buffer/file."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-run "C-c C-r"
+(defcustom faustine-kb-run "C-c C-r"
   "Run the current buffer/file executable."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-source-code "C-c C-s"
+(defcustom faustine-kb-source-code "C-c C-s"
   "Generate C++ source code of the current faust buffer/file."
   :type '(string)
   :group 'keyboard-shortcuts)
@@ -289,19 +297,20 @@ This is only for use with the command `faustine-online-doc'."
 
 (defvar faustine-mode-map
    (let ((map (make-sparse-keymap)))
-     (define-key map (kbd faustine-build) 'faustine-build)
-     (define-key map (kbd faustine-build-all) 'faustine-build-all)
-     (define-key map (kbd faustine-diagram) 'faustine-diagram)
-     (define-key map (kbd faustine-diagram-all) 'faustine-diagram-all)
-     (define-key map (kbd faustine-online-doc) 'faustine-online-doc)
-     (define-key map (kbd faustine-configure) 'faustine-configure)
-     (define-key map (kbd faustine-toggle-output-buffer) 'faustine-toggle-output-buffer)
-     (define-key map (kbd faustine-mdoc) 'faustine-mdoc)
-     (define-key map (kbd faustine-run) 'faustine-run)
-     (define-key map (kbd faustine-source-code) 'faustine-source-code)
+     (define-key map (kbd faustine-kb-build) 'faustine-build)
+     (define-key map (kbd faustine-kb-build-all) 'faustine-build-all)
+     (define-key map (kbd faustine-kb-diagram) 'faustine-diagram)
+     (define-key map (kbd faustine-kb-diagram-all) 'faustine-diagram-all)
+     (define-key map (kbd faustine-kb-online-doc) 'faustine-online-doc)
+     (define-key map (kbd faustine-kb-configure) 'faustine-configure)
+     (define-key map (kbd faustine-kb-toggle-output-buffer) 'faustine-toggle-output-buffer)
+     (define-key map (kbd faustine-kb-mdoc) 'faustine-mdoc)
+     (define-key map (kbd faustine-kb-run) 'faustine-run)
+     (define-key map (kbd faustine-kb-source-code) 'faustine-source-code)
      (define-key map [?\C-c ?\C-c] 'faustine-syntax-check)
      map)
    "Keymap for `faustine-mode'.")
+
 
  (defvar faustine-mode-syntax-table
    (let ((st (make-syntax-table)))
@@ -354,7 +363,19 @@ Available commands while editing Faust (*.dsp) files:
   (add-hook 'find-file-hook 'faustine-buttonize-buffer-dsp nil t)
 
   (set-syntax-table faustine-mode-syntax-table)
+
   (use-local-map faustine-mode-map)
+
+  (define-key faustine-mode-map (kbd faustine-kb-configure) 'faustine-configure)
+  (define-key faustine-mode-map (kbd faustine-kb-build) 'faustine-build)
+  (define-key faustine-mode-map (kbd faustine-kb-build-all) 'faustine-build-all)
+  (define-key faustine-mode-map (kbd faustine-kb-diagram) 'faustine-diagram)
+  (define-key faustine-mode-map (kbd faustine-kb-diagram-all) 'faustine-diagram-all)
+  (define-key faustine-mode-map (kbd faustine-kb-online-doc) 'faustine-online-doc)
+  (define-key faustine-mode-map (kbd faustine-kb-toggle-output-buffer) 'faustine-toggle-output-buffer)
+  (define-key faustine-mode-map (kbd faustine-kb-mdoc) 'faustine-mdoc)
+  (define-key faustine-mode-map (kbd faustine-kb-run) 'faustine-run)
+  (define-key faustine-mode-map (kbd faustine-kb-source-code) 'faustine-source-code)
 
   (smie-setup nil #'ignore)
 
@@ -374,6 +395,8 @@ Available commands while editing Faust (*.dsp) files:
                             faustine-faust-ui-keywords))
 
   (add-to-list 'ac-modes 'faustine-mode)
+
+  (message "keyy: %s" (custom-reevaluate-setting 'faustine-kb-configure))
 
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
@@ -592,21 +615,15 @@ html {
     background-color: #ddd;
     font-family: sans-serif;
     color: #333;
-/*
+
 background:
 linear-gradient(45deg, #92baac 45px, transparent 45px)64px 64px,
 linear-gradient(45deg, #92baac 45px, transparent 45px,transparent 91px, #e1ebbd 91px, #e1ebbd 135px, transparent 135px),
 linear-gradient(-45deg, #92baac 23px, transparent 23px, transparent 68px,#92baac 68px,#92baac 113px,transparent 113px,transparent 158px,#92baac 158px);
 background-color:#e1ebbd;
 background-size: 128px 128px;
+/*
 */
-background:
-radial-gradient(black 15%%, transparent 16%%) 0 0,
-radial-gradient(black 15%%, transparent 16%%) 8px 8px,
-radial-gradient(rgba(255,255,255,.1) 15%%, transparent 20%%) 0 1px,
-radial-gradient(rgba(255,255,255,.1) 15%%, transparent 20%%) 8px 9px;
-background-color:#282828;
-background-size:16px 16px;
 }
 
 a:link {
@@ -622,7 +639,6 @@ a:active {
     color: #fff;
 }
 h1 {
-    color: #eee;
     font-size: 80%%;
     margin: 0 0 0 0;
 }
@@ -662,8 +678,8 @@ img.scaled {
 <title>Faust diagram</title>
 </head>
 <body>
-<h1>Rendered on %s</h1>
-<div class='wrap'>\n" flex-value (format-time-string "%A %B %d, %H:%M:%S")) nil faustine-diagram-page-name)
+<h1>Rendered on %s Theme: %s</h1>
+<div class='wrap'>\n" flex-value (format-time-string "%A %B %d, %H:%M:%S") faustine-diagram-theme) nil faustine-diagram-page-name)
     (while list
       (if (file-regular-p (car list))
           (let* ((dsp-element (file-name-sans-extension (car list)))
@@ -705,7 +721,11 @@ img.scaled {
 (add-to-list 'auto-mode-alist
                '("\\.dsp\\'" . faustine-mode))
 
-(message "Extension: %s" faustine-faust-extension)
+
+(message "key: %s" faustine-kb-configure)
+
+;; (car (get 'faustine-kb-configure 'saved-value))
+
 
 (provide 'faustine)
 
