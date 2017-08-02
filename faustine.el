@@ -406,7 +406,7 @@ Available commands while editing Faust (*.dsp) files:
   'action #'faustine-link-log-action)
 
 (defun faustine-link-lib-action (button)
-  "Search library file and insert BUTTON."
+  "Search Faust library file and insert BUTTON."
   (find-file (format "%s%s"
                      faustine-faust-libs-dir
                      (buffer-substring
@@ -415,15 +415,38 @@ Available commands while editing Faust (*.dsp) files:
   (faustine-buttonize-buffer-lib))
 
 (defun faustine-link-dsp-action (button)
-  "Search faust file and insert BUTTON."
+  "Search Faust file and insert BUTTON."
   (find-file (format "%s%s"
                      (file-name-directory buffer-file-name)
                      (buffer-substring
                       (button-start button) (button-end button)))))
 
 (defun faustine-link-log-action (button)
-  "Search faust file and insert BUTTON."
-  (message "plop!"))
+  "Search Faust output buffer and insert BUTTON."
+  (let ((file (car (split-string
+                    (buffer-substring-no-properties
+                     (button-start button) (button-end button)) "\\:")))
+        (line (cadr (split-string
+                     (buffer-substring-no-properties
+                      (button-start button) (button-end button)) "\\:"))))
+    (message "Butt: %s, %s" file line)
+    (find-file-other-window file)
+    (message "Buffer: %s Type: %s" (buffer-name) (type-of line))
+    (goto-char (point-min))
+    (forward-line (string-to-number line))
+    ))
+
+;; (copy-marker 1)
+
+(defun faustine-buttonize-buffer-log ()
+  "Turn all file paths into buttons."
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward faustine-regexp-log nil t)
+      ;; (make-button (match-beginning 1) (match-end 1) :type 'faustine-link-log)
+      (message "Two: %s" (match-string 2))
+      (make-button (match-beginning 1) (match-end 2) :type 'faustine-link-log))))
 
 (defun faustine-buttonize-buffer (type)
   "Turn all file paths into buttons of type TYPE."
@@ -435,14 +458,6 @@ Available commands while editing Faust (*.dsp) files:
       (while (re-search-forward regexp nil t)
         (make-button (match-beginning 1) (match-end 1)
                      :type (intern-soft (concat "faustine-link-" type)))))))
-
-(defun faustine-buttonize-buffer-log ()
-  "Turn all file paths into buttons."
-  (interactive)
-  (save-excursion
-    (goto-char (point-min))
-    (while (re-search-forward faustine-regexp-log nil t)
-      (make-button (match-beginning 1) (match-end 1) :type 'faustine-link-log))))
 
 (defun faustine-online-doc (start end)
   "Websearch selected string on the faust.grame.fr library web site.
