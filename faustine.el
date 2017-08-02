@@ -13,7 +13,6 @@
 ;;
 ;; Author: Yassin Philip <xaccrocheur@gmail.com>
 ;; Keywords: tools, modes, faust
-;; Version 0.5b
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
@@ -37,6 +36,7 @@
 ;;
 ;;; Code:
 
+
 (require 'smie)
 
 (defgroup faustine nil
@@ -47,53 +47,58 @@
   "Faustine keyboard shortcuts"
   :group 'faustine)
 
-(defcustom faustine-configure "C-c C-p"
+(defcustom faustine-kb-configure "C-c C-p"
   "Configure Faustine."
-  :type '(string)
+  :type 'string
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-build "C-c C-b"
+(defcustom faustine-kb-build "C-c C-b"
   "Build the current buffer/file executable using the `faustine-build-backend' script."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-build-all "C-c C-S-b"
+(defcustom faustine-kb-build-all "C-c C-S-b"
   "Build all project files."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-diagram "C-c C-d"
+(defcustom faustine-kb-diagram "C-c C-d"
   "Generate the current buffer/file Faust diagram."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-diagram-all "C-c C-S-d"
+(defcustom faustine-kb-diagram-all "C-c C-S-d"
   "Generate all project files Faust diagrams."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-online-doc "C-c C-h"
+(defcustom faustine-kb-online-doc "C-c C-h"
   "Websearch the selected string on the faust.grame.fr library web site."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-toggle-output-buffer "C-c C-o"
+(defcustom faustine-kb-toggle-output-buffer "C-c C-o"
   "Show/hide Faust output buffer."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-mdoc "C-c C-m"
+(defcustom faustine-kb-mdoc "C-c C-m"
   "Generate Faust mdoc of the current faust buffer/file."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-run "C-c C-r"
+(defcustom faustine-kb-run "C-c r"
   "Run the current buffer/file executable."
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-source-code "C-c C-s"
+(defcustom faustine-kb-source-code "C-c C-s"
   "Generate C++ source code of the current faust buffer/file."
+  :type '(string)
+  :group 'keyboard-shortcuts)
+
+(defcustom faustine-kb-syntax-check "C-c C-c"
+  "Check if Faust code buffer compiles."
   :type '(string)
   :group 'keyboard-shortcuts)
 
@@ -289,17 +294,6 @@ This is only for use with the command `faustine-online-doc'."
 
 (defvar faustine-mode-map
    (let ((map (make-sparse-keymap)))
-     (define-key map (kbd faustine-build) 'faustine-build)
-     (define-key map (kbd faustine-build-all) 'faustine-build-all)
-     (define-key map (kbd faustine-diagram) 'faustine-diagram)
-     (define-key map (kbd faustine-diagram-all) 'faustine-diagram-all)
-     (define-key map (kbd faustine-online-doc) 'faustine-online-doc)
-     (define-key map (kbd faustine-configure) 'faustine-configure)
-     (define-key map (kbd faustine-toggle-output-buffer) 'faustine-toggle-output-buffer)
-     (define-key map (kbd faustine-mdoc) 'faustine-mdoc)
-     (define-key map (kbd faustine-run) 'faustine-run)
-     (define-key map (kbd faustine-source-code) 'faustine-source-code)
-     (define-key map [?\C-c ?\C-c] 'faustine-syntax-check)
      map)
    "Keymap for `faustine-mode'.")
 
@@ -354,19 +348,36 @@ Available commands while editing Faust (*.dsp) files:
   (add-hook 'find-file-hook 'faustine-buttonize-buffer-dsp nil t)
 
   (set-syntax-table faustine-mode-syntax-table)
+
   (use-local-map faustine-mode-map)
+
+  (define-key faustine-mode-map (kbd faustine-kb-configure) 'faustine-configure)
+  (define-key faustine-mode-map (kbd faustine-kb-build) 'faustine-build)
+  (define-key faustine-mode-map (kbd faustine-kb-build-all) 'faustine-build-all)
+  (define-key faustine-mode-map (kbd faustine-kb-diagram) 'faustine-diagram)
+  (define-key faustine-mode-map (kbd faustine-kb-diagram-all) 'faustine-diagram-all)
+  (define-key faustine-mode-map (kbd faustine-kb-online-doc) 'faustine-online-doc)
+  (define-key faustine-mode-map (kbd faustine-kb-toggle-output-buffer) 'faustine-toggle-output-buffer)
+  (define-key faustine-mode-map (kbd faustine-kb-mdoc) 'faustine-mdoc)
+  (define-key faustine-mode-map (kbd faustine-kb-run) 'faustine-run)
+  (define-key faustine-mode-map (kbd faustine-kb-source-code) 'faustine-source-code)
+  (define-key faustine-mode-map (kbd faustine-kb-syntax-check) 'faustine-syntax-check)
 
   (smie-setup nil #'ignore)
 
   (font-lock-add-keywords 'faustine-output-mode
                           '(("started" . font-lock-keyword-face)
                             ("finished" . font-lock-keyword-face)
-                            ("Check" . font-lock-string-face)
                             ("Build" . font-lock-string-face)
-                            ("Mdoc" . font-lock-string-face)
+                            ("\\b\\(Check\\)\\b" . font-lock-string-face)
                             ("Diagram" . font-lock-string-face)
-                            ("ERROR" . font-lock-warning-face)
+                            ("Mdoc" . font-lock-string-face)
+                            ("Run" . font-lock-string-face)
+                            ("error" . font-lock-warning-face)
+                            ("jack" . font-lock-warning-face)
                             ("exited abnormally with code" . font-lock-warning-face)))
+
+
 
   (setq ac-user-dictionary (append
                             faustine-faust-keywords
@@ -461,30 +472,6 @@ Build a button from START to END."
     (if faustine-pop-output-buffer
         (faustine-open-output-buffer))))
 
-(defun faustine-run ()
-  "Run the executable generated by the current Faust code buffer."
-  (interactive)
-  (start-process-shell-command "Run" faustine-output-buffer-name
-                               (format "./%s" (file-name-sans-extension
-                                               (file-name-nondirectory
-                                                (buffer-name)))))
-  (if faustine-pop-output-buffer
-      (faustine-open-output-buffer)))
-
-(defun faustine-mdoc (&optional build-all)
-  "Generate mdoc of the current file, display it in a buffer.
-If BUILD-ALL is set, generate all linked files."
-  (interactive)
-  (let* ((files-to-build (if build-all
-                             (mapconcat 'identity (faustine-project-files (buffer-name) '()) " ")
-                           (current-buffer)))
-         (process (start-process-shell-command "Mdoc"
-                                               faustine-output-buffer-name
-                                               (format "faust2svg %s" files-to-build))))
-    (with-current-buffer (process-buffer process)
-      (setq faustine-process-source-buffer (current-buffer)))
-    (set-process-sentinel process 'faustine-mdoc-sentinel)))
-
 (defun faustine-mdoc-sentinel (process event)
   "Mdoc sentinel: Log PROCESS and EVENT to output buffer."
   (let ((pdf-file (format "%s-mdoc/pdf/%s.pdf"
@@ -497,21 +484,6 @@ If BUILD-ALL is set, generate all linked files."
       (browse-url-of-file pdf-file))
     (if faustine-pop-output-buffer
         (faustine-open-output-buffer))))
-
-(defun faustine-log-to-buffer (process event)
-  "Log PROCESS and EVENT to output buffer, scroll buffer down."
-  (let ((buffer-name (buffer-name)))
-    (with-current-buffer (get-buffer-create faustine-output-buffer-name)
-      (faustine-output-mode)
-      (font-lock-fontify-buffer)
-      (insert (format "%s | %s %s %s\n"
-                      (format-time-string "%H:%M:%S")
-                      buffer-name
-                      process
-                      (replace-regexp-in-string "\n" " " event)))
-      (when (get-buffer-window faustine-output-buffer-name `visible)
-          (with-selected-window (get-buffer-window (current-buffer))
-            (goto-char (point-max)))))))
 
 (defun faustine-toggle-output-buffer ()
   "Show/hide Faust output buffer."
@@ -543,17 +515,65 @@ If BUILD-ALL is set, generate all linked files."
               (setq blist (faustine-project-files uri blist))))))
     (identity blist)))
 
+(defun faustine-mdoc (&optional build-all)
+  "Generate mdoc of the current file, display it in a buffer.
+If BUILD-ALL is set, generate all linked files."
+  (interactive)
+  (let* ((files-to-build (if build-all
+                             (mapconcat 'identity (faustine-project-files (buffer-name) '()) " ")
+                           (current-buffer)))
+         (process (start-process-shell-command "Mdoc"
+                                               faustine-output-buffer-name
+                                               (format "faust2svg %s" files-to-build))))
+    (with-current-buffer (process-buffer process)
+      (setq faustine-process-source-buffer (current-buffer)))
+    (set-process-sentinel process 'faustine-mdoc-sentinel)))
+
 (defun faustine-build (&optional build-all)
   "Build the current buffer/file executable(s).
 If BUILD-ALL is set, build all Faust files referenced by this one."
   (interactive)
   (faustine-log-to-buffer "Build" "started")
-  (let ((files-to-build (if build-all
+  (let* ((files-to-build (if build-all
                             (mapconcat 'identity (faustine-project-files (buffer-name) '()) " ")
-                          (current-buffer))))
-    (start-process-shell-command "Build"
-                                 faustine-output-buffer-name
-                                 (format "%s %s" faustine-build-backend files-to-build))))
+                           (current-buffer)))
+         (process (start-process-shell-command
+                   "Build"
+                   nil
+                   (format "%s %s" faustine-build-backend files-to-build))))
+    (set-process-sentinel process 'faustine-log-to-buffer)))
+
+(defun faustine-run ()
+  "Run the executable generated by the current Faust code buffer."
+  (interactive)
+  (faustine-log-to-buffer "Run" "started")
+  (let ((process (start-process-shell-command
+                  "Run"
+                  faustine-output-buffer-name
+                  (format "./%s" (file-name-sans-extension
+                                  (file-name-nondirectory
+                                   (buffer-name)))))))
+    (set-process-sentinel process 'faustine-log-to-buffer)
+    (if faustine-pop-output-buffer
+        (faustine-open-output-buffer))))
+
+(defun faustine-log-to-buffer (process event)
+  "Log PROCESS and EVENT to output buffer, scroll buffer down."
+  (let ((buffer-name (buffer-name)))
+    (with-current-buffer (get-buffer-create faustine-output-buffer-name)
+      (faustine-output-mode)
+      (font-lock-fontify-buffer)
+      (goto-char (point-max))
+      (insert (format "%s | %s %s %s\n"
+                      (format-time-string "%H:%M:%S")
+                      buffer-name
+                      process
+                      event
+                      ;; (replace-regexp-in-string "\n" " " event)
+                      ))
+      (when (get-buffer-window faustine-output-buffer-name `visible)
+        (with-selected-window (get-buffer-window (current-buffer))
+          (goto-char (point-max)))))))
 
 (defun faustine-diagram (&optional build-all)
   "Generate Faust diagram(s).
@@ -579,7 +599,7 @@ LIST is the list of files to display, DIAGRAM is the current file, and DISPLAY-M
   (if (file-regular-p faustine-diagram-page-name)
       (delete-file faustine-diagram-page-name))
 
-  (let*
+  (let
       ((flex-value (if (equal display-mode "all")
                        ""
                      "100%")))
@@ -591,22 +611,6 @@ LIST is the list of files to display, DIAGRAM is the current file, and DISPLAY-M
 html {
     background-color: #ddd;
     font-family: sans-serif;
-    color: #333;
-/*
-background:
-linear-gradient(45deg, #92baac 45px, transparent 45px)64px 64px,
-linear-gradient(45deg, #92baac 45px, transparent 45px,transparent 91px, #e1ebbd 91px, #e1ebbd 135px, transparent 135px),
-linear-gradient(-45deg, #92baac 23px, transparent 23px, transparent 68px,#92baac 68px,#92baac 113px,transparent 113px,transparent 158px,#92baac 158px);
-background-color:#e1ebbd;
-background-size: 128px 128px;
-*/
-background:
-radial-gradient(black 15%%, transparent 16%%) 0 0,
-radial-gradient(black 15%%, transparent 16%%) 8px 8px,
-radial-gradient(rgba(255,255,255,.1) 15%%, transparent 20%%) 0 1px,
-radial-gradient(rgba(255,255,255,.1) 15%%, transparent 20%%) 8px 9px;
-background-color:#282828;
-background-size:16px 16px;
 }
 
 a:link {
@@ -622,7 +626,6 @@ a:active {
     color: #fff;
 }
 h1 {
-    color: #eee;
     font-size: 80%%;
     margin: 0 0 0 0;
 }
@@ -705,7 +708,6 @@ img.scaled {
 (add-to-list 'auto-mode-alist
                '("\\.dsp\\'" . faustine-mode))
 
-(message "Extension: %s" faustine-faust-extension)
 
 (provide 'faustine)
 
