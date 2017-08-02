@@ -349,6 +349,9 @@ Available commands while editing Faust (*.dsp) files:
   (add-hook 'find-file-hook '(lambda ()
                                (faustine-buttonize-buffer "lib")) nil t)
 
+  ;; (add-hook 'find-file-hook '(lambda ()
+  ;;                              (faustine-buttonize-buffer "log")) nil t)
+
   (set-syntax-table faustine-mode-syntax-table)
 
   (use-local-map faustine-mode-map)
@@ -423,20 +426,15 @@ Available commands while editing Faust (*.dsp) files:
 
 (defun faustine-link-log-action (button)
   "Search Faust output buffer and insert BUTTON."
-  (let ((file (car (split-string
+  (let ((buffer (car (split-string
                     (buffer-substring-no-properties
                      (button-start button) (button-end button)) "\\:")))
         (line (cadr (split-string
                      (buffer-substring-no-properties
                       (button-start button) (button-end button)) "\\:"))))
-    (message "Butt: %s, %s" file line)
-    (find-file-other-window file)
-    (message "Buffer: %s Type: %s" (buffer-name) (type-of line))
+    (find-file-other-window buffer)
     (goto-char (point-min))
-    (forward-line (string-to-number line))
-    ))
-
-;; (copy-marker 1)
+    (forward-line (string-to-number line))))
 
 (defun faustine-buttonize-buffer-log ()
   "Turn all file paths into buttons."
@@ -444,8 +442,6 @@ Available commands while editing Faust (*.dsp) files:
   (save-excursion
     (goto-char (point-min))
     (while (re-search-forward faustine-regexp-log nil t)
-      ;; (make-button (match-beginning 1) (match-end 1) :type 'faustine-link-log)
-      (message "Two: %s" (match-string 2))
       (make-button (match-beginning 1) (match-end 2) :type 'faustine-link-log))))
 
 (defun faustine-buttonize-buffer (type)
@@ -454,9 +450,11 @@ Available commands while editing Faust (*.dsp) files:
     (goto-char (point-min))
     (let ((regexp (cond ((string= type "dsp") faustine-regexp-dsp)
                         ((string= type "log") faustine-regexp-log)
-                        ((string= type "lib") faustine-regexp-lib))))
+                        ((string= type "lib") faustine-regexp-lib)))
+          (end (cond ((string= type "log") 2)
+                     (t 1))))
       (while (re-search-forward regexp nil t)
-        (make-button (match-beginning 1) (match-end 1)
+        (make-button (match-beginning 1) (match-end end)
                      :type (intern-soft (concat "faustine-link-" type)))))))
 
 (defun faustine-online-doc (start end)
@@ -607,6 +605,7 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
                       event
                       ;; (replace-regexp-in-string "\n" " " event)
                       ))
+      (faustine-buttonize-buffer "log")
       (when (get-buffer-window faustine-output-buffer-name `visible)
         (with-selected-window (get-buffer-window (current-buffer))
           (goto-char (point-max)))))))
