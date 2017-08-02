@@ -52,33 +52,6 @@
   :type 'string
   :group 'keyboard-shortcuts)
 
-(setq faustine-diagram-theme-arrows "plop:plop")
-
-(setq faustine-diagram-theme-indus "plop:plip")
-
-(defcustom faustine-diagram-theme nil
-  "The Faust diagram style."
-  :type '(choice
-          (variable-item :tag "Light:Arrows" faustine-diagram-theme-arrows)
-          (variable-item :tag "Dark:Industrial" faustine-diagram-theme-indus)
-          (variable-item :tag "None" nil))
-  :group 'faustine)
-
-;; background:
-;; radial-gradient(black 15%%, transparent 16%%) 0 0,
-;; radial-gradient(black 15%%, transparent 16%%) 8px 8px,
-;; radial-gradient(rgba(255,255,255,.1) 15%%, transparent 20%%) 0 1px,
-;; radial-gradient(rgba(255,255,255,.1) 15%%, transparent 20%%) 8px 9px;
-;; background-color:#282828;
-;; background-size:16px 16px;"
-
-;; background:
-;; linear-gradient(45deg, #92baac 45px, transparent 45px)64px 64px,
-;; linear-gradient(45deg, #92baac 45px, transparent 45px,transparent 91px, #e1ebbd 91px, #e1ebbd 135px, transparent 135px),
-;; linear-gradient(-45deg, #92baac 23px, transparent 23px, transparent 68px,#92baac 68px,#92baac 113px,transparent 113px,transparent 158px,#92baac 158px);
-;; background-color:#e1ebbd;
-;; background-size: 128px 128px;"
-
 (defcustom faustine-kb-build "C-c C-b"
   "Build the current buffer/file executable using the `faustine-build-backend' script."
   :type '(string)
@@ -409,8 +382,6 @@ Available commands while editing Faust (*.dsp) files:
 
   (add-to-list 'ac-modes 'faustine-mode)
 
-  (message "keyy: %s" (custom-reevaluate-setting 'faustine-kb-configure))
-
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
 (defun faustine-configure ()
@@ -507,20 +478,6 @@ Build a button from START to END."
   (if faustine-pop-output-buffer
       (faustine-open-output-buffer)))
 
-(defun faustine-mdoc (&optional build-all)
-  "Generate mdoc of the current file, display it in a buffer.
-If BUILD-ALL is set, generate all linked files."
-  (interactive)
-  (let* ((files-to-build (if build-all
-                             (mapconcat 'identity (faustine-project-files (buffer-name) '()) " ")
-                           (current-buffer)))
-         (process (start-process-shell-command "Mdoc"
-                                               faustine-output-buffer-name
-                                               (format "faust2svg %s" files-to-build))))
-    (with-current-buffer (process-buffer process)
-      (setq faustine-process-source-buffer (current-buffer)))
-    (set-process-sentinel process 'faustine-mdoc-sentinel)))
-
 (defun faustine-mdoc-sentinel (process event)
   "Mdoc sentinel: Log PROCESS and EVENT to output buffer."
   (let ((pdf-file (format "%s-mdoc/pdf/%s.pdf"
@@ -533,21 +490,6 @@ If BUILD-ALL is set, generate all linked files."
       (browse-url-of-file pdf-file))
     (if faustine-pop-output-buffer
         (faustine-open-output-buffer))))
-
-(defun faustine-log-to-buffer (process event)
-  "Log PROCESS and EVENT to output buffer, scroll buffer down."
-  (let ((buffer-name (buffer-name)))
-    (with-current-buffer (get-buffer-create faustine-output-buffer-name)
-      (faustine-output-mode)
-      (font-lock-fontify-buffer)
-      (insert (format "%s | %s %s %s\n"
-                      (format-time-string "%H:%M:%S")
-                      buffer-name
-                      process
-                      (replace-regexp-in-string "\n" " " event)))
-      (when (get-buffer-window faustine-output-buffer-name `visible)
-          (with-selected-window (get-buffer-window (current-buffer))
-            (goto-char (point-max)))))))
 
 (defun faustine-toggle-output-buffer ()
   "Show/hide Faust output buffer."
@@ -579,17 +521,49 @@ If BUILD-ALL is set, generate all linked files."
               (setq blist (faustine-project-files uri blist))))))
     (identity blist)))
 
+(defun faustine-mdoc (&optional build-all)
+  "Generate mdoc of the current file, display it in a buffer.
+If BUILD-ALL is set, generate all linked files."
+  (interactive)
+  (let* ((files-to-build (if build-all
+                             (mapconcat 'identity (faustine-project-files (buffer-name) '()) " ")
+                           (current-buffer)))
+         (process (start-process-shell-command "Mdoc"
+                                               faustine-output-buffer-name
+                                               (format "faust2svg %s" files-to-build))))
+    (with-current-buffer (process-buffer process)
+      (setq faustine-process-source-buffer (current-buffer)))
+    (set-process-sentinel process 'faustine-mdoc-sentinel)))
+
 (defun faustine-build (&optional build-all)
   "Build the current buffer/file executable(s).
 If BUILD-ALL is set, build all Faust files referenced by this one."
   (interactive)
   (faustine-log-to-buffer "Build" "started")
-  (let ((files-to-build (if build-all
+  (let* ((files-to-build (if build-all
                             (mapconcat 'identity (faustine-project-files (buffer-name) '()) " ")
-                          (current-buffer))))
-    (start-process-shell-command "Build"
-                                 faustine-output-buffer-name
-                                 (format "%s %s" faustine-build-backend files-to-build))))
+                           (current-buffer)))
+         (process (start-process-shell-command
+                   "Build"
+                   nil
+                   (format "%s %s" faustine-build-backend files-to-build))))
+    (set-process-sentinel process 'faustine-log-to-buffer)))
+
+(defun faustine-log-to-buffer (process event)
+  "Log PROCESS and EVENT to output buffer, scroll buffer down."
+  (let ((buffer-name (buffer-name)))
+    (with-current-buffer (get-buffer-create faustine-output-buffer-name)
+      (faustine-output-mode)
+      (font-lock-fontify-buffer)
+      (goto-char (point-max))
+      (insert (format "%s | %s %s %s\n"
+                      (format-time-string "%H:%M:%S")
+                      buffer-name
+                      process
+                      (replace-regexp-in-string "\n" " " event)))
+      (when (get-buffer-window faustine-output-buffer-name `visible)
+        (with-selected-window (get-buffer-window (current-buffer))
+          (goto-char (point-max)))))))
 
 (defun faustine-diagram (&optional build-all)
   "Generate Faust diagram(s).
@@ -681,8 +655,8 @@ img.scaled {
 <title>Faust diagram</title>
 </head>
 <body>
-<h1>Rendered on %s - (%s)</h1>
-<div class='wrap'>\n" flex-value (format-time-string "%A %B %d, %H:%M:%S") faustine-diagram-theme) nil faustine-diagram-page-name)
+<h1>Rendered on %s</h1>
+<div class='wrap'>\n" flex-value (format-time-string "%A %B %d, %H:%M:%S")) nil faustine-diagram-page-name)
     (while list
       (if (file-regular-p (car list))
           (let* ((dsp-element (file-name-sans-extension (car list)))
