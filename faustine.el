@@ -13,7 +13,6 @@
 ;;
 ;; Author: Yassin Philip <xaccrocheur@gmail.com>
 ;; Keywords: tools, modes, faust
-;; Version 0.5b
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
@@ -37,6 +36,7 @@
 ;;
 ;;; Code:
 
+
 (require 'smie)
 
 (defgroup faustine nil
@@ -50,15 +50,34 @@
 (defcustom faustine-kb-configure "C-c C-p"
   "Configure Faustine."
   :type 'string
+  :group 'keyboard-shortcuts)
+
+(setq faustine-diagram-theme-arrows "plop:plop")
+
+(setq faustine-diagram-theme-indus "plop:plip")
+
+(defcustom faustine-diagram-theme nil
+  "The Faust diagram style."
+  :type '(choice
+          (variable-item :tag "Light:Arrows" faustine-diagram-theme-arrows)
+          (variable-item :tag "Dark:Industrial" faustine-diagram-theme-indus)
+          (variable-item :tag "None" nil))
   :group 'faustine)
 
-(defcustom faustine-diagram-theme 'plop
-  "The Faust code-to-executable build backend."
-  :type '(choice
-          (const :tag 'plop "faust2alsa")
-          (const :tag 'faust2puredata "faust2puredata")
-          (const :tag 'faust2w32msp "faust2w32msp"))
-  :group 'faustine)
+;; background:
+;; radial-gradient(black 15%%, transparent 16%%) 0 0,
+;; radial-gradient(black 15%%, transparent 16%%) 8px 8px,
+;; radial-gradient(rgba(255,255,255,.1) 15%%, transparent 20%%) 0 1px,
+;; radial-gradient(rgba(255,255,255,.1) 15%%, transparent 20%%) 8px 9px;
+;; background-color:#282828;
+;; background-size:16px 16px;"
+
+;; background:
+;; linear-gradient(45deg, #92baac 45px, transparent 45px)64px 64px,
+;; linear-gradient(45deg, #92baac 45px, transparent 45px,transparent 91px, #e1ebbd 91px, #e1ebbd 135px, transparent 135px),
+;; linear-gradient(-45deg, #92baac 23px, transparent 23px, transparent 68px,#92baac 68px,#92baac 113px,transparent 113px,transparent 158px,#92baac 158px);
+;; background-color:#e1ebbd;
+;; background-size: 128px 128px;"
 
 (defcustom faustine-kb-build "C-c C-b"
   "Build the current buffer/file executable using the `faustine-build-backend' script."
@@ -302,17 +321,6 @@ This is only for use with the command `faustine-online-doc'."
 
 (defvar faustine-mode-map
    (let ((map (make-sparse-keymap)))
-     (define-key map (kbd faustine-kb-build) 'faustine-build)
-     (define-key map (kbd faustine-kb-build-all) 'faustine-build-all)
-     (define-key map (kbd faustine-kb-diagram) 'faustine-diagram)
-     (define-key map (kbd faustine-kb-diagram-all) 'faustine-diagram-all)
-     (define-key map (kbd faustine-kb-online-doc) 'faustine-online-doc)
-     (define-key map (kbd faustine-kb-configure) 'faustine-configure)
-     (define-key map (kbd faustine-kb-toggle-output-buffer) 'faustine-toggle-output-buffer)
-     (define-key map (kbd faustine-kb-mdoc) 'faustine-mdoc)
-     (define-key map (kbd faustine-kb-run) 'faustine-run)
-     (define-key map (kbd faustine-kb-source-code) 'faustine-source-code)
-     (define-key map (kbd faustine-kb-syntax-check) 'faustine-syntax-check)
      map)
    "Keymap for `faustine-mode'.")
 
@@ -619,16 +627,6 @@ LIST is the list of files to display, DIAGRAM is the current file, and DISPLAY-M
 html {
     background-color: #ddd;
     font-family: sans-serif;
-    color: #333;
-
-background:
-linear-gradient(45deg, #92baac 45px, transparent 45px)64px 64px,
-linear-gradient(45deg, #92baac 45px, transparent 45px,transparent 91px, #e1ebbd 91px, #e1ebbd 135px, transparent 135px),
-linear-gradient(-45deg, #92baac 23px, transparent 23px, transparent 68px,#92baac 68px,#92baac 113px,transparent 113px,transparent 158px,#92baac 158px);
-background-color:#e1ebbd;
-background-size: 128px 128px;
-/*
-*/
 }
 
 a:link {
@@ -683,7 +681,7 @@ img.scaled {
 <title>Faust diagram</title>
 </head>
 <body>
-<h1>Rendered on %s Theme: %s</h1>
+<h1>Rendered on %s - (%s)</h1>
 <div class='wrap'>\n" flex-value (format-time-string "%A %B %d, %H:%M:%S") faustine-diagram-theme) nil faustine-diagram-page-name)
     (while list
       (if (file-regular-p (car list))
@@ -725,11 +723,6 @@ img.scaled {
 ;;;###autoload
 (add-to-list 'auto-mode-alist
                '("\\.dsp\\'" . faustine-mode))
-
-
-(message "key: %s" faustine-kb-configure)
-
-;; (car (get 'faustine-kb-configure 'saved-value))
 
 
 (provide 'faustine)
