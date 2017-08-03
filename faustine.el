@@ -349,9 +349,6 @@ Available commands while editing Faust (*.dsp) files:
   (add-hook 'find-file-hook '(lambda ()
                                (faustine-buttonize-buffer "lib")) nil t)
 
-  ;; (add-hook 'find-file-hook '(lambda ()
-  ;;                              (faustine-buttonize-buffer "log")) nil t)
-
   (set-syntax-table faustine-mode-syntax-table)
 
   (use-local-map faustine-mode-map)
@@ -415,7 +412,7 @@ Available commands while editing Faust (*.dsp) files:
                      (buffer-substring
                       (button-start button) (button-end button))))
   (faustine-mode)
-  (faustine-buttonize-buffer-lib))
+  (faustine-buttonize-buffer "lib"))
 
 (defun faustine-link-dsp-action (button)
   "Search Faust file and insert BUTTON."
@@ -434,15 +431,7 @@ Available commands while editing Faust (*.dsp) files:
                       (button-start button) (button-end button)) "\\:"))))
     (find-file-other-window buffer)
     (goto-char (point-min))
-    (forward-line (string-to-number line))))
-
-(defun faustine-buttonize-buffer-log ()
-  "Turn all file paths into buttons."
-  (interactive)
-  (save-excursion
-    (goto-char (point-min))
-    (while (re-search-forward faustine-regexp-log nil t)
-      (make-button (match-beginning 1) (match-end 2) :type 'faustine-link-log))))
+    (forward-line (1- (string-to-number line)))))
 
 (defun faustine-buttonize-buffer (type)
   "Turn all file paths into buttons of type TYPE."
