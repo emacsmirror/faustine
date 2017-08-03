@@ -199,21 +199,17 @@ This is only for use with the command `faustine-online-doc'."
     map)
   "Keymap for the function `faustine-red-mode'.")
 
-(define-button-type 'faustine-link-lib
-  'follow-link t
-  'action #'faustine-link-lib)
-
-(define-button-type 'faustine-link-dsp
-  'follow-link t
-  'action #'faustine-link-dsp)
-
-(defconst faustine-regexp-dsp
+(defvar faustine-regexp-dsp
   (concat "\"\\([^\"\\(]+\\.\\(" faustine-faust-extension "\\)\\)\"")
   "The regexp to search for \"something.faust\".")
 
 (defconst faustine-regexp-lib
   "\\\"\\([^\\\"\\\\(]+\\.lib\\)\\\""
   "The regexp to search for \"something.lib\".")
+
+(defconst faustine-regexp-log
+  "\\([A-Za-z]*\.dsp\\)\:\\([0-9]+\\)"
+  "The regexp to search for something.faust.")
 
 (easy-menu-define
   faustine-green-mode-menu
@@ -344,8 +340,14 @@ Available commands while editing Faust (*.dsp) files:
 
   (add-hook 'after-save-hook 'faustine-syntax-check nil t)
   (add-hook 'find-file-hook 'faustine-syntax-check nil t)
-  (add-hook 'find-file-hook 'faustine-buttonize-buffer-lib nil t)
-  (add-hook 'find-file-hook 'faustine-buttonize-buffer-dsp nil t)
+  ;; (add-hook 'find-file-hook 'faustine-buttonize-buffer-lib nil t)
+  ;; (add-hook 'find-file-hook 'faustine-buttonize-buffer-dsp nil t)
+
+  (add-hook 'find-file-hook '(lambda ()
+                               (faustine-buttonize-buffer "dsp")) nil t)
+
+  (add-hook 'find-file-hook '(lambda ()
+                               (faustine-buttonize-buffer "lib")) nil t)
 
   (set-syntax-table faustine-mode-syntax-table)
 
@@ -377,8 +379,6 @@ Available commands while editing Faust (*.dsp) files:
                             ("jack" . font-lock-warning-face)
                             ("exited abnormally with code" . font-lock-warning-face)))
 
-
-
   (setq ac-user-dictionary (append
                             faustine-faust-keywords
                             faustine-faust-functions
@@ -393,35 +393,58 @@ Available commands while editing Faust (*.dsp) files:
   (interactive)
   (customize-group 'faustine))
 
-(defun faustine-link-lib (button)
-  "Search library file and insert BUTTON."
+(define-button-type 'faustine-link-lib
+  'follow-link t
+  'action #'faustine-link-lib-action)
+
+(define-button-type 'faustine-link-dsp
+  'follow-link t
+  'action #'faustine-link-dsp-action)
+
+(define-button-type 'faustine-link-log
+  'follow-link t
+  'action #'faustine-link-log-action)
+
+(defun faustine-link-lib-action (button)
+  "Search Faust library file and insert BUTTON."
   (find-file (format "%s%s"
                      faustine-faust-libs-dir
                      (buffer-substring
                       (button-start button) (button-end button))))
   (faustine-mode)
-  (faustine-buttonize-buffer-lib))
+  (faustine-buttonize-buffer "lib"))
 
-(defun faustine-link-dsp (button)
-  "Search faust file and insert BUTTON."
+(defun faustine-link-dsp-action (button)
+  "Search Faust file and insert BUTTON."
   (find-file (format "%s%s"
                      (file-name-directory buffer-file-name)
                      (buffer-substring
                       (button-start button) (button-end button)))))
 
-(defun faustine-buttonize-buffer-dsp ()
-  "Turn all file paths into buttons."
-  (save-excursion
+(defun faustine-link-log-action (button)
+  "Search Faust output buffer and insert BUTTON."
+  (let ((buffer (car (split-string
+                    (buffer-substring-no-properties
+                     (button-start button) (button-end button)) "\\:")))
+        (line (cadr (split-string
+                     (buffer-substring-no-properties
+                      (button-start button) (button-end button)) "\\:"))))
+    (find-file-other-window buffer)
     (goto-char (point-min))
-    (while (re-search-forward faustine-regexp-dsp nil t)
-      (make-button (match-beginning 1) (match-end 1) :type 'faustine-link-dsp))))
+    (forward-line (1- (string-to-number line)))))
 
-(defun faustine-buttonize-buffer-lib ()
-  "Turn all file paths into buttons."
+(defun faustine-buttonize-buffer (type)
+  "Turn all file paths into buttons of type TYPE."
   (save-excursion
     (goto-char (point-min))
-    (while (re-search-forward faustine-regexp-lib nil t)
-      (make-button (match-beginning 1) (match-end 1) :type 'faustine-link-lib))))
+    (let ((regexp (cond ((string= type "dsp") faustine-regexp-dsp)
+                        ((string= type "log") faustine-regexp-log)
+                        ((string= type "lib") faustine-regexp-lib)))
+          (end (cond ((string= type "log") 2)
+                     (t 1))))
+      (while (re-search-forward regexp nil t)
+        (make-button (match-beginning 1) (match-end end)
+                     :type (intern-soft (concat "faustine-link-" type)))))))
 
 (defun faustine-online-doc (start end)
   "Websearch selected string on the faust.grame.fr library web site.
@@ -571,6 +594,7 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
                       event
                       ;; (replace-regexp-in-string "\n" " " event)
                       ))
+      (faustine-buttonize-buffer "log")
       (when (get-buffer-window faustine-output-buffer-name `visible)
         (with-selected-window (get-buffer-window (current-buffer))
           (goto-char (point-max)))))))
