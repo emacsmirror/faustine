@@ -344,12 +344,8 @@ Available commands while editing Faust (*.dsp) files:
 
   (add-hook 'after-save-hook 'faustine-syntax-check nil t)
   (add-hook 'find-file-hook 'faustine-syntax-check nil t)
-  ;; (add-hook 'find-file-hook 'faustine-buttonize-buffer-lib nil t)
-  ;; (add-hook 'find-file-hook 'faustine-buttonize-buffer-dsp nil t)
-
   (add-hook 'find-file-hook '(lambda ()
                                (faustine-buttonize-buffer 'dsp)) nil t)
-
   (add-hook 'find-file-hook '(lambda ()
                                (faustine-buttonize-buffer 'lib)) nil t)
 
@@ -395,11 +391,6 @@ Available commands while editing Faust (*.dsp) files:
   (add-to-list 'ac-modes 'faustine-mode)
 
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
-
-(defun faustine-configure ()
-  "Use `cutomize-group' to set up Faustine preferences."
-  (interactive)
-  (customize-group 'faustine))
 
 (define-button-type 'faustine-button-lib
   'follow-link t
@@ -448,7 +439,7 @@ Available commands while editing Faust (*.dsp) files:
 (defun faustine-button-exe-action (button)
   "Run the executable described by BUTTON."
   (faustine-run (buffer-substring-no-properties
-                         (button-start button) (button-end button))))
+                 (button-start button) (button-end button))))
 
 (defun faustine-buttonize-buffer (type)
   "Turn all found strings into buttons of type TYPE."
@@ -458,11 +449,15 @@ Available commands while editing Faust (*.dsp) files:
                         ((eq type 'log) faustine-regexp-log)
                         ((eq type 'exe) faustine-regexp-exe)
                         ((eq type 'lib) faustine-regexp-lib)))
-          (end (cond ((eq type 'log) 2)
-                     (t 1))))
+          (end (if (eq type 'log) 2 1)))
       (while (re-search-forward regexp nil t nil)
         (make-button (match-beginning 1) (match-end end)
                      :type (intern-soft (concat "faustine-button-" (symbol-name type))))))))
+
+(defun faustine-configure ()
+  "Use `cutomize-group' to set up Faustine preferences."
+  (interactive)
+  (customize-group 'faustine))
 
 (defun faustine-online-doc (start end)
   "Websearch selected (or under point) string on faust.grame.fr.
@@ -486,22 +481,6 @@ Build a button from START to END."
       (goto-char (point-min))
       (other-window -1)
       (pop-to-buffer oldbuf nil t))
-    (if faustine-pop-output-buffer
-        (faustine-open-output-buffer))))
-
-(defun faustine-syntax-check ()
-  "Check if Faust code buffer compiles."
-  (interactive)
-  (let ((output-check (shell-command-to-string (format "faust %s > /dev/null" (buffer-name)))))
-    (if (string= "" output-check)
-        (progn
-          (faustine-log-to-buffer "Check" "finished")
-          (faustine-red-mode 0)
-          (faustine-green-mode t))
-      (progn
-        (faustine-log-to-buffer "Check" (format "%s" output-check))
-        (faustine-green-mode 0)
-        (faustine-red-mode t)))
     (if faustine-pop-output-buffer
         (faustine-open-output-buffer))))
 
@@ -594,6 +573,22 @@ If LINK, then run it."
     (if faustine-pop-output-buffer
         (faustine-open-output-buffer))))
 
+(defun faustine-syntax-check ()
+  "Check if Faust code buffer compiles."
+  (interactive)
+  (let ((output-check (shell-command-to-string (format "faust %s > /dev/null" (buffer-name)))))
+    (if (string= "" output-check)
+        (progn
+          (faustine-log-to-buffer "Check" "finished")
+          (faustine-red-mode 0)
+          (faustine-green-mode t))
+      (progn
+        (faustine-log-to-buffer "Check" (format "%s" output-check))
+        (faustine-green-mode 0)
+        (faustine-red-mode t)))
+    (if faustine-pop-output-buffer
+        (faustine-open-output-buffer))))
+
 (defun faustine-log-to-buffer (process event)
   "Log PROCESS and EVENT to output buffer."
   (let ((buffer-name (buffer-name)))
@@ -610,7 +605,11 @@ If LINK, then run it."
       (faustine-buttonize-buffer 'exe)
       (when (get-buffer-window faustine-output-buffer-name `visible)
         (with-selected-window (get-buffer-window (current-buffer))
-          (goto-char (point-max)))))))
+          (goto-char (point-max))))
+      )
+    (faustine-buttonize-buffer 'dsp)
+    (faustine-buttonize-buffer 'lib)
+    ))
 
 (defun faustine-diagram (&optional build-all)
   "Generate Faust diagram(s).
@@ -635,19 +634,15 @@ If BUILD-ALL is set, build all `faustine-faust-extension` files referenced by th
 LIST is the list of files to display, DIAGRAM is the current file, and DISPLAY-MODE is the mode."
   (when (file-regular-p faustine-diagram-page-name)
       (delete-file faustine-diagram-page-name))
-  (let ((flex-value (if (equal display-mode "all")
-                        ""
-                      "100%")))
+  (let ((flex-value (if (equal display-mode "all") "" "100%")))
     (write-region (format "<!DOCTYPE html>
 <html>
 </head>
 <style>
-
 html {
     background-color: #ddd;
     font-family: sans-serif;
 }
-
 a:link {
     color: #ddd;
 }
@@ -743,6 +738,8 @@ img.scaled {
 (add-to-list 'auto-mode-alist
                '("\\.dsp\\'" . faustine-mode))
 
+(defun featurize (bug feature)
+  (format "It's not a %s, it's a %s" bug feature))
 
 (provide 'faustine)
 
