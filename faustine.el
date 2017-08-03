@@ -201,15 +201,19 @@ This is only for use with the command `faustine-online-doc'."
 
 (defvar faustine-regexp-dsp
   (concat "\"\\([^\"\\(]+\\.\\(" faustine-faust-extension "\\)\\)\"")
-  "The regexp to search for \"something.faust\".")
+  "The regexp to search for `\"something.faust\"'.")
+
+(defvar faustine-regexp-log
+  (concat "\\([A-Za-z]*\." faustine-faust-extension "\\)\:\\([0-9]+\\)")
+  "The regexp to search for `something.faust'.")
 
 (defconst faustine-regexp-lib
   "\\\"\\([^\\\"\\\\(]+\\.lib\\)\\\""
-  "The regexp to search for \"something.lib\".")
+  "The regexp to search for `\"something.lib\"'.")
 
-(defconst faustine-regexp-log
-  "\\([A-Za-z]*\.dsp\\)\:\\([0-9]+\\)"
-  "The regexp to search for something.faust.")
+(defconst faustine-regexp-exe
+  "\\(.*?[A-Za-z0-9.-]+\\);"
+  "The regexp to search for `/some/thing;'.")
 
 (easy-menu-define
   faustine-green-mode-menu
@@ -223,8 +227,8 @@ This is only for use with the command `faustine-online-doc'."
     ["Build executable" faustine-build t]
     ["Run executable" faustine-run t]
     ("Project"
-     ["Generate all linked diagrams" faustine-diagram-all t]
-     ["Build all linked executables" faustine-build-all t])
+     ["Generate all linked diagrams" (faustine-diagram t) t]
+     ["Build all linked executables" (faustine-build t) t])
     ["Preferences" faustine-configure t]))
 
 (easy-menu-define
@@ -344,10 +348,10 @@ Available commands while editing Faust (*.dsp) files:
   ;; (add-hook 'find-file-hook 'faustine-buttonize-buffer-dsp nil t)
 
   (add-hook 'find-file-hook '(lambda ()
-                               (faustine-buttonize-buffer "dsp")) nil t)
+                               (faustine-buttonize-buffer 'dsp)) nil t)
 
   (add-hook 'find-file-hook '(lambda ()
-                               (faustine-buttonize-buffer "lib")) nil t)
+                               (faustine-buttonize-buffer 'lib)) nil t)
 
   (set-syntax-table faustine-mode-syntax-table)
 
@@ -355,9 +359,13 @@ Available commands while editing Faust (*.dsp) files:
 
   (define-key faustine-mode-map (kbd faustine-kb-configure) 'faustine-configure)
   (define-key faustine-mode-map (kbd faustine-kb-build) 'faustine-build)
-  (define-key faustine-mode-map (kbd faustine-kb-build-all) 'faustine-build-all)
+  (define-key faustine-mode-map (kbd faustine-kb-build-all) '(lambda ()
+                                                                 (interactive)
+                                                                 (faustine-build t)))
   (define-key faustine-mode-map (kbd faustine-kb-diagram) 'faustine-diagram)
-  (define-key faustine-mode-map (kbd faustine-kb-diagram-all) 'faustine-diagram-all)
+  (define-key faustine-mode-map (kbd faustine-kb-diagram-all) '(lambda ()
+                                                                 (interactive)
+                                                                 (faustine-diagram t)))
   (define-key faustine-mode-map (kbd faustine-kb-online-doc) 'faustine-online-doc)
   (define-key faustine-mode-map (kbd faustine-kb-toggle-output-buffer) 'faustine-toggle-output-buffer)
   (define-key faustine-mode-map (kbd faustine-kb-mdoc) 'faustine-mdoc)
@@ -393,39 +401,43 @@ Available commands while editing Faust (*.dsp) files:
   (interactive)
   (customize-group 'faustine))
 
-(define-button-type 'faustine-link-lib
+(define-button-type 'faustine-button-lib
   'follow-link t
-  'action #'faustine-link-lib-action)
+  'action #'faustine-button-lib-action)
 
-(define-button-type 'faustine-link-dsp
+(define-button-type 'faustine-button-dsp
   'follow-link t
-  'action #'faustine-link-dsp-action)
+  'action #'faustine-button-dsp-action)
 
-(define-button-type 'faustine-link-log
+(define-button-type 'faustine-button-log
   'follow-link t
-  'action #'faustine-link-log-action)
+  'action #'faustine-button-log-action)
 
-(defun faustine-link-lib-action (button)
+(define-button-type 'faustine-button-exe
+  'follow-link t
+  'action #'faustine-button-exe-action)
+
+(defun faustine-button-lib-action (button)
   "Search Faust library file and insert BUTTON."
   (find-file (format "%s%s"
                      faustine-faust-libs-dir
                      (buffer-substring
                       (button-start button) (button-end button))))
   (faustine-mode)
-  (faustine-buttonize-buffer "lib"))
+  (faustine-buttonize-buffer 'lib))
 
-(defun faustine-link-dsp-action (button)
+(defun faustine-button-dsp-action (button)
   "Search Faust file and insert BUTTON."
   (find-file (format "%s%s"
                      (file-name-directory buffer-file-name)
                      (buffer-substring
                       (button-start button) (button-end button)))))
 
-(defun faustine-link-log-action (button)
+(defun faustine-button-log-action (button)
   "Search Faust output buffer and insert BUTTON."
   (let ((buffer (car (split-string
-                    (buffer-substring-no-properties
-                     (button-start button) (button-end button)) "\\:")))
+                      (buffer-substring-no-properties
+                       (button-start button) (button-end button)) "\\:")))
         (line (cadr (split-string
                      (buffer-substring-no-properties
                       (button-start button) (button-end button)) "\\:"))))
@@ -433,36 +445,34 @@ Available commands while editing Faust (*.dsp) files:
     (goto-char (point-min))
     (forward-line (1- (string-to-number line)))))
 
+(defun faustine-button-exe-action (button)
+  "Run the executable described by BUTTON."
+  (faustine-run (buffer-substring-no-properties
+                         (button-start button) (button-end button))))
+
 (defun faustine-buttonize-buffer (type)
-  "Turn all file paths into buttons of type TYPE."
+  "Turn all found strings into buttons of type TYPE."
   (save-excursion
     (goto-char (point-min))
-    (let ((regexp (cond ((string= type "dsp") faustine-regexp-dsp)
-                        ((string= type "log") faustine-regexp-log)
-                        ((string= type "lib") faustine-regexp-lib)))
-          (end (cond ((string= type "log") 2)
+    (let ((regexp (cond ((eq type 'dsp) faustine-regexp-dsp)
+                        ((eq type 'log) faustine-regexp-log)
+                        ((eq type 'exe) faustine-regexp-exe)
+                        ((eq type 'lib) faustine-regexp-lib)))
+          (end (cond ((eq type 'log) 2)
                      (t 1))))
-      (while (re-search-forward regexp nil t)
+      (while (re-search-forward regexp nil t nil)
         (make-button (match-beginning 1) (match-end end)
-                     :type (intern-soft (concat "faustine-link-" type)))))))
+                     :type (intern-soft (concat "faustine-button-" (symbol-name type))))))))
 
 (defun faustine-online-doc (start end)
-  "Websearch selected string on the faust.grame.fr library web site.
+  "Websearch selected (or under point) string on faust.grame.fr.
 Build a button from START to END."
   (interactive "r")
-  (let ((q (buffer-substring-no-properties start end)))
+  (let ((selection (if (use-region-p)
+                       (buffer-substring-no-properties start end)
+                     (current-word))))
     (browse-url (concat "http://faust.grame.fr/library.html#"
-                        (url-hexify-string q)))))
-
-(defun faustine-build-all ()
-  "Build all executables using the command `faustine-build'."
-  (interactive)
-  (faustine-build t))
-
-(defun faustine-diagram-all ()
-  "Build all executables using the command `faustine-diagram'."
-  (interactive)
-  (faustine-diagram t))
+                        (url-hexify-string selection)))))
 
 (defun faustine-source-code ()
   "Generate Faust c++ code of the current faust file, display it in a buffer."
@@ -492,19 +502,6 @@ Build a button from START to END."
         (faustine-log-to-buffer "Check" (format "%s" output-check))
         (faustine-green-mode 0)
         (faustine-red-mode t)))
-    (if faustine-pop-output-buffer
-        (faustine-open-output-buffer))))
-
-(defun faustine-mdoc-sentinel (process event)
-  "Mdoc sentinel: Log PROCESS and EVENT to output buffer."
-  (let ((pdf-file (format "%s-mdoc/pdf/%s.pdf"
-                          (file-name-sans-extension
-                           (buffer-name faustine-process-source-buffer))
-                          (file-name-sans-extension
-                           (buffer-name faustine-process-source-buffer)))))
-    (faustine-log-to-buffer process event)
-    (when (string-prefix-p "finished" event)
-      (browse-url-of-file pdf-file))
     (if faustine-pop-output-buffer
         (faustine-open-output-buffer))))
 
@@ -558,30 +555,47 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
   (interactive)
   (faustine-log-to-buffer "Build" "started")
   (let* ((files-to-build (if build-all
-                            (mapconcat 'identity (faustine-project-files (buffer-name) '()) " ")
+                             (mapconcat 'identity (faustine-project-files (buffer-name) '()) " ")
                            (current-buffer)))
          (process (start-process-shell-command
                    "Build"
-                   nil
+                   faustine-output-buffer-name
                    (format "%s %s" faustine-build-backend files-to-build))))
     (set-process-sentinel process 'faustine-log-to-buffer)))
 
-(defun faustine-run ()
-  "Run the executable generated by the current Faust code buffer."
+(defun faustine-run (&optional link)
+  "Run the executable generated by the current Faust code buffer.
+If LINK, then run it."
   (interactive)
   (faustine-log-to-buffer "Run" "started")
-  (let ((process (start-process-shell-command
-                  "Run"
-                  faustine-output-buffer-name
-                  (format "./%s" (file-name-sans-extension
-                                  (file-name-nondirectory
-                                   (buffer-name)))))))
+  (let* ((command (if link
+                      link
+                    (format "./%s" (file-name-sans-extension
+                                    (file-name-nondirectory
+                                     (buffer-name))))))
+         (process (start-process-shell-command
+                   "Run"
+                   faustine-output-buffer-name
+                   command)))
     (set-process-sentinel process 'faustine-log-to-buffer)
     (if faustine-pop-output-buffer
         (faustine-open-output-buffer))))
 
+(defun faustine-mdoc-sentinel (process event)
+  "Mdoc sentinel: Log PROCESS and EVENT to output buffer."
+  (let ((pdf-file (format "%s-mdoc/pdf/%s.pdf"
+                          (file-name-sans-extension
+                           (buffer-name faustine-process-source-buffer))
+                          (file-name-sans-extension
+                           (buffer-name faustine-process-source-buffer)))))
+    (faustine-log-to-buffer process event)
+    (when (string-prefix-p "finished" event)
+      (browse-url-of-file pdf-file))
+    (if faustine-pop-output-buffer
+        (faustine-open-output-buffer))))
+
 (defun faustine-log-to-buffer (process event)
-  "Log PROCESS and EVENT to output buffer, scroll buffer down."
+  "Log PROCESS and EVENT to output buffer."
   (let ((buffer-name (buffer-name)))
     (with-current-buffer (get-buffer-create faustine-output-buffer-name)
       (faustine-output-mode)
@@ -591,10 +605,9 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
                       (format-time-string "%H:%M:%S")
                       buffer-name
                       process
-                      event
-                      ;; (replace-regexp-in-string "\n" " " event)
-                      ))
-      (faustine-buttonize-buffer "log")
+                      event))
+      (faustine-buttonize-buffer 'log)
+      (faustine-buttonize-buffer 'exe)
       (when (get-buffer-window faustine-output-buffer-name `visible)
         (with-selected-window (get-buffer-window (current-buffer))
           (goto-char (point-max)))))))
@@ -613,20 +626,18 @@ If BUILD-ALL is set, build all `faustine-faust-extension` files referenced by th
       (if (string= "" command-output)
         (progn
           (faustine-log-to-buffer "Diagram" "finished")
-          (faustine-build-temp-file files-to-build (buffer-name) display-mode)
+          (faustine-build-html-file files-to-build (buffer-name) display-mode)
           (browse-url-of-file faustine-diagram-page-name))
         (faustine-log-to-buffer "Diagram" (format "Error: %s" command-output))))))
 
-(defun faustine-build-temp-file (list diagram display-mode)
+(defun faustine-build-html-file (list diagram display-mode)
   "Build a minimal HTML (web) page to display Faust diagram(s).
 LIST is the list of files to display, DIAGRAM is the current file, and DISPLAY-MODE is the mode."
-  (if (file-regular-p faustine-diagram-page-name)
+  (when (file-regular-p faustine-diagram-page-name)
       (delete-file faustine-diagram-page-name))
-
-  (let
-      ((flex-value (if (equal display-mode "all")
-                       ""
-                     "100%")))
+  (let ((flex-value (if (equal display-mode "all")
+                        ""
+                      "100%")))
     (write-region (format "<!DOCTYPE html>
 <html>
 </head>
