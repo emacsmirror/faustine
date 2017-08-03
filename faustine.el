@@ -203,13 +203,13 @@ This is only for use with the command `faustine-online-doc'."
   (concat "\"\\([^\"\\(]+\\.\\(" faustine-faust-extension "\\)\\)\"")
   "The regexp to search for \"something.faust\".")
 
+(defvar faustine-regexp-log
+  (concat "\\([A-Za-z]*\." faustine-faust-extension "\\)\:\\([0-9]+\\)")
+  "The regexp to search for something.faust.")
+
 (defconst faustine-regexp-lib
   "\\\"\\([^\\\"\\\\(]+\\.lib\\)\\\""
   "The regexp to search for \"something.lib\".")
-
-(defconst faustine-regexp-log
-  "\\([A-Za-z]*\.dsp\\)\:\\([0-9]+\\)"
-  "The regexp to search for something.faust.")
 
 (easy-menu-define
   faustine-green-mode-menu
@@ -450,9 +450,12 @@ Available commands while editing Faust (*.dsp) files:
   "Websearch selected string on the faust.grame.fr library web site.
 Build a button from START to END."
   (interactive "r")
-  (let ((q (buffer-substring-no-properties start end)))
+  ;; (message "Word: %s start: %s end: %s" (current-word) start end)
+  (let ((selection (if (use-region-p)
+                       (buffer-substring-no-properties start end)
+                     (current-word))))
     (browse-url (concat "http://faust.grame.fr/library.html#"
-                        (url-hexify-string q)))))
+                        (url-hexify-string selection)))))
 
 (defun faustine-build-all ()
   "Build all executables using the command `faustine-build'."
