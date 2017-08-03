@@ -462,12 +462,11 @@ Available commands while editing Faust (*.dsp) files:
                         ((string= type "lib") faustine-regexp-lib)))
           (end (cond ((string= type "log") 2)
                      (t 1))))
-      (if (re-search-forward regexp nil t nil)
-          (make-button (match-beginning 1) (match-end end)
-                       :type (intern-soft (concat "faustine-link-" type)))
-        (message "plop")
-        ;; (make-button (match-beginning 1) (match-end end)
-        ;;              :type (intern-soft (concat "faustine-link-" type)))
+      (while (re-search-forward regexp nil t nil)
+        (message "Found: %s" (buffer-substring-no-properties
+                              (match-beginning 1) (match-end 1)))
+        (make-button (match-beginning 1) (match-end end)
+                     :type (intern-soft (concat "faustine-link-" type)))
         ))))
 
 (defun faustine-online-doc (start end)
