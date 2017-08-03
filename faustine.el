@@ -227,8 +227,8 @@ This is only for use with the command `faustine-online-doc'."
     ["Build executable" faustine-build t]
     ["Run executable" faustine-run t]
     ("Project"
-     ["Generate all linked diagrams" faustine-diagram-all t]
-     ["Build all linked executables" faustine-build-all t])
+     ["Generate all linked diagrams" (faustine-diagram t) t]
+     ["Build all linked executables" (faustine-build t) t])
     ["Preferences" faustine-configure t]))
 
 (easy-menu-define
@@ -463,18 +463,6 @@ Available commands while editing Faust (*.dsp) files:
       (while (re-search-forward regexp nil t nil)
         (make-button (match-beginning 1) (match-end end)
                      :type (intern-soft (concat "faustine-button-" (symbol-name type))))))))
-
-;; (test-value 'dsp)
-;; (test-value 'zob)
-
-;; (defun test-value (type)
-;;   "Turn all found strings into buttons of type TYPE."
-;;   (message "%s, type: %s" type (type-of type))
-;;   (if (eq type 'dsp)
-;;       (message "dsp")
-;;     (message "oop"))
-;;   )
-
 
 (defun faustine-online-doc (start end)
   "Websearch selected (or under point) string on faust.grame.fr.
