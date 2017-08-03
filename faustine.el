@@ -348,10 +348,10 @@ Available commands while editing Faust (*.dsp) files:
   ;; (add-hook 'find-file-hook 'faustine-buttonize-buffer-dsp nil t)
 
   (add-hook 'find-file-hook '(lambda ()
-                               (faustine-buttonize-buffer "dsp")) nil t)
+                               (faustine-buttonize-buffer 'dsp)) nil t)
 
   (add-hook 'find-file-hook '(lambda ()
-                               (faustine-buttonize-buffer "lib")) nil t)
+                               (faustine-buttonize-buffer 'lib)) nil t)
 
   (set-syntax-table faustine-mode-syntax-table)
 
@@ -401,39 +401,39 @@ Available commands while editing Faust (*.dsp) files:
   (interactive)
   (customize-group 'faustine))
 
-(define-button-type 'faustine-link-lib
+(define-button-type 'faustine-button-lib
   'follow-link t
-  'action #'faustine-link-lib-action)
+  'action #'faustine-button-lib-action)
 
-(define-button-type 'faustine-link-dsp
+(define-button-type 'faustine-button-dsp
   'follow-link t
-  'action #'faustine-link-dsp-action)
+  'action #'faustine-button-dsp-action)
 
-(define-button-type 'faustine-link-log
+(define-button-type 'faustine-button-log
   'follow-link t
-  'action #'faustine-link-log-action)
+  'action #'faustine-button-log-action)
 
-(define-button-type 'faustine-link-exe
+(define-button-type 'faustine-button-exe
   'follow-link t
-  'action #'faustine-link-exe-action)
+  'action #'faustine-button-exe-action)
 
-(defun faustine-link-lib-action (button)
+(defun faustine-button-lib-action (button)
   "Search Faust library file and insert BUTTON."
   (find-file (format "%s%s"
                      faustine-faust-libs-dir
                      (buffer-substring
                       (button-start button) (button-end button))))
   (faustine-mode)
-  (faustine-buttonize-buffer "lib"))
+  (faustine-buttonize-buffer 'lib))
 
-(defun faustine-link-dsp-action (button)
+(defun faustine-button-dsp-action (button)
   "Search Faust file and insert BUTTON."
   (find-file (format "%s%s"
                      (file-name-directory buffer-file-name)
                      (buffer-substring
                       (button-start button) (button-end button)))))
 
-(defun faustine-link-log-action (button)
+(defun faustine-button-log-action (button)
   "Search Faust output buffer and insert BUTTON."
   (let ((buffer (car (split-string
                       (buffer-substring-no-properties
@@ -445,24 +445,36 @@ Available commands while editing Faust (*.dsp) files:
     (goto-char (point-min))
     (forward-line (1- (string-to-number line)))))
 
-(defun faustine-link-exe-action (button)
+(defun faustine-button-exe-action (button)
   "Run the executable described by BUTTON."
   (faustine-run (buffer-substring-no-properties
                          (button-start button) (button-end button))))
 
 (defun faustine-buttonize-buffer (type)
-  "Turn all file paths into buttons of type TYPE."
+  "Turn all found strings into buttons of type TYPE."
   (save-excursion
     (goto-char (point-min))
-    (let ((regexp (cond ((string= type "dsp") faustine-regexp-dsp)
-                        ((string= type "log") faustine-regexp-log)
-                        ((string= type "exe") faustine-regexp-exe)
-                        ((string= type "lib") faustine-regexp-lib)))
-          (end (cond ((string= type "log") 2)
+    (let ((regexp (cond ((eq type 'dsp) faustine-regexp-dsp)
+                        ((eq type 'log) faustine-regexp-log)
+                        ((eq type 'exe) faustine-regexp-exe)
+                        ((eq type 'lib) faustine-regexp-lib)))
+          (end (cond ((eq type 'log) 2)
                      (t 1))))
       (while (re-search-forward regexp nil t nil)
         (make-button (match-beginning 1) (match-end end)
-                     :type (intern-soft (concat "faustine-link-" type)))))))
+                     :type (intern-soft (concat "faustine-button-" (symbol-name type))))))))
+
+;; (test-value 'dsp)
+;; (test-value 'zob)
+
+;; (defun test-value (type)
+;;   "Turn all found strings into buttons of type TYPE."
+;;   (message "%s, type: %s" type (type-of type))
+;;   (if (eq type 'dsp)
+;;       (message "dsp")
+;;     (message "oop"))
+;;   )
+
 
 (defun faustine-online-doc (start end)
   "Websearch selected (or under point) string on faust.grame.fr.
@@ -606,8 +618,8 @@ If LINK, then run it."
                       buffer-name
                       process
                       event))
-      (faustine-buttonize-buffer "log")
-      (faustine-buttonize-buffer "exe")
+      (faustine-buttonize-buffer 'log)
+      (faustine-buttonize-buffer 'exe)
       (when (get-buffer-window faustine-output-buffer-name `visible)
         (with-selected-window (get-buffer-window (current-buffer))
           (goto-char (point-max)))))))
