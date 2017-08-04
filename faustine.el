@@ -255,7 +255,6 @@ This is only for use with the command `faustine-online-doc'."
    " "
    (propertize
     "Syntax: ERROR"
-    :help-echo "Tst string"
     'display
     `(image :type xpm
             :ascent center
@@ -393,18 +392,22 @@ Available commands while editing Faust (*.dsp) files:
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
 (define-button-type 'faustine-button-lib
+  'help-echo "Click to open"
   'follow-link t
   'action #'faustine-button-lib-action)
 
 (define-button-type 'faustine-button-dsp
+  'help-echo "Click to open"
   'follow-link t
   'action #'faustine-button-dsp-action)
 
 (define-button-type 'faustine-button-log
+  'help-echo "Click to open"
   'follow-link t
   'action #'faustine-button-log-action)
 
 (define-button-type 'faustine-button-exe
+  'help-echo "Click to run"
   'follow-link t
   'action #'faustine-button-exe-action)
 
