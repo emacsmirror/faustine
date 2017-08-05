@@ -1,43 +1,123 @@
 ;;; faustine.el --- Edit, visualize, build and run Faust code
-;;; Version:1.0
-;; Package-Requires: ((emacs "24"))
-;;
-;; FAUST (Functional Audio Stream) is a functional programming language
-;; specifically designed for real-time signal processing and synthesis.
-;; FAUST targets high-performance signal processing applications and audio plug-ins
-;; for a variety of platforms and standards.
-;; http://faust.grame.fr
-;;
-;; Copyright (C) 2017, 2018 Yassin Philip
-;; URL: https://bitbucket.org/yassinphilip/faustine
-;;
+
+;; Copyright (C) 2017 Yassin Philip
+
 ;; Author: Yassin Philip <xaccrocheur@gmail.com>
-;; Keywords: tools, modes, faust
-;;
-;; This file is NOT part of GNU Emacs.
-;;
-;; This program is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 2, or (at your option)
-;; any later version.
-;;
-;; This program is distributed in the hope that it will be useful,
-;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;; GNU General Public License for more details.
-;;
-;; You should have received a copy of the GNU General Public License
-;; along with this program; see the file COPYING.  If not, write to the
-;; Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-;; Boston, MA 02111-1307, USA.
-;;
+;; Maintainer: Yassin Philip <xaccrocheur@gmail.com>
+;; URL: https://bitbucket.org/yassinphilip/faustine
+;; Created: 25th July 2017
+;; Keywords: modes, faust
+;; License: GPLv2
+
+;; Version: 1.0.1
+;; Package-Requires: ((emacs "24"))
+
 ;;; Commentary:
-;; See README.md for details.
-;;
+
+;; Edit, visualize, build and run Faust code.
+;; Inspired by Faustworks, now deprecated.
+;; Usage of auto-complete is highly recommended.
+
 ;;; Code:
 
-
 (require 'smie)
+(require 'easymenu)
+
+(defconst faustine-faust-keywords-lib-analyzer
+  '("amp_follower" "amp_follower_ud" "amp_follower_ar" "mth_octave_analyzer[N]" "mth_octave_spectral_level6e" "octave_filterbank" "octave_analyzer" "half_octave_filterbank" "half_octave_analyzer" "third_octave_filterbank" "third_octave_analyzer" "analyzer"))
+
+(defconst faustine-faust-keywords-lib-basic
+  '("samp2sec" "sec2samp" "db2linear" "linear2db" "lin2LogGain" "log2LinGain" "tau2pole" "pole2tau" "midikey2hz" "pianokey2hz" "hz2pianokey" "countdown" "countup" "sweep" "time" "tempo" "period" "pulse" "pulsen" "beat" "count" "take" "subseq" "if" "selector" "selectn" "select2stereo" "Other" "latch" "sAndH" "peakhold" "peakholder" "impulsify" "automat" "bypass1" "bypass2"))
+
+(defconst faustine-faust-keywords-lib-compressor
+  '("compressor_mono" "compressor_stereo" "limiter_*"))
+
+(defconst faustine-faust-keywords-lib-delay
+  '("delay" "fdelay" "sdelay" "fdelaylti" "fdelayltv" "fdelay[n]" "fdelay[n]a"))
+
+(defconst faustine-faust-keywords-lib-demo
+  '("Analyzers" "mth_octave_spectral_level_demo" "Filters" "parametric_eq_demo" "spectral_tilt_demo" "mth_octave_filterbank_demo" "filterbank_demo" "Effects" "cubicnl_demo" "gate_demo" "compressor_demo" "exciter" "moog_vcf_demo" "wah4_demo" "crybaby_demo" "vocoder_demo" "flanger_demo" "phaser2_demo" "freeverb_demo" "stereo_reverb_tester" "fdnrev0_demo" "zita_rev_fdn_demo" "zita_rev1" "Generators" "sawtooth_demo" "virtual_analog_oscillator_demo" "oscrs_demo"))
+
+(defconst faustine-faust-keywords-lib-envelope
+  '("smoothEnvelope" "ar" "asr" "adsr"))
+
+(defconst faustine-faust-keywords-lib-filter
+  '("zero" "pole" "integrator" "dcblockerat" "dcblocker" "ff_comb" "ff_fcomb" "ffcombfilter" "fb_comb" "fb_fcomb" "rev1" "fbcombfilter" "ffbcombfilter" "allpass_comb" "allpass_fcomb" "rev2" "allpass_fcomb5" "allpass_fcomb1a" "iir" "fir" "conv" "convN" "tf1" "tf2" "tf3" "notchw" "tf21" "tf22" "tf22t" "tf21t" "av2sv" "bvav2nuv" "iir_lat2" "allpassnt" "iir_kl" "allpassnklt" "iir_lat1" "allpassn1mt" "iir_nl" "allpassnnlt" "tf2np" "wgr" "nlf2" "apnl" "allpassn" "allpassnn" "allpasskl" "allpass1m" "tf2s" "tf2snp" "tf3slf" "tf1s" "tf2sb" "tf1sb" "resonlp" "resonhp" "resonbp" "lowpass" "highpass" "lowpass0_highpass1" "lowpass_plus|minus_highpass" "lowpass_plus|minus_highpass" "lowpass3e" "lowpass6e" "highpass3e" "highpass6e" "bandpass" "bandstop" "bandpass6e" "bandpass12e" "low_shelf" "lowshelf_other_freq" "high_shelf" "highshelf_other_freq" "peak_eq" "cubicnl" "gate_mono" "gate_stereo" "Filtering" "speakerbp" "piano_dispersion_filter" "stereo_width" "echo" "transpose" "mesh_square"))
+
+(defconst faustine-faust-keywords-lib-hoa
+  '("encoder" "decoder" "decoderStereo" "optimBasic" "optimMaxRe" "optimInPhase" "Usage" "wider" "map" "rotate"))
+
+(defconst faustine-faust-keywords-lib-math
+  '("SR" "BS" "PI" "FTZ" "neg" "sub(x,y)" "inv" "cbrt" "hypot" "ldexp" "scalb" "log1p" "logb" "ilogb" "log2" "expm1" "acosh" "asinh" "atanh" "sinh" "cosh" "tanh" "erf" "erfc" "gamma" "lgamma" "J0" "J1" "Jn" "Y0" "Y1" "Yn" "fabs" "fmax" "fmin" "np2" "frac" "isnan" "chebychev" "chebychevpoly" "diffn"))
+
+(defconst faustine-faust-keywords-lib-misceffect
+  '("Dynamic" "cubicnl" "gate_mono" "gate_stereo" "Filtering" "speakerbp" "piano_dispersion_filter" "stereo_width" "echo" "transpose" "Meshes" "mesh_square"))
+
+(defconst faustine-faust-keywords-lib-miscoscillator
+  '("sinwaveform" "coswaveform" "phasor" "oscsin" "osc" "oscos" "oscp" "osci" "lf_imptrain" "lf_pulsetrainpos" "lf_squarewavepos" "lf_squarewave" "lf_trianglepos" "lf_rawsaw" "lf_sawpos" "lf_sawpos_phase" "sawN(N,freq)" "sawNp" "saw2dpw(freq)" "saw2(freq)" "saw3(freq)" "saw4(freq)" "saw5(freq)" "saw6(freq)" "sawtooth(freq)" "saw2f2(freq)" "saw2f4(freq)" "pulsetrainN" "pulsetrain" "squareN" "square" "imptrain" "imptrainN" "triangle" "triangleN" "oscb" "oscr" "oscrs" "oscs" "oscs" "oscw" "oscwq" "oscwc" "oscws"))
+
+(defconst faustine-faust-keywords-lib-noise
+  '("noise" "multirandom" "multinoise" "noises" "pink_noise" "pink_noise_vm" "lfnoise" "lfnoise0" "lfnoiseN"))
+
+(defconst faustine-faust-keywords-lib-phafla
+ '("flanger_mono" "flanger_stereo" "phaser2_mono" "phaser2_stereo"))
+
+(defconst faustine-faust-keywords-lib-pm
+  '("chain" "input" "output" "terminations" "fullTerminations" "leftTermination" "rightTermination" "waveguide" "idealString"))
+
+(defconst faustine-faust-keywords-lib-reverb
+  '("jcrev" "satrev" "mono_freeverb" "stereo_freeverb" "fdnrev0" "zita_rev_fdn" "zita_rev1_stereo" "zita_rev1_ambi"))
+
+(defconst faustine-faust-keywords-lib-route
+  '("cross" "crossnn" "crossn1" "interleave" "butterfly" "hadamard" "recursivize"))
+
+(defconst faustine-faust-keywords-lib-signal
+  '("bus" "block" "interpolate" "smooth" "smoo" "polySmooth" "bsmooth" "lag_ud" "dot"))
+
+(defconst faustine-faust-keywords-lib-spat
+  '("panner" "spat" "stereoize"))
+
+(defconst faustine-faust-keywords-lib-synth
+  '("popFilterPerc" "dubDub" "sawTrombone" "combString" "additiveDrum" "additiveDrum"))
+
+(defconst faustine-faust-keywords-lib-vaeffect
+  '("moog_vcf" "moog_vcf_2b" "wah4" "autowah" "crybaby" "vocoder"))
+
+(defvar faustine-faust-keywords-lib
+  (append
+   faustine-faust-keywords-lib-analyzer
+   faustine-faust-keywords-lib-basic
+   faustine-faust-keywords-lib-compressor
+   faustine-faust-keywords-lib-delay
+   faustine-faust-keywords-lib-demo
+   faustine-faust-keywords-lib-envelope
+   faustine-faust-keywords-lib-filter
+   faustine-faust-keywords-lib-hoa
+   faustine-faust-keywords-lib-math
+   faustine-faust-keywords-lib-misceffect
+   faustine-faust-keywords-lib-miscoscillator
+   faustine-faust-keywords-lib-noise
+   faustine-faust-keywords-lib-phafla
+   faustine-faust-keywords-lib-pm
+   faustine-faust-keywords-lib-reverb
+   faustine-faust-keywords-lib-route
+   faustine-faust-keywords-lib-signal
+   faustine-faust-keywords-lib-spat
+   faustine-faust-keywords-lib-synth
+   faustine-faust-keywords-lib-vaeffect)
+  "All the Faust library function keywords")
+
+(defconst faustine-faust-keywords-statements
+  '("process" "with" "case" "seq" "par" "sum" "prod" "include" "import" "component" "library" "environment" "declare" "define" "undef" "error" "pragma" "ident" "if" "def" "else" "elif" "endif" "line" "warning"))
+
+(defconst faustine-faust-keywords-functions
+  '("mem" "prefix" "int" "float" "rdtable" "rwtable" "select2" "select3" "ffunction" "fconstant" "fvariable" "attach" "acos" "asin" "atan" "atan2" "cos" "sin" "tan" "exp" "log" "log10" "pow" "sqrt" "abs" "min" "max" "fmod" "remainder" "floor" "ceil" "rint"))
+
+(defconst faustine-faust-keywords-math
+  '("mem" "prefix" "int" "float" "rdtable" "rwtable" "select2" "select3" "ffunction" "fconstant" "fvariable" "attach" "acos" "asin" "atan" "atan2" "cos" "sin" "tan" "exp" "log" "log10" "pow" "sqrt" "abs" "min" "max" "fmod" "remainder" "floor" "ceil" "rint"))
+
+(defconst faustine-faust-keywords-ui
+  '("button" "checkbox" "vslider" "hslider" "nentry" "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
 
 (defgroup faustine nil
   "Faustine - A lightweight Emacs Faust IDE"
@@ -199,7 +279,7 @@ This is only for use with the command `faustine-online-doc'."
     map)
   "Keymap for the function `faustine-red-mode'.")
 
-(defvar faustine-regexp-dsp
+(defvar faustine-regexp-faust-file
   (concat "\"\\([^\"\\(]+\\.\\(" faustine-faust-extension "\\)\\)\"")
   "The regexp to search for `\"something.faust\"'.")
 
@@ -273,24 +353,6 @@ This is only for use with the command `faustine-online-doc'."
   :lighter faustine-red-mode-bug
   :keymap faustine-red-mode-map)
 
-(defconst faustine-faust-keywords
-  '("process" "with" "case" "seq" "par" "sum" "prod"
-    "include" "import" "component" "library" "environment" "declare"
-    "define" "undef" "error" "pragma" "ident"
-    "if" "def" "else" "elif" "endif" "line" "warning"))
-
-(defconst faustine-faust-functions
-  '("mem" "prefix" "int" "float"
-    "rdtable" "rwtable" "select2" "select3"
-    "ffunction" "fconstant" "fvariable"
-    "attach" "acos" "asin" "atan" "atan2" "cos" "sin" "tan" "exp"
-    "log" "log10" "pow" "sqrt" "abs" "min" "max" "fmod"
-    "remainder" "floor" "ceil" "rint"))
-
-(defconst faustine-faust-ui-keywords
-  '("button" "checkbox" "vslider" "hslider" "nentry"
-    "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
-
 (defvar faustine-mode-map
    (let ((map (make-sparse-keymap)))
      map)
@@ -305,20 +367,35 @@ This is only for use with the command `faustine-online-doc'."
      st)
    "Syntax table for `faustine-mode'.")
 
-(defvar faustine-faust-variables-regexp "[A-Za-z][A-Za-z]*")
-(defvar faustine-faust-arguments-regexp "[0-9]")
-(defvar faustine-faust-operator-regexp "\\([~!_@,<>:;]\\)")
-(defvar faustine-faust-math-op-regexp "[=\+\{\}()/*-]")
-(defvar faustine-faustine-faust-keywords-regexp (regexp-opt faustine-faust-keywords 'words))
-(defvar faustine-faust-function-regexp (regexp-opt faustine-faust-functions 'words))
-(defvar faustine-faustine-faust-ui-keywords-regexp (regexp-opt faustine-faust-ui-keywords 'words))
+(defvar faustine-regexp-keywords-function (regexp-opt faustine-faust-keywords-functions 'words))
+(defvar faustine-regexp-keywords-statement (regexp-opt faustine-faust-keywords-statements 'words))
+(defvar faustine-regexp-keywords-lib (regexp-opt faustine-faust-keywords-lib 'words))
+(defvar faustine-regexp-keywords-ui (regexp-opt faustine-faust-keywords-ui 'words))
+(defvar faustine-regexp-keywords-parameter (rx
+                                            (group
+                                             "["
+                                             (or (group (one-or-more word) ":" (one-or-more word))
+                                                 (group (one-or-more digit)))
+                                             "]")))
+
+(defvar faustine-regexp-faust-operator (rx (any "," ":" "*" "-" "+" ">" "<")))
+
+(defvar faustine-regexp-faust-delimiters (rx (any "{" "}"
+                                                  "(" ")"
+                                                  "[" "]"
+                                                  ";")))
+
+(defvar faustine-regexp-faust-numbers (rx (one-or-more digit)))
 
 (defvar faustine-mode-font-lock-keywords
-  `((,faustine-faust-function-regexp . font-lock-type-face)
-    (,faustine-faustine-faust-ui-keywords-regexp . font-lock-builtin-face)
-    (,faustine-faust-math-op-regexp . font-lock-function-name-face)
-    (,faustine-faust-operator-regexp . font-lock-constant-face)
-    (,faustine-faustine-faust-keywords-regexp . font-lock-keyword-face)))
+  `((,faustine-regexp-keywords-function . font-lock-function-name-face)
+    (,faustine-regexp-keywords-statement . font-lock-keyword-face)
+    (,faustine-regexp-keywords-lib . font-lock-keyword-face)
+    (,faustine-regexp-keywords-ui . font-lock-variable-name-face)
+    (,faustine-regexp-faust-operator . font-lock-type-face)
+    (,faustine-regexp-keywords-lib . font-lock-builtin-face)
+    (,faustine-regexp-faust-delimiters . font-lock-reference-face)
+    (,faustine-regexp-faust-numbers . font-lock-negation-char-face)))
 
 (define-derived-mode faustine-output-mode fundamental-mode
   "Faust output"
@@ -343,10 +420,6 @@ Available commands while editing Faust (*.dsp) files:
 
   (add-hook 'after-save-hook 'faustine-syntax-check nil t)
   (add-hook 'find-file-hook 'faustine-syntax-check nil t)
-  (add-hook 'find-file-hook '(lambda ()
-                               (faustine-buttonize-buffer 'dsp)) nil t)
-  (add-hook 'find-file-hook '(lambda ()
-                               (faustine-buttonize-buffer 'lib)) nil t)
 
   (set-syntax-table faustine-mode-syntax-table)
 
@@ -383,9 +456,10 @@ Available commands while editing Faust (*.dsp) files:
                             ("exited abnormally with code" . font-lock-warning-face)))
 
   (setq ac-user-dictionary (append
-                            faustine-faust-keywords
-                            faustine-faust-functions
-                            faustine-faust-ui-keywords))
+                            faustine-faust-keywords-functions
+                            faustine-faust-keywords-statements
+                            faustine-faust-keywords-lib
+                            faustine-faust-keywords-ui))
 
   (add-to-list 'ac-modes 'faustine-mode)
 
@@ -448,7 +522,7 @@ Available commands while editing Faust (*.dsp) files:
   "Turn all found strings into buttons of type TYPE."
   (save-excursion
     (goto-char (point-min))
-    (let ((regexp (cond ((eq type 'dsp) faustine-regexp-dsp)
+    (let ((regexp (cond ((eq type 'dsp) faustine-regexp-faust-file)
                         ((eq type 'log) faustine-regexp-log)
                         ((eq type 'exe) faustine-regexp-exe)
                         ((eq type 'lib) faustine-regexp-lib)))
@@ -473,7 +547,7 @@ Build a button from START to END."
                         (url-hexify-string selection)))))
 
 (defun faustine-source-code ()
-  "Generate Faust c++ code of the current faust file, display it in a buffer."
+  "Generate Faust C++ code of the current faust file, display it in `faustine-c++-buffer-name'."
   (interactive)
   (let ((oldbuf (current-buffer)))
     (with-current-buffer (get-buffer-create faustine-c++-buffer-name)
@@ -510,7 +584,7 @@ Build a button from START to END."
   (with-temp-buffer
     (insert-file-contents-literally fname)
     (goto-char (point-min))
-    (while (re-search-forward faustine-regexp-dsp nil t)
+    (while (re-search-forward faustine-regexp-faust-file nil t)
       (when (match-string 0)
         (let ((uri (expand-file-name (match-string 1))))
           (if (not (member uri blist))
@@ -546,8 +620,7 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
     (set-process-sentinel process 'faustine-log-to-buffer)))
 
 (defun faustine-run (&optional link)
-  "Run the executable generated by the current Faust code buffer.
-If LINK, then run it."
+  "Run the executable generated by the current Faust code buffer or passed by LINK."
   (interactive)
   (faustine-log-to-buffer "Run" "started")
   (let* ((command (if link
@@ -577,7 +650,7 @@ If LINK, then run it."
         (faustine-open-output-buffer))))
 
 (defun faustine-syntax-check ()
-  "Check if Faust code buffer compiles."
+  "Check if Faust code buffer compiles. Runs at load and save time."
   (interactive)
   (let ((output-check (shell-command-to-string (format "faust %s > /dev/null" (buffer-name)))))
     (if (string= "" output-check)
@@ -609,9 +682,11 @@ If LINK, then run it."
       (when (get-buffer-window faustine-output-buffer-name `visible)
         (with-selected-window (get-buffer-window (current-buffer))
           (goto-char (point-max))))
+      ;; (call-interactively 'bury-buffer)
       )
     (faustine-buttonize-buffer 'dsp)
     (faustine-buttonize-buffer 'lib)
+    (bury-buffer faustine-output-buffer-name)
     ))
 
 (defun faustine-diagram (&optional build-all)
@@ -730,8 +805,8 @@ img.scaled {
                      (file-name-nondirectory dsp-file-name)
                      svg-dir
                      svg-dir
-                     (file-name-nondirectory (directory-file-name svg-dir))
-                     ) nil faustine-diagram-page-name 'append 0 nil nil)))
+                     (file-name-nondirectory (directory-file-name svg-dir)))
+             nil faustine-diagram-page-name 'append 0 nil nil)))
       (setq list (cdr list)))
     (write-region "</div>
 </body>
