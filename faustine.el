@@ -6,7 +6,7 @@
 ;; URL: https://bitbucket.org/yassinphilip/faustine
 ;; Keywords: modes, faust
 ;; Version: 1.0.1
-;; Package-Requires: ((emacs "24") (auto-complete))
+;; Package-Requires: ((emacs "24") (company "0.8.12"))
 ;; License: GPLv2
 
 ;;; Commentary:
@@ -19,6 +19,23 @@
 
 (require 'smie)
 (require 'easymenu)
+
+;(require 'company)
+
+(require 'cl-lib)
+
+;; (defun company-simple-backend (command &optional arg &rest ignored)
+;;   (interactive (list 'interactive))
+;;   (cl-case command
+;;     (interactive (company-begin-backend 'company-simple-backend))
+;;     (prefix (when (looking-back "foo\\>")
+;;               (match-string 0)))
+;;     (candidates (when (equal arg "foo")
+;;                   (list "foobar" "foobaz" "foobarbaz")))
+;;     (meta (format "This value is named %s" arg))))
+
+;; (message "Comp!")
+;; (add-to-list 'company-backends 'company-simple-backend)
 
 (defconst faustine-faust-keywords-lib-analyzer
   '("amp_follower" "amp_follower_ud" "amp_follower_ar" "mth_octave_analyzer[N]" "mth_octave_spectral_level6e" "octave_filterbank" "octave_analyzer" "half_octave_filterbank" "half_octave_analyzer" "third_octave_filterbank" "third_octave_analyzer" "analyzer"))
@@ -257,8 +274,8 @@ This is only for use with the command `faustine-online-doc'."
           (const :tag "faust2w32msp" faust2w32msp))
   :group 'faustine)
 
-(defvar ac-modes)
-(defvar ac-user-dictionary)
+;; (defvar ac-modes)
+;; (defvar ac-user-dictionary)
 (defvar faustine-path (file-name-directory (or load-file-name (buffer-file-name))))
 (defvar faustine-process-source-buffer nil
   "Source buffer from which the current process is generating mdoc.")
@@ -451,13 +468,12 @@ Available commands while editing Faust (*.dsp) files:
                             ("jack" . font-lock-warning-face)
                             ("exited abnormally with code" . font-lock-warning-face)))
 
-  (setq ac-user-dictionary (append
-                            faustine-faust-keywords-functions
-                            faustine-faust-keywords-statements
-                            faustine-faust-keywords-lib
-                            faustine-faust-keywords-ui))
+  ;; (setq ac-user-dictionary (append
+  ;;                           faustine-faust-keywords-functions
+  ;;                           faustine-faust-keywords-statements
+  ;;                           faustine-faust-keywords-lib
+  ;;                           faustine-faust-keywords-ui))
 
-  (add-to-list 'ac-modes 'faustine-mode)
 
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
