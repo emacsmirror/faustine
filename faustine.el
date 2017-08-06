@@ -257,7 +257,6 @@ This is only for use with the command `faustine-online-doc'."
           (const :tag "faust2w32msp" faust2w32msp))
   :group 'faustine)
 
-(defvar ac-sources)
 (defvar ac-modes)
 (defvar ac-user-dictionary)
 (defvar faustine-path (file-name-directory (or load-file-name (buffer-file-name))))
