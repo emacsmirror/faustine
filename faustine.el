@@ -6,14 +6,15 @@
 ;; URL: https://bitbucket.org/yassinphilip/faustine
 ;; Keywords: modes, faust
 ;; Version: 1.0.1
-;; Package-Requires: ((emacs "24") (company "0.8.12"))
+;; Package-Requires: ((emacs "24"))
 ;; License: GPLv2
 
 ;;; Commentary:
 
 ;; Edit, visualize, build and run Faust code.
 ;; Inspired by Faustworks, now deprecated.
-;; Usage of auto-complete is highly recommended.
+;; Usage of Faustine with a completion backend system
+;; like auto-complete or company is highly recommended.
 
 ;;; Code:
 
@@ -562,6 +563,54 @@ Build a button from START to END."
               (setq blist (faustine-project-files uri blist))))))
     (identity blist)))
 
+;; (cadr (split-string "plop:plip" ":"))
+
+(defun faustine-sentinel (process event)
+  "Log PROCESS and EVENT to output buffer."
+  (let ((calling-buffer (cadr (split-string (format "%s" process) ":")))
+        (file-name (file-name-sans-extension
+                      (cadr (split-string (format "%s" process) ":"))))
+        (status-ok (string-prefix-p "finished" event))
+        (process (format "%s" process)))
+    (with-current-buffer (get-buffer-create faustine-output-buffer-name)
+      (faustine-output-mode)
+      (font-lock-fontify-buffer)
+      (goto-char (point-max))
+      (insert (format "%s | %s %s\n"
+                      (format-time-string "%H:%M:%S")
+                      process
+                      event))
+      (faustine-buttonize-buffer 'log)
+      (faustine-buttonize-buffer 'exe)
+      (when (get-buffer-window faustine-output-buffer-name `visible)
+        (with-selected-window (get-buffer-window (current-buffer))
+          (goto-char (point-max)))))
+    (if status-ok
+        (progn (faustine-red-mode 0) (faustine-green-mode t))
+      (progn (faustine-green-mode 0) (faustine-red-mode t)))
+    (when status-ok
+      (when (string-prefix-p "Mdoc" process)
+        (browse-url-of-file (format "%s-mdoc/pdf/%s.pdf" file-name file-name)))
+      (when (string-prefix-p "C++" process)
+        (find-file-other-window (format "%s.cpp" file-name)))
+      (when (string-prefix-p "Diagram" process)
+        (browse-url-of-file faustine-diagram-page-name))))
+  (faustine-buttonize-buffer 'dsp)
+  (faustine-buttonize-buffer 'lib)
+  (bury-buffer faustine-output-buffer-name)
+  (if faustine-pop-output-buffer
+      (faustine-open-output-buffer)))
+
+(defun faustine-mdoc (&optional build-all)
+  "Generate mdoc of the current file, display it in a buffer."
+  (interactive)
+  (message "YO! faust2mathdoc %s" (current-buffer))
+  (let ((process (start-process-shell-command
+                  (format "Mdoc:%s" (buffer-name))
+                  faustine-output-buffer-name
+                  (format "faust2mathdoc %s" (current-buffer)))))
+    (set-process-sentinel process 'faustine-sentinel)))
+
 (defun faustine-build (&optional build-all)
   "Build the current buffer/file executable(s).
 If BUILD-ALL is set, build all Faust files referenced by this one."
@@ -570,7 +619,7 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
                              (mapconcat 'identity (faustine-project-files (buffer-name) '()) " ")
                            (current-buffer)))
          (process (start-process-shell-command
-                   "Build"
+                   (format "Build:%s" (buffer-name))
                    faustine-output-buffer-name
                    (format "%s %s" faustine-build-backend files-to-build))))
     (set-process-sentinel process 'faustine-sentinel)))
@@ -584,7 +633,7 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
                                     (file-name-nondirectory
                                      (buffer-name))))))
          (process (start-process-shell-command
-                   "Run"
+                   (format "Run:%s" (buffer-name))
                    faustine-output-buffer-name
                    command)))
     (set-process-sentinel process 'faustine-sentinel)))
@@ -593,76 +642,20 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
   "Check if Faust code buffer compiles. Runs at load and save time."
   (interactive)
   (let ((process (start-process-shell-command
-                   "Check"
-                   nil
-                   (format "faust %s > /dev/null" (buffer-name)))))
-    (set-process-sentinel process 'faustine-sentinel)))
-
-(defun faustine-sentinel (process event)
-  "Log PROCESS and EVENT to output buffer."
-  (let ((calling-buffer (buffer-name faustine-process-source-buffer))
-        (file-name (file-name-sans-extension
-                      (buffer-name faustine-process-source-buffer)))
-        (status-ok (string-prefix-p "finished" event))
-        (process (format "%s" process)))
-    (with-current-buffer (get-buffer-create faustine-output-buffer-name)
-      (faustine-output-mode)
-      (font-lock-fontify-buffer)
-      (goto-char (point-max))
-      (insert (format "%s | %s %s %s\n"
-                      (format-time-string "%H:%M:%S")
-                      calling-buffer
-                      process
-                      event))
-      (faustine-buttonize-buffer 'log)
-      (faustine-buttonize-buffer 'exe)
-      (when (get-buffer-window faustine-output-buffer-name `visible)
-        (with-selected-window (get-buffer-window (current-buffer))
-          (goto-char (point-max)))))
-
-    (if status-ok
-        (progn (faustine-red-mode 0) (faustine-green-mode t))
-      (progn (faustine-green-mode 0) (faustine-red-mode t)))
-
-    (when status-ok
-      (when (string-prefix-p "Mdoc" process)
-        (browse-url-of-file (format "%s-mdoc/pdf/%s.pdf" file-name file-name)))
-      (when (string-prefix-p "C++" process)
-        (find-file-other-window (format "%s.cpp" file-name)))
-      (when (string-prefix-p "Diagram" process)
-        (browse-url-of-file faustine-diagram-page-name))))
-
-  (faustine-buttonize-buffer 'dsp)
-  (faustine-buttonize-buffer 'lib)
-  (bury-buffer faustine-output-buffer-name)
-  (if faustine-pop-output-buffer
-      (faustine-open-output-buffer)))
-
-(defun faustine-mdoc (&optional build-all)
-  "Generate mdoc of the current file, display it in a buffer.
-If BUILD-ALL is set, generate all linked files."
-  (interactive)
-  (let* ((files-to-build (if build-all
-                             (mapconcat 'identity (faustine-project-files (buffer-name) '()) " ")
-                           (current-buffer)))
-         (process (start-process-shell-command
-                   "Mdoc"
+                  (format "Check:%s" (buffer-name))
                    faustine-output-buffer-name
-                   (format "faust2svg %s" files-to-build))))
-    (with-current-buffer (process-buffer process)
-      (setq faustine-process-source-buffer (current-buffer)))
+                   (format "faust %s > /dev/null" (buffer-name)))))
     (set-process-sentinel process 'faustine-sentinel)))
 
 (defun faustine-source-code ()
   "Generate Faust C++ code of the current faust file, display it in `faustine-c++-buffer-name'."
   (interactive)
   (let ((process (start-process-shell-command
-                   "C++"
+                  (format "C++:%s" (buffer-name))
                    nil
                    (format "faust -uim %s -o %s.cpp"
                            (buffer-name)
                            (file-name-sans-extension (buffer-name))))))
-    (setq faustine-process-source-buffer (current-buffer))
     (set-process-sentinel process 'faustine-sentinel)))
 
 (defun faustine-diagram (&optional build-all)
@@ -674,10 +667,9 @@ If BUILD-ALL is set, build all `faustine-faust-extension` files referenced by th
         (display-mode
          (if build-all "all" "single")))
     (let ((process (start-process-shell-command
-                    "Diagram"
+                    (format "Diagram:%s" (buffer-name))
                     nil
                     (format "faust2svg %s" (mapconcat 'identity files-to-build " ")))))
-      (setq faustine-process-source-buffer (current-buffer))
       (faustine-build-html-file files-to-build (buffer-name) display-mode)
       (set-process-sentinel process 'faustine-sentinel))))
 
