@@ -3,14 +3,11 @@
 ;; Copyright (C) 2017 Yassin Philip
 
 ;; Author: Yassin Philip <xaccrocheur@gmail.com>
-;; Maintainer: Yassin Philip <xaccrocheur@gmail.com>
 ;; URL: https://bitbucket.org/yassinphilip/faustine
-;; Created: 25th July 2017
 ;; Keywords: modes, faust
-;; License: GPLv2
-
 ;; Version: 1.0.1
-;; Package-Requires: ((emacs "24"))
+;; Package-Requires: ((emacs "24") (auto-complete))
+;; License: GPLv2
 
 ;;; Commentary:
 
@@ -216,7 +213,7 @@ This is only for use with the command `faustine-online-doc'."
   :group 'faustine)
 
 (defcustom faustine-build-backend 'faust2jaqt
-  "The Faust code-to-executable build backend."
+  "The Faust code-to-executable build backend script."
   :type '(choice
           (const :tag "faust2alsa" faust2alsa)
           (const :tag "faust2firefox" faust2firefox)
