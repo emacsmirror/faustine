@@ -192,7 +192,7 @@ Surround it with \"*\" to hide it in special buffers."
   :type '(string)
   :group 'faustine)
 
-(defcustom faustine-output-buffer-width -22
+(defcustom faustine-output-buffer-height 22
   "The name of the Faust output buffer.
 Surround it with \"*\" to hide it in special buffers."
   :type 'integer
@@ -550,10 +550,10 @@ Build a button from START to END."
       (display-buffer faustine-output-buffer-name)
       (if (> -10
              (window-resizable
-              (get-buffer-window faustine-output-buffer-name `visible) faustine-output-buffer-width nil))
-          (progn
-            (message "plip!")
-            (window-resize (get-buffer-window faustine-output-buffer-name `visible) faustine-output-buffer-width nil))))))
+              (get-buffer-window faustine-output-buffer-name `visible)
+              (- faustine-output-buffer-height) nil))
+          (window-resize (get-buffer-window faustine-output-buffer-name `visible)
+                         (- faustine-output-buffer-height) nil)))))
 
 (defun faustine-project-files (fname blist)
   "Recursively find all Faust links in FNAME, canonicalize and put them in BLIST, return BLIST."
