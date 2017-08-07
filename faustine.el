@@ -20,6 +20,7 @@
 
 (require 'smie)
 (require 'easymenu)
+(require 'rx)
 
 (defconst faustine-faust-keywords-lib-analyzer
   '("amp_follower" "amp_follower_ud" "amp_follower_ar" "mth_octave_analyzer[N]" "mth_octave_spectral_level6e" "octave_filterbank" "octave_analyzer" "half_octave_filterbank" "half_octave_analyzer" "third_octave_filterbank" "third_octave_analyzer" "analyzer"))
@@ -439,16 +440,22 @@ Available commands while editing Faust (*.dsp) files:
   (smie-setup nil #'ignore)
 
   (font-lock-add-keywords 'faustine-output-mode
-                          '(("started" . font-lock-keyword-face)
-                            ("finished" . font-lock-keyword-face)
-                            ("Build" . font-lock-string-face)
-                            ("\\b\\(Check\\)\\b" . font-lock-string-face)
-                            ("Diagram" . font-lock-string-face)
-                            ("Mdoc" . font-lock-string-face)
-                            ("Run" . font-lock-string-face)
+                          '(("\\<\\(?:started\\|finished\\)\\>" . font-lock-keyword-face)
+                            ("\\<\\(?:Build\\|Check\\|Diagram\\|Mdoc\\|Run\\)\\>" . font-lock-string-face)
                             ("error" . font-lock-warning-face)
-                            ("jack" . font-lock-warning-face)
-                            ("exited abnormally with code" . font-lock-warning-face)))
+                            ("exited abnormally with code" . font-lock-warning-face)
+                            ("^\\(?:\\(?:\\(?:in\\|out\\)s\\)\\)\\|^physical[[:space:]]\\(?:\\(?:\\(?:in\\|out\\)put\\)\\)[[:space:]]system\\|^The[[:space:]]\\(?:\\(?:\\(?:buffer siz\\|sample rat\\)e\\)\\)[[:space:]]is now" . font-lock-variable-name-face)
+                            ("[[:digit:]][[:digit:]]:[[:digit:]][[:digit:]]:[[:digit:]][[:digit:]]" . font-lock-builtin-face)
+                            ))
+
+;; The sample rate is now 44100/sec
+;; physical input system:capture_1
+;; physical input system:capture_2
+;; physical output system:playback_1
+;; physical output system:playback_2
+;; The buffer size is now 512/sec
+;; ins 2
+;; outs 2
 
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
@@ -573,13 +580,14 @@ Build a button from START to END."
     (with-current-buffer (get-buffer-create faustine-output-buffer-name)
       (faustine-output-mode)
       (font-lock-fontify-buffer)
-      (when (string-prefix-p "Build" process)
-        (newline))
+
       (goto-char (point-max))
       (insert (format "%s | %s %s"
                       (format-time-string "%H:%M:%S")
                       process
                       event))
+      (when (string-prefix-p "Build" process)
+        (newline))
       (faustine-buttonize-buffer 'log)
       (faustine-buttonize-buffer 'exe)
       (when (get-buffer-window faustine-output-buffer-name `visible)
