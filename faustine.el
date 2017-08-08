@@ -399,8 +399,33 @@ This is only for use with the command `faustine-online-doc'."
     (,faustine-regexp-faust-delimiters . font-lock-reference-face)
     (,faustine-regexp-faust-numbers . font-lock-negation-char-face)))
 
+(defconst faustine-output-mode-keywords-proc
+  (rx
+   (and word-start (or "Build" "Check" "Diagram" "Mdoc" "Run") word-end)))
+
+(defconst faustine-output-mode-keywords-jack
+  (rx
+   (or (and line-start (or "ins" "outs"))
+       (and line-start "physical" space (or "input" "output") space "system")
+       (and line-start "The" space (or "sample rate" "buffer size") space "is now"))))
+
+(defconst faustine-output-mode-keywords-time
+  (rx
+   (and digit digit ":" digit digit ":" digit digit ":")))
+
+(defconst faustine-output-mode-keywords-status
+  (rx (and word-start (or "started" "finished") word-end)))
+
+(defconst faustine-output-mode-font-lock-keywords
+  `((,faustine-output-mode-keywords-proc . 'font-lock-string-face)
+    (,faustine-output-mode-keywords-jack . 'font-lock-variable-name-face))
+    (,faustine-output-mode-keywords-time . 'font-lock-builtin-face))
+    (,faustine-output-mode-keywords-status . 'font-lock-keyword-face))
+  )
+
 (define-derived-mode faustine-output-mode fundamental-mode
   "Faust output"
+  (setq font-lock-defaults '(faustine-output-mode-font-lock-keywords t))
   (font-lock-fontify-buffer))
 
 ;;;###autoload
@@ -444,14 +469,6 @@ Available commands while editing Faust (*.dsp) files:
   (define-key faustine-mode-map (kbd faustine-kb-syntax-check) 'faustine-syntax-check)
 
   (smie-setup nil #'ignore)
-
-  (font-lock-add-keywords 'faustine-output-mode
-                          '(("\\<\\(?:started\\|finished\\)\\>" . font-lock-keyword-face)
-                            ("\\<\\(?:Build\\|Check\\|C++\\|Diagram\\|Mdoc\\|Run\\)\\>" . font-lock-string-face)
-                            ("error" . font-lock-warning-face)
-                            ("^\\(?:\\(?:\\(?:in\\|out\\)s\\)\\)\\|^physical[[:space:]]\\(?:\\(?:\\(?:in\\|out\\)put\\)\\)[[:space:]]system\\|^The[[:space:]]\\(?:\\(?:\\(?:buffer siz\\|sample rat\\)e\\)\\)[[:space:]]is now" . font-lock-variable-name-face)
-                            ("[[:digit:]][[:digit:]]:[[:digit:]][[:digit:]]:[[:digit:]][[:digit:]]" . font-lock-builtin-face)
-                            ))
 
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
@@ -549,9 +566,8 @@ Build a button from START to END."
     (with-current-buffer (get-buffer-create faustine-output-buffer-name)
       (display-buffer faustine-output-buffer-name)
       (if (> -10
-             (window-resizable
-              (get-buffer-window faustine-output-buffer-name `visible)
-              (- faustine-output-buffer-height) nil))
+             (window-resizable (get-buffer-window faustine-output-buffer-name `visible)
+                               (- faustine-output-buffer-height) nil))
           (window-resize (get-buffer-window faustine-output-buffer-name `visible)
                          (- faustine-output-buffer-height) nil)))))
 
