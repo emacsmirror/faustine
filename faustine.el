@@ -279,40 +279,31 @@ This is only for use with the command `faustine-online-doc'."
 
 (defvar faustine-regexp-faust-file
   (rx
-   "\""
-   (submatch (and
-              word-start
-              (one-or-more word) "." (eval faustine-faust-extension)))
-   "\""
-   )
+   "\"" (submatch (and
+                   word-start
+                   (one-or-more word) "." (eval faustine-faust-extension)))
+   "\"")
   "The regexp to search for `something.faust'.")
 
 (defvar faustine-regexp-log
   (rx
-   (and
-    word-start
-    (one-or-more word) "." (eval faustine-faust-extension)
-    ":"
-    (one-or-more digit)))
+   (submatch
+       (and word-start
+            (one-or-more word) "." (eval faustine-faust-extension) ":" (one-or-more digit))))
   "The regexp to search for `something.faust:num'.")
 
 (defvar faustine-regexp-lib
   (rx
-   "\""
-   (submatch (and
+   "\"" (submatch (and
               word-start
               (one-or-more word) ".lib"))
-   "\""
-   )
+   "\"")
   "The regexp to search for `something.lib'.")
 
 (defconst faustine-regexp-exe
   (rx
    (submatch
-    (and
-     (or "./" "/")
-     (one-or-more (any word "/"))))
-   ";")
+    (and (or "./" "/") (one-or-more (any word "/")))) ";")
   "The regexp to search for `/some/thing;'.")
 
 (easy-menu-define
@@ -550,15 +541,9 @@ Available commands while editing Faust (*.dsp) files:
     (let ((regexp (cond ((eq type 'dsp) faustine-regexp-faust-file)
                         ((eq type 'log) faustine-regexp-log)
                         ((eq type 'exe) faustine-regexp-exe)
-                        ((eq type 'lib) faustine-regexp-lib)))
-          (start (if  (eq type 'log)
-                     0
-                   1))
-          (end (if (eq type 'log)
-                   0
-                 1)))
+                        ((eq type 'lib) faustine-regexp-lib))))
       (while (re-search-forward regexp nil t nil)
-        (make-button (match-beginning start) (match-end end)
+        (make-button (match-beginning 1) (match-end 1)
                      :type (intern-soft (concat "faustine-button-" (symbol-name type))))))))
 
 (defun faustine-configure ()
