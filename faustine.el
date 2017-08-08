@@ -279,32 +279,25 @@ This is only for use with the command `faustine-online-doc'."
 
 (defvar faustine-regexp-faust-file
   (rx
-   "\"" (submatch (and
-                   word-start
-                   (one-or-more word) "." (eval faustine-faust-extension)))
-   "\"")
-  "The regexp to search for `something.faust'.")
+   "\"" (submatch (and word-start (one-or-more word) "." (eval faustine-faust-extension))) "\"")
+  "The regexp to match `something.faust'.")
 
 (defvar faustine-regexp-log
   (rx
-   (submatch
-       (and word-start
-            (one-or-more word) "." (eval faustine-faust-extension) ":" (one-or-more digit))))
-  "The regexp to search for `something.faust:num'.")
+   (submatch (and word-start
+                  (one-or-more word) "." (eval faustine-faust-extension) ":" (one-or-more digit))))
+  "The regexp to match `something.faust:num'.")
 
 (defvar faustine-regexp-lib
   (rx
-   "\"" (submatch (and
-              word-start
-              (one-or-more word) ".lib"))
-   "\"")
-  "The regexp to search for `something.lib'.")
+   "\"" (submatch (and word-start (one-or-more word) ".lib")) "\"")
+  "The regexp to match `something.lib'.")
 
 (defconst faustine-regexp-exe
   (rx
    (submatch
     (and (or "./" "/") (one-or-more (any word "/")))) ";")
-  "The regexp to search for `/some/thing;'.")
+  "The regexp to match `/some/thing;'.")
 
 (easy-menu-define
   faustine-green-mode-menu
