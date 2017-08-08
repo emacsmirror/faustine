@@ -266,10 +266,6 @@ This is only for use with the command `faustine-online-doc'."
   :group 'faustine)
 
 (defvar faustine-path (file-name-directory (or load-file-name (buffer-file-name))))
-(defvar faustine-process-source-buffer nil
-  "Source buffer from which the current process is generating mdoc.")
-
-(make-variable-buffer-local 'faustine-process-source-buffer)
 
 (defvar faustine-green-mode-map
   (let ((map (make-sparse-keymap)))
@@ -299,10 +295,6 @@ This is only for use with the command `faustine-online-doc'."
     ":"
     (one-or-more digit)))
   "The regexp to search for `something.faust:num'.")
-
-;; (defconst faustine-regexp-lib
-;;   "\\\"\\([^\\\"\\\\(]+\\.lib\\)\\\""
-;;   "The regexp to search for `\"something.lib\"'.")
 
 (defvar faustine-regexp-lib
   (rx
