@@ -300,19 +300,27 @@ This is only for use with the command `faustine-online-doc'."
     (one-or-more digit)))
   "The regexp to search for `something.faust:num'.")
 
-(defconst faustine-regexp-lib
-  "\\\"\\([^\\\"\\\\(]+\\.lib\\)\\\""
-  "The regexp to search for `\"something.lib\"'.")
+;; (defconst faustine-regexp-lib
+;;   "\\\"\\([^\\\"\\\\(]+\\.lib\\)\\\""
+;;   "The regexp to search for `\"something.lib\"'.")
 
 (defvar faustine-regexp-lib
   (rx
-   (and
-    word-start
-    (one-or-more word) ".lib"))
+   "\""
+   (submatch (and
+              word-start
+              (one-or-more word) ".lib"))
+   "\""
+   )
   "The regexp to search for `something.lib'.")
 
 (defconst faustine-regexp-exe
-  "\\(.*?[A-Za-z0-9.-]+\\);"
+  (rx
+   (submatch
+    (and
+     (or "./" "/")
+     (one-or-more (any word "/"))))
+   ";")
   "The regexp to search for `/some/thing;'.")
 
 (easy-menu-define
@@ -556,10 +564,10 @@ Available commands while editing Faust (*.dsp) files:
                    1))
           (end (if (eq type 'log)
                    0
-                 1))
+                 1)))
       (while (re-search-forward regexp nil t nil)
         (make-button (match-beginning start) (match-end end)
-                     :type (intern-soft (concat "faustine-button-" (symbol-name type)))))))))
+                     :type (intern-soft (concat "faustine-button-" (symbol-name type))))))))
 
 (defun faustine-configure ()
   "Use `cutomize-group' to set up Faustine preferences."
