@@ -282,12 +282,11 @@ This is only for use with the command `faustine-online-doc'."
   "Keymap for the function `faustine-red-mode'.")
 
 (defvar faustine-regexp-faust-file
-  (concat "\"\\([^\"\\(]+\\.\\(" faustine-faust-extension "\\)\\)\"")
-  "The regexp to search for `\"something.faust\"'.")
-
-;; (defvar faustine-regexp-log
-;;   (concat "\\([A-Za-z]*\." faustine-faust-extension "\\)\:\\([0-9]+\\)")
-;;   "The regexp to search for `something.faust:num'.")
+  (rx
+   (and
+    word-start
+    (one-or-more word) "." (eval faustine-faust-extension)))
+  "The regexp to search for `something.faust'.")
 
 (defvar faustine-regexp-log
   (rx
@@ -542,10 +541,12 @@ Available commands while editing Faust (*.dsp) files:
                         ((eq type 'log) faustine-regexp-log)
                         ((eq type 'exe) faustine-regexp-exe)
                         ((eq type 'lib) faustine-regexp-lib)))
-          (start (if (eq type 'log) 0 1))
-          (end (if (eq type 'log) 0 1)))
+          (start (if (or (eq type 'log)
+                          (eq type 'dsp)) 0 1))
+          (end (if (or (eq type 'log)
+                       (eq type 'dsp)) 0 1)))
       (while (re-search-forward regexp nil t nil)
-        (make-button (match-beginning 1) (match-end end)
+        (make-button (match-beginning start) (match-end end)
                      :type (intern-soft (concat "faustine-button-" (symbol-name type))))))))
 
 (defun faustine-configure ()
@@ -616,7 +617,7 @@ Build a button from START to END."
       (faustine-buttonize-buffer 'exe)
       (when (get-buffer-window faustine-output-buffer-name `visible)
         (with-selected-window (get-buffer-window (current-buffer))
-          (goto-char (- 3 (point-max))))))
+          (goto-char  (point-max)))))
     (if status-ok
         (progn (faustine-red-mode 0) (faustine-green-mode t))
       (progn (faustine-green-mode 0) (faustine-red-mode t)))
