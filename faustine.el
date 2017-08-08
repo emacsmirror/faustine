@@ -283,9 +283,12 @@ This is only for use with the command `faustine-online-doc'."
 
 (defvar faustine-regexp-faust-file
   (rx
-   (and
-    word-start
-    (one-or-more word) "." (eval faustine-faust-extension)))
+   "\""
+   (submatch (and
+              word-start
+              (one-or-more word) "." (eval faustine-faust-extension)))
+   "\""
+   )
   "The regexp to search for `something.faust'.")
 
 (defvar faustine-regexp-log
@@ -300,6 +303,13 @@ This is only for use with the command `faustine-online-doc'."
 (defconst faustine-regexp-lib
   "\\\"\\([^\\\"\\\\(]+\\.lib\\)\\\""
   "The regexp to search for `\"something.lib\"'.")
+
+(defvar faustine-regexp-lib
+  (rx
+   (and
+    word-start
+    (one-or-more word) ".lib"))
+  "The regexp to search for `something.lib'.")
 
 (defconst faustine-regexp-exe
   "\\(.*?[A-Za-z0-9.-]+\\);"
@@ -541,13 +551,15 @@ Available commands while editing Faust (*.dsp) files:
                         ((eq type 'log) faustine-regexp-log)
                         ((eq type 'exe) faustine-regexp-exe)
                         ((eq type 'lib) faustine-regexp-lib)))
-          (start (if (or (eq type 'log)
-                          (eq type 'dsp)) 0 1))
-          (end (if (or (eq type 'log)
-                       (eq type 'dsp)) 0 1)))
+          (start (if  (eq type 'log)
+                     0
+                   1))
+          (end (if (eq type 'log)
+                   0
+                 1))
       (while (re-search-forward regexp nil t nil)
         (make-button (match-beginning start) (match-end end)
-                     :type (intern-soft (concat "faustine-button-" (symbol-name type))))))))
+                     :type (intern-soft (concat "faustine-button-" (symbol-name type)))))))))
 
 (defun faustine-configure ()
   "Use `cutomize-group' to set up Faustine preferences."
