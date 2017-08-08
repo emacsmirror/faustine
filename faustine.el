@@ -192,7 +192,7 @@ Surround it with \"*\" to hide it in special buffers."
   :type '(string)
   :group 'faustine)
 
-(defcustom faustine-output-buffer-width -22
+(defcustom faustine-output-buffer-height 22
   "The name of the Faust output buffer.
 Surround it with \"*\" to hide it in special buffers."
   :type 'integer
@@ -266,10 +266,6 @@ This is only for use with the command `faustine-online-doc'."
   :group 'faustine)
 
 (defvar faustine-path (file-name-directory (or load-file-name (buffer-file-name))))
-(defvar faustine-process-source-buffer nil
-  "Source buffer from which the current process is generating mdoc.")
-
-(make-variable-buffer-local 'faustine-process-source-buffer)
 
 (defvar faustine-green-mode-map
   (let ((map (make-sparse-keymap)))
@@ -282,20 +278,26 @@ This is only for use with the command `faustine-online-doc'."
   "Keymap for the function `faustine-red-mode'.")
 
 (defvar faustine-regexp-faust-file
-  (concat "\"\\([^\"\\(]+\\.\\(" faustine-faust-extension "\\)\\)\"")
-  "The regexp to search for `\"something.faust\"'.")
+  (rx
+   "\"" (submatch (and word-start (one-or-more word) "." (eval faustine-faust-extension))) "\"")
+  "The regexp to match `something.faust'.")
 
 (defvar faustine-regexp-log
-  (concat "\\([A-Za-z]*\." faustine-faust-extension "\\)\:\\([0-9]+\\)")
-  "The regexp to search for `something.faust'.")
+  (rx
+   (submatch (and word-start
+                  (one-or-more word) "." (eval faustine-faust-extension) ":" (one-or-more digit))))
+  "The regexp to match `something.faust:num'.")
 
-(defconst faustine-regexp-lib
-  "\\\"\\([^\\\"\\\\(]+\\.lib\\)\\\""
-  "The regexp to search for `\"something.lib\"'.")
+(defvar faustine-regexp-lib
+  (rx
+   "\"" (submatch (and word-start (one-or-more word) ".lib")) "\"")
+  "The regexp to match `something.lib'.")
 
 (defconst faustine-regexp-exe
-  "\\(.*?[A-Za-z0-9.-]+\\);"
-  "The regexp to search for `/some/thing;'.")
+  (rx
+   (submatch
+    (and (or "./" "/") (one-or-more (any word "/")))) ";")
+  "The regexp to match `/some/thing;'.")
 
 (easy-menu-define
   faustine-green-mode-menu
@@ -399,8 +401,33 @@ This is only for use with the command `faustine-online-doc'."
     (,faustine-regexp-faust-delimiters . font-lock-reference-face)
     (,faustine-regexp-faust-numbers . font-lock-negation-char-face)))
 
+(defconst faustine-output-mode-keywords-proc
+  (rx
+   (and word-start (or "Build" "Check" "Diagram" "Mdoc" "Run") word-end)))
+
+(defconst faustine-output-mode-keywords-jack
+  (rx
+   (or (and line-start (or "ins" "outs"))
+       (and line-start "physical" space (or "input" "output") space "system")
+       (and line-start "The" space (or "sample rate" "buffer size") space "is now"))))
+
+(defconst faustine-output-mode-keywords-time
+  (rx
+   (and digit digit ":" digit digit ":" digit digit ":")))
+
+(defconst faustine-output-mode-keywords-status
+  (rx (and word-start (or "started" "finished") word-end)))
+
+(defconst faustine-output-mode-font-lock-keywords
+  `((,faustine-output-mode-keywords-proc . 'font-lock-string-face)
+    (,faustine-output-mode-keywords-jack . 'font-lock-variable-name-face)
+    (,faustine-output-mode-keywords-time . 'font-lock-builtin-face)
+    (,faustine-output-mode-keywords-status . 'font-lock-keyword-face)
+  ))
+
 (define-derived-mode faustine-output-mode fundamental-mode
   "Faust output"
+  (setq font-lock-defaults '(faustine-output-mode-font-lock-keywords t))
   (font-lock-fontify-buffer))
 
 ;;;###autoload
@@ -444,14 +471,6 @@ Available commands while editing Faust (*.dsp) files:
   (define-key faustine-mode-map (kbd faustine-kb-syntax-check) 'faustine-syntax-check)
 
   (smie-setup nil #'ignore)
-
-  (font-lock-add-keywords 'faustine-output-mode
-                          '(("\\<\\(?:started\\|finished\\)\\>" . font-lock-keyword-face)
-                            ("\\<\\(?:Build\\|Check\\|C++\\|Diagram\\|Mdoc\\|Run\\)\\>" . font-lock-string-face)
-                            ("error" . font-lock-warning-face)
-                            ("^\\(?:\\(?:\\(?:in\\|out\\)s\\)\\)\\|^physical[[:space:]]\\(?:\\(?:\\(?:in\\|out\\)put\\)\\)[[:space:]]system\\|^The[[:space:]]\\(?:\\(?:\\(?:buffer siz\\|sample rat\\)e\\)\\)[[:space:]]is now" . font-lock-variable-name-face)
-                            ("[[:digit:]][[:digit:]]:[[:digit:]][[:digit:]]:[[:digit:]][[:digit:]]" . font-lock-builtin-face)
-                            ))
 
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
@@ -515,10 +534,9 @@ Available commands while editing Faust (*.dsp) files:
     (let ((regexp (cond ((eq type 'dsp) faustine-regexp-faust-file)
                         ((eq type 'log) faustine-regexp-log)
                         ((eq type 'exe) faustine-regexp-exe)
-                        ((eq type 'lib) faustine-regexp-lib)))
-          (end (if (eq type 'log) 2 1)))
+                        ((eq type 'lib) faustine-regexp-lib))))
       (while (re-search-forward regexp nil t nil)
-        (make-button (match-beginning 1) (match-end end)
+        (make-button (match-beginning 1) (match-end 1)
                      :type (intern-soft (concat "faustine-button-" (symbol-name type))))))))
 
 (defun faustine-configure ()
@@ -549,11 +567,10 @@ Build a button from START to END."
     (with-current-buffer (get-buffer-create faustine-output-buffer-name)
       (display-buffer faustine-output-buffer-name)
       (if (> -10
-             (window-resizable
-              (get-buffer-window faustine-output-buffer-name `visible) faustine-output-buffer-width nil))
-          (progn
-            (message "plip!")
-            (window-resize (get-buffer-window faustine-output-buffer-name `visible) faustine-output-buffer-width nil))))))
+             (window-resizable (get-buffer-window faustine-output-buffer-name `visible)
+                               (- faustine-output-buffer-height) nil))
+          (window-resize (get-buffer-window faustine-output-buffer-name `visible)
+                         (- faustine-output-buffer-height) nil)))))
 
 (defun faustine-project-files (fname blist)
   "Recursively find all Faust links in FNAME, canonicalize and put them in BLIST, return BLIST."
@@ -590,7 +607,7 @@ Build a button from START to END."
       (faustine-buttonize-buffer 'exe)
       (when (get-buffer-window faustine-output-buffer-name `visible)
         (with-selected-window (get-buffer-window (current-buffer))
-          (goto-char (- 3 (point-max))))))
+          (goto-char  (point-max)))))
     (if status-ok
         (progn (faustine-red-mode 0) (faustine-green-mode t))
       (progn (faustine-green-mode 0) (faustine-red-mode t)))
