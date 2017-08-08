@@ -285,9 +285,18 @@ This is only for use with the command `faustine-online-doc'."
   (concat "\"\\([^\"\\(]+\\.\\(" faustine-faust-extension "\\)\\)\"")
   "The regexp to search for `\"something.faust\"'.")
 
+;; (defvar faustine-regexp-log
+;;   (concat "\\([A-Za-z]*\." faustine-faust-extension "\\)\:\\([0-9]+\\)")
+;;   "The regexp to search for `something.faust:num'.")
+
 (defvar faustine-regexp-log
-  (concat "\\([A-Za-z]*\." faustine-faust-extension "\\)\:\\([0-9]+\\)")
-  "The regexp to search for `something.faust'.")
+  (rx
+   (and
+    word-start
+    (one-or-more word) "." (eval faustine-faust-extension)
+    ":"
+    (one-or-more digit)))
+  "The regexp to search for `something.faust:num'.")
 
 (defconst faustine-regexp-lib
   "\\\"\\([^\\\"\\\\(]+\\.lib\\)\\\""
@@ -418,10 +427,10 @@ This is only for use with the command `faustine-online-doc'."
 
 (defconst faustine-output-mode-font-lock-keywords
   `((,faustine-output-mode-keywords-proc . 'font-lock-string-face)
-    (,faustine-output-mode-keywords-jack . 'font-lock-variable-name-face))
-    (,faustine-output-mode-keywords-time . 'font-lock-builtin-face))
-    (,faustine-output-mode-keywords-status . 'font-lock-keyword-face))
-  )
+    (,faustine-output-mode-keywords-jack . 'font-lock-variable-name-face)
+    (,faustine-output-mode-keywords-time . 'font-lock-builtin-face)
+    (,faustine-output-mode-keywords-status . 'font-lock-keyword-face)
+  ))
 
 (define-derived-mode faustine-output-mode fundamental-mode
   "Faust output"
@@ -533,7 +542,8 @@ Available commands while editing Faust (*.dsp) files:
                         ((eq type 'log) faustine-regexp-log)
                         ((eq type 'exe) faustine-regexp-exe)
                         ((eq type 'lib) faustine-regexp-lib)))
-          (end (if (eq type 'log) 2 1)))
+          (start (if (eq type 'log) 0 1))
+          (end (if (eq type 'log) 0 1)))
       (while (re-search-forward regexp nil t nil)
         (make-button (match-beginning 1) (match-end end)
                      :type (intern-soft (concat "faustine-button-" (symbol-name type))))))))
