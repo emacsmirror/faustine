@@ -214,10 +214,13 @@ This is only for use with the command `faustine-online-doc'."
   :type '(string)
   :group 'faustine)
 
-(defcustom faustine-faust-extension "dsp"
-  "The Faust files extension."
-  :type '(string)
-  :group 'faustine)
+(eval-and-compile
+  (defcustom faustine-faust-extension "dsp"
+    "The Faust files extension."
+    :type '(string)
+    :group 'faustine))
+
+(defvar faustine-faust-extension)
 
 (defcustom faustine-build-backend 'faust2jaqt
   "The Faust code-to-executable build backend script."
@@ -370,7 +373,7 @@ This is only for use with the command `faustine-online-doc'."
 
 (defconst faustine-regexp-exe
   (rx (submatch (and (or "./" "/") (one-or-more (any word "/")))) ";")
-  "The regexp to match `/some/thing;'.")
+  "The regexp to match `/some/thing'.")
 
 (defconst faustine-regexp-faust-operator (rx (any ",:*-+><")))
 
@@ -398,20 +401,7 @@ This is only for use with the command `faustine-online-doc'."
 
 (defconst faustine-output-mode-keywords-time
   (rx
-   (and
-    line-start
-    (one-or-more digit)
-    ":"
-    (one-or-more digit)
-    ":"
-    (one-or-more digit)
-    ;; digit
-    ;; digit
-    ;; ":"
-    ;; digit
-    ;; digit
-    ;; ":"
-    )))
+   (and line-start (one-or-more digit) ":" (one-or-more digit) ":" (one-or-more digit))))
 
 (defconst faustine-output-mode-keywords-status
   (rx (and word-start (or "started" "finished") word-end)))
@@ -480,11 +470,6 @@ Available commands while editing Faust (*.dsp) files:
   (define-key faustine-mode-map (kbd faustine-kb-syntax-check) 'faustine-syntax-check)
   (smie-setup nil #'ignore)
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
-
-(define-button-type 'faustine-button-nil
-  'help-echo "No clickz"
-  'face 'font-lock-function-name-face
-  )
 
 (define-button-type 'faustine-button-lib
   'help-echo "Click to open"
@@ -621,8 +606,6 @@ Build a button from START to END."
         (process (format "%s" process)))
     (with-current-buffer (get-buffer-create faustine-output-buffer-name)
       (faustine-output-mode)
-      (font-lock-fontify-buffer)
-
       (goto-char (point-max))
       (insert (format "%s | %s %s"
                       (format-time-string "%H:%M:%S")
