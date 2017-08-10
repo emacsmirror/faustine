@@ -7,14 +7,14 @@
 ;; Keywords: modes, faust
 ;; Version: 1.0.1
 ;; Package-Requires: ((emacs "24"))
-;; License: GPLv2
+;; License: GPLv3
 
 ;;; Commentary:
 
 ;; Edit, visualize, build and run Faust code.
 ;; Inspired by Faustworks, now deprecated.
 ;; Usage of Faustine with a completion backend system
-;; like auto-complete or company is highly recommended.
+;; like Auto-Complete or Company is highly recommended.
 
 ;;; Code:
 
@@ -156,11 +156,6 @@
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-kb-toggle-output-buffer "C-c C-o"
-  "Show/hide Faust output buffer."
-  :type '(string)
-  :group 'keyboard-shortcuts)
-
 (defcustom faustine-kb-mdoc "C-c C-m"
   "Generate Faust mdoc of the current faust buffer/file."
   :type '(string)
@@ -181,10 +176,10 @@
   :type '(string)
   :group 'keyboard-shortcuts)
 
-(defcustom faustine-pop-output-buffer nil
-  "Pop open the Faust output buffer at each command call."
-  :type '(boolean)
-  :group 'faustine)
+(defcustom faustine-kb-toggle-output-buffer "C-c C-o"
+  "Show/hide Faust output buffer."
+  :type '(string)
+  :group 'keyboard-shortcuts)
 
 (defcustom faustine-output-buffer-name "*Faust*"
   "The name of the Faust output buffer.
@@ -192,9 +187,13 @@ Surround it with \"*\" to hide it in special buffers."
   :type '(string)
   :group 'faustine)
 
+(defcustom faustine-pop-output-buffer nil
+  "Pop open the Faust output buffer at each command call."
+  :type '(boolean)
+  :group 'faustine)
+
 (defcustom faustine-output-buffer-height 22
-  "The name of the Faust output buffer.
-Surround it with \"*\" to hide it in special buffers."
+  "The height/width of the Faust output buffer."
   :type 'integer
   :group 'faustine)
 
@@ -277,28 +276,6 @@ This is only for use with the command `faustine-online-doc'."
     map)
   "Keymap for the function `faustine-red-mode'.")
 
-(defvar faustine-regexp-faust-file
-  (rx
-   "\"" (submatch (and word-start (one-or-more word) "." (eval faustine-faust-extension))) "\"")
-  "The regexp to match `something.faust'.")
-
-(defvar faustine-regexp-log
-  (rx
-   (submatch (and word-start
-                  (one-or-more word) "." (eval faustine-faust-extension) ":" (one-or-more digit))))
-  "The regexp to match `something.faust:num'.")
-
-(defvar faustine-regexp-lib
-  (rx
-   "\"" (submatch (and word-start (one-or-more word) ".lib")) "\"")
-  "The regexp to match `something.lib'.")
-
-(defconst faustine-regexp-exe
-  (rx
-   (submatch
-    (and (or "./" "/") (one-or-more (any word "/")))) ";")
-  "The regexp to match `/some/thing;'.")
-
 (easy-menu-define
   faustine-green-mode-menu
   faustine-green-mode-map
@@ -375,35 +352,43 @@ This is only for use with the command `faustine-online-doc'."
 (defvar faustine-regexp-keywords-statement (regexp-opt faustine-faust-keywords-statements 'words))
 (defvar faustine-regexp-keywords-lib (regexp-opt faustine-faust-keywords-lib 'words))
 (defvar faustine-regexp-keywords-ui (regexp-opt faustine-faust-keywords-ui 'words))
-(defvar faustine-regexp-keywords-parameter (rx
-                                            (group
-                                             "["
-                                             (or (group (one-or-more word) ":" (one-or-more word))
-                                                 (group (one-or-more digit)))
-                                             "]")))
 
-(defvar faustine-regexp-faust-operator (rx (any "," ":" "*" "-" "+" ">" "<")))
+(defvar faustine-regexp-faust-file
+  (rx
+   "\"" (submatch (and word-start (one-or-more word) "." (eval faustine-faust-extension))) "\"")
+  "The regexp to match `something.faust'.")
 
-(defvar faustine-regexp-faust-delimiters (rx (any "{" "}"
-                                                  "(" ")"
-                                                  "[" "]"
-                                                  ";")))
+(defvar faustine-regexp-log
+  (rx
+   (submatch (and word-start
+                  (one-or-more word) "." (eval faustine-faust-extension) ":" (one-or-more digit))))
+  "The regexp to match `something.faust:num'.")
 
-(defvar faustine-regexp-faust-numbers (rx (one-or-more digit)))
+(defconst faustine-regexp-lib
+  (rx "\"" (submatch (and word-start (one-or-more word) ".lib")) "\"")
+  "The regexp to match `something.lib'.")
 
-(defvar faustine-mode-font-lock-keywords
-  `((,faustine-regexp-keywords-function . font-lock-function-name-face)
-    (,faustine-regexp-keywords-statement . font-lock-keyword-face)
-    (,faustine-regexp-keywords-lib . font-lock-keyword-face)
-    (,faustine-regexp-keywords-ui . font-lock-variable-name-face)
-    (,faustine-regexp-faust-operator . font-lock-type-face)
-    (,faustine-regexp-keywords-lib . font-lock-builtin-face)
-    (,faustine-regexp-faust-delimiters . font-lock-reference-face)
-    (,faustine-regexp-faust-numbers . font-lock-negation-char-face)))
+(defconst faustine-regexp-exe
+  (rx (submatch (and (or "./" "/") (one-or-more (any word "/")))) ";")
+  "The regexp to match `/some/thing;'.")
+
+(defconst faustine-regexp-faust-operator (rx (any ",:*-+><")))
+
+(defconst faustine-regexp-faust-delimiters (rx (any "{}()[];")))
+
+(defconst faustine-regexp-faust-numbers (rx (one-or-more digit)))
 
 (defconst faustine-output-mode-keywords-proc
   (rx
-   (and word-start (or "Build" "Check" "Diagram" "Mdoc" "Run") word-end)))
+   (and word-start (or "Build" "Check" "Click" "C++" "Diagram" "Mdoc" "Run") word-end)))
+
+(defvar faustine-output-mode-keywords-faust-file
+  (rx
+   (submatch (and word-start
+                  (one-or-more word) "." (eval faustine-faust-extension)
+                  ;; word-end
+                  )))
+  "The regexp to match `something.faust:num'.")
 
 (defconst faustine-output-mode-keywords-jack
   (rx
@@ -413,20 +398,48 @@ This is only for use with the command `faustine-online-doc'."
 
 (defconst faustine-output-mode-keywords-time
   (rx
-   (and digit digit ":" digit digit ":" digit digit ":")))
+   (and
+    line-start
+    (one-or-more digit)
+    ":"
+    (one-or-more digit)
+    ":"
+    (one-or-more digit)
+    ;; digit
+    ;; digit
+    ;; ":"
+    ;; digit
+    ;; digit
+    ;; ":"
+    )))
 
 (defconst faustine-output-mode-keywords-status
   (rx (and word-start (or "started" "finished") word-end)))
 
+(defconst faustine-output-mode-keywords-bad
+  (rx (and word-start (or "warning" "error") word-end)))
+
+(defconst faustine-mode-font-lock-keywords
+  `((,faustine-regexp-keywords-function . font-lock-function-name-face)
+    (,faustine-regexp-keywords-statement . font-lock-keyword-face)
+    (,faustine-regexp-keywords-lib . font-lock-keyword-face)
+    (,faustine-regexp-keywords-ui . font-lock-variable-name-face)
+    (,faustine-regexp-faust-operator . font-lock-type-face)
+    (,faustine-regexp-keywords-lib . font-lock-builtin-face)
+    (,faustine-regexp-faust-delimiters . font-lock-reference-face)
+    (,faustine-regexp-faust-numbers . font-lock-negation-char-face)))
+
 (defconst faustine-output-mode-font-lock-keywords
   `((,faustine-output-mode-keywords-proc . 'font-lock-string-face)
     (,faustine-output-mode-keywords-jack . 'font-lock-variable-name-face)
-    (,faustine-output-mode-keywords-time . 'font-lock-builtin-face)
-    (,faustine-output-mode-keywords-status . 'font-lock-keyword-face)
-  ))
+    (,faustine-output-mode-keywords-bad . 'font-lock-warning-face)
+    (,faustine-output-mode-keywords-faust-file . 'font-lock-function-name-face)
+    (,faustine-output-mode-keywords-time . 'font-lock-type-face)
+    (,faustine-output-mode-keywords-status . 'font-lock-keyword-face)))
 
 (define-derived-mode faustine-output-mode fundamental-mode
-  "Faust output"
+  "The Faust output buffer mode."
+  (kill-all-local-variables)
   (setq font-lock-defaults '(faustine-output-mode-font-lock-keywords t))
   (font-lock-fontify-buffer))
 
@@ -440,20 +453,16 @@ Available commands while editing Faust (*.dsp) files:
 \\{faustine-mode-map}"
 
   (kill-all-local-variables)
-
+  (setq-local comment-start "//")
   (setq mode-name "Faust"
         major-mode 'faustine-mode
-        comment-start "// "
         comment-end ""
         font-lock-defaults '(faustine-mode-font-lock-keywords))
 
-  (add-hook 'after-save-hook 'faustine-syntax-check nil t)
   (add-hook 'find-file-hook 'faustine-syntax-check nil t)
-
+  (add-hook 'after-save-hook 'faustine-syntax-check nil t)
   (set-syntax-table faustine-mode-syntax-table)
-
   (use-local-map faustine-mode-map)
-
   (define-key faustine-mode-map (kbd faustine-kb-configure) 'faustine-configure)
   (define-key faustine-mode-map (kbd faustine-kb-build) 'faustine-build)
   (define-key faustine-mode-map (kbd faustine-kb-build-all) '(lambda ()
@@ -469,10 +478,13 @@ Available commands while editing Faust (*.dsp) files:
   (define-key faustine-mode-map (kbd faustine-kb-run) 'faustine-run)
   (define-key faustine-mode-map (kbd faustine-kb-source-code) 'faustine-source-code)
   (define-key faustine-mode-map (kbd faustine-kb-syntax-check) 'faustine-syntax-check)
-
   (smie-setup nil #'ignore)
-
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
+
+(define-button-type 'faustine-button-nil
+  'help-echo "No clickz"
+  'face 'font-lock-function-name-face
+  )
 
 (define-button-type 'faustine-button-lib
   'help-echo "Click to open"
@@ -482,6 +494,7 @@ Available commands while editing Faust (*.dsp) files:
 (define-button-type 'faustine-button-dsp
   'help-echo "Click to open"
   'follow-link t
+  'face 'button
   'action #'faustine-button-dsp-action)
 
 (define-button-type 'faustine-button-log
@@ -536,8 +549,13 @@ Available commands while editing Faust (*.dsp) files:
                         ((eq type 'exe) faustine-regexp-exe)
                         ((eq type 'lib) faustine-regexp-lib))))
       (while (re-search-forward regexp nil t nil)
-        (make-button (match-beginning 1) (match-end 1)
-                     :type (intern-soft (concat "faustine-button-" (symbol-name type))))))))
+        (if
+            (not (eq 'comment (syntax-ppss-context (syntax-ppss))))
+            (progn
+              (remove-overlays (match-beginning 1) (match-end 1) nil nil)
+              (make-button (match-beginning 1) (match-end 1)
+                         :type (intern-soft (concat "faustine-button-" (symbol-name type)))))
+          (remove-overlays (match-beginning 1) (match-end 1) nil nil))))))
 
 (defun faustine-configure ()
   "Use `cutomize-group' to set up Faustine preferences."
@@ -572,17 +590,26 @@ Build a button from START to END."
           (window-resize (get-buffer-window faustine-output-buffer-name `visible)
                          (- faustine-output-buffer-height) nil)))))
 
-(defun faustine-project-files (fname blist)
+(defun faustine-project-files (fname blist &optional calling-process)
   "Recursively find all Faust links in FNAME, canonicalize and put them in BLIST, return BLIST."
   (add-to-list 'blist (expand-file-name fname))
   (with-temp-buffer
-    (insert-file-contents-literally fname)
+    (if (file-exists-p (expand-file-name fname))
+        (insert-file-contents fname))
     (goto-char (point-min))
-    (while (re-search-forward faustine-regexp-faust-file nil t)
+    (while (re-search-forward faustine-regexp-faust-file nil t nil)
       (when (match-string 0)
-        (let ((uri (expand-file-name (match-string 1))))
-          (if (not (member uri blist))
-              (setq blist (faustine-project-files uri blist))))))
+        (let ((uri (expand-file-name (match-string 1)))
+              (isok-p (file-exists-p (expand-file-name (match-string 1))))
+              ;; (cproc (if calling-process
+              ;;            calling-process
+              ;;          "None"))
+              )
+          (if (not isok-p)
+              (faustine-sentinel (format "%s:%s" calling-process fname)
+                                 (format "warning %s does not exist\n" uri)))
+          (if (and isok-p (not (member uri blist)))
+                (setq blist (faustine-project-files uri blist))))))
     (identity blist)))
 
 (defun faustine-sentinel (process event)
@@ -640,7 +667,7 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
   (interactive)
   (faustine-sentinel (format "Build:%s" (buffer-name)) "started")
   (let* ((files-to-build (if build-all
-                             (mapconcat 'identity (faustine-project-files (buffer-name) '()) " ")
+                             (mapconcat 'identity (faustine-project-files (buffer-name) '() "Build") " ")
                            (current-buffer)))
          (process (start-process-shell-command
                    (format "Build:%s" (buffer-name))
@@ -648,16 +675,19 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
                    (format "%s %s" faustine-build-backend files-to-build))))
     (set-process-sentinel process 'faustine-sentinel)))
 
-(defun faustine-run (&optional link)
-  "Run the executable generated by the current Faust code buffer or passed by LINK."
+(defun faustine-run (&optional button)
+  "Run the executable generated by the current Faust code buffer or passed by BUTTON."
   (interactive)
-  (let* ((command (if link
-                      link
+  (let* ((command (if button
+                      button
                     (format "./%s" (file-name-sans-extension
                                     (file-name-nondirectory
                                      (buffer-name))))))
+         (buf (if button
+                  "Click"
+                (buffer-name)))
          (process (start-process-shell-command
-                   (format "Run:%s" (buffer-name))
+                   (format "Run:%s" buf)
                    faustine-output-buffer-name
                    command)))
     (set-process-sentinel process 'faustine-sentinel)))
@@ -687,7 +717,7 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
 If BUILD-ALL is set, build all `faustine-faust-extension` files referenced by this one."
   (interactive)
   (let ((files-to-build
-         (if build-all (faustine-project-files (buffer-name) '()) (list (buffer-name))))
+         (if build-all (faustine-project-files (buffer-name) '() "Diagram") (list (buffer-name))))
         (display-mode
          (if build-all "all" "single")))
     (let ((process (start-process-shell-command
