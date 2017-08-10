@@ -524,33 +524,11 @@ Available commands while editing Faust (*.dsp) files:
       (while (re-search-forward regexp nil t nil)
         (if
             (not (eq 'comment (syntax-ppss-context (syntax-ppss))))
-
             (progn
               (remove-overlays (match-beginning 1) (match-end 1) nil nil)
-              ;; (remove-overlays)
-
-              (message "button at: (%s, %s): %s (line %s)" (match-beginning 1) (match-end 1)
-                       (buffer-substring-no-properties (match-beginning 1) (match-end 1))
-                       (line-number-at-pos))
               (make-button (match-beginning 1) (match-end 1)
                          :type (intern-soft (concat "faustine-button-" (symbol-name type)))))
-          (progn
-            (message "dying button :[%s]"
-                     (buffer-substring-no-properties (match-beginning 1) (match-end 1))
-                     )
-            ;; (delete-region (match-beginning 1) (match-end 1))
-            ;; (forward-char -1)
-            ;; (insert "plop")
-            (remove-overlays (match-beginning 1) (match-end 1) 'button)
-            ;; (insert (buffer-substring-no-properties (match-beginning 1) (match-end 1)))
-            ))))))
-
-;; (let ((plist (text-properties-at (point)))
-;;       (next-change
-;;        (or (next-property-change (point) (current-buffer))
-;;            (point-max))))
-;;   Process text from point to next-change...
-;;   (goto-char next-change))
+          (remove-overlays (match-beginning 1) (match-end 1) nil nil))))))
 
 (defun faustine-configure ()
   "Use `cutomize-group' to set up Faustine preferences."
@@ -587,15 +565,24 @@ Build a button from START to END."
 
 (defun faustine-project-files (fname blist)
   "Recursively find all Faust links in FNAME, canonicalize and put them in BLIST, return BLIST."
-  (add-to-list 'blist (expand-file-name fname))
+  (if (file-exists-p (expand-file-name fname))
+      (progn
+        (message "%s exists, list is %s" fname blist)
+        (add-to-list 'blist (expand-file-name fname))))
   (with-temp-buffer
-    (insert-file-contents-literally fname)
+    (if (file-exists-p (expand-file-name fname))
+        (insert-file-contents fname))
     (goto-char (point-min))
-    (while (re-search-forward faustine-regexp-faust-file nil t)
+    (while (re-search-forward faustine-regexp-faust-file nil t nil)
       (when (match-string 0)
-        (let ((uri (expand-file-name (match-string 1))))
-          (if (not (member uri blist))
-              (setq blist (faustine-project-files uri blist))))))
+        (let ((uri (expand-file-name (match-string 1)))
+              (isok-p (file-exists-p (expand-file-name (match-string 1)))))
+
+          (if (and isok-p
+                   (not (member uri blist)))
+              (progn
+                (message "OK: %s" uri)
+                (setq blist (faustine-project-files uri blist)))))))
     (identity blist)))
 
 (defun faustine-sentinel (process event)
