@@ -220,8 +220,6 @@ This is only for use with the command `faustine-online-doc'."
     :type '(string)
     :group 'faustine))
 
-(defvar faustine-faust-extension)
-
 (defcustom faustine-build-backend 'faust2jaqt
   "The Faust code-to-executable build backend script."
   :type '(choice
