@@ -395,6 +395,9 @@ This is only for use with the command `faustine-online-doc'."
 (defconst faustine-output-mode-keywords-status
   (rx (and word-start (or "started" "finished") word-end)))
 
+(defconst faustine-output-mode-keywords-bad
+  (rx (and word-start (or "warning" "error") word-end)))
+
 (defconst faustine-mode-font-lock-keywords
   `((,faustine-regexp-keywords-function . font-lock-function-name-face)
     (,faustine-regexp-keywords-statement . font-lock-keyword-face)
@@ -408,6 +411,7 @@ This is only for use with the command `faustine-online-doc'."
 (defconst faustine-output-mode-font-lock-keywords
   `((,faustine-output-mode-keywords-proc . 'font-lock-string-face)
     (,faustine-output-mode-keywords-jack . 'font-lock-variable-name-face)
+    (,faustine-output-mode-keywords-bad . 'font-lock-warning-face)
     (,faustine-output-mode-keywords-time . 'font-lock-builtin-face)
     (,faustine-output-mode-keywords-status . 'font-lock-keyword-face)))
 
@@ -563,12 +567,9 @@ Build a button from START to END."
           (window-resize (get-buffer-window faustine-output-buffer-name `visible)
                          (- faustine-output-buffer-height) nil)))))
 
-(defun faustine-project-files (fname blist)
+(defun faustine-project-files (fname blist &optional calling-process)
   "Recursively find all Faust links in FNAME, canonicalize and put them in BLIST, return BLIST."
-  (if (file-exists-p (expand-file-name fname))
-      (progn
-        (message "%s exists, list is %s" fname blist)
-        (add-to-list 'blist (expand-file-name fname))))
+  (add-to-list 'blist (expand-file-name fname))
   (with-temp-buffer
     (if (file-exists-p (expand-file-name fname))
         (insert-file-contents fname))
@@ -576,13 +577,16 @@ Build a button from START to END."
     (while (re-search-forward faustine-regexp-faust-file nil t nil)
       (when (match-string 0)
         (let ((uri (expand-file-name (match-string 1)))
-              (isok-p (file-exists-p (expand-file-name (match-string 1)))))
-
-          (if (and isok-p
-                   (not (member uri blist)))
-              (progn
-                (message "OK: %s" uri)
-                (setq blist (faustine-project-files uri blist)))))))
+              (isok-p (file-exists-p (expand-file-name (match-string 1))))
+              ;; (cproc (if calling-process
+              ;;            calling-process
+              ;;          "None"))
+              )
+          (if (not isok-p)
+              (faustine-sentinel (format "%s:%s" calling-process fname)
+                                 (format "warning %s does not exist\n" uri)))
+          (if (and isok-p (not (member uri blist)))
+                (setq blist (faustine-project-files uri blist))))))
     (identity blist)))
 
 (defun faustine-sentinel (process event)
@@ -640,7 +644,7 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
   (interactive)
   (faustine-sentinel (format "Build:%s" (buffer-name)) "started")
   (let* ((files-to-build (if build-all
-                             (mapconcat 'identity (faustine-project-files (buffer-name) '()) " ")
+                             (mapconcat 'identity (faustine-project-files (buffer-name) '() "Build") " ")
                            (current-buffer)))
          (process (start-process-shell-command
                    (format "Build:%s" (buffer-name))
@@ -687,7 +691,7 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
 If BUILD-ALL is set, build all `faustine-faust-extension` files referenced by this one."
   (interactive)
   (let ((files-to-build
-         (if build-all (faustine-project-files (buffer-name) '()) (list (buffer-name))))
+         (if build-all (faustine-project-files (buffer-name) '() "Diagram") (list (buffer-name))))
         (display-mode
          (if build-all "all" "single")))
     (let ((process (start-process-shell-command
