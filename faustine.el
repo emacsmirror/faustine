@@ -447,6 +447,10 @@ Available commands while editing Faust (*.dsp) files:
         comment-end ""
         font-lock-defaults '(faustine-mode-font-lock-keywords))
 
+  (when (boundp 'ac-sources)
+    (auto-complete-mode 1)
+    )
+
   (add-hook 'find-file-hook 'faustine-syntax-check nil t)
   (add-hook 'after-save-hook 'faustine-syntax-check nil t)
   (set-syntax-table faustine-mode-syntax-table)
@@ -578,16 +582,12 @@ Build a button from START to END."
   (add-to-list 'blist (expand-file-name fname))
   (with-temp-buffer
     (if (file-exists-p (expand-file-name fname))
-        (insert-file-contents fname))
+        (insert-file-contents-literally fname))
     (goto-char (point-min))
     (while (re-search-forward faustine-regexp-faust-file nil t nil)
       (when (match-string 0)
         (let ((uri (expand-file-name (match-string 1)))
-              (isok-p (file-exists-p (expand-file-name (match-string 1))))
-              ;; (cproc (if calling-process
-              ;;            calling-process
-              ;;          "None"))
-              )
+              (isok-p (file-exists-p (expand-file-name (match-string 1)))))
           (if (not isok-p)
               (faustine-sentinel (format "%s:%s" calling-process fname)
                                  (format "warning %s does not exist\n" uri)))
@@ -609,8 +609,6 @@ Build a button from START to END."
                       (format-time-string "%H:%M:%S")
                       process
                       event))
-      (when (string-prefix-p "Build" process)
-        (newline))
       (faustine-buttonize-buffer 'log)
       (faustine-buttonize-buffer 'exe)
       (when (get-buffer-window faustine-output-buffer-name `visible)
@@ -632,6 +630,9 @@ Build a button from START to END."
   (if faustine-pop-output-buffer
       (faustine-open-output-buffer)))
 
+
+
+
 (defun faustine-mdoc (&optional build-all)
   "Generate mdoc of the current file, display it in a buffer."
   (interactive)
@@ -646,7 +647,7 @@ Build a button from START to END."
   "Build the current buffer/file executable(s).
 If BUILD-ALL is set, build all Faust files referenced by this one."
   (interactive)
-  (faustine-sentinel (format "Build:%s" (buffer-name)) "started")
+  (faustine-sentinel (format "Build:%s" (buffer-name)) "started\n")
   (let* ((files-to-build (if build-all
                              (mapconcat 'identity (faustine-project-files (buffer-name) '() "Build") " ")
                            (current-buffer)))
@@ -816,6 +817,25 @@ img.scaled {
 ;;;###autoload
 (add-to-list 'auto-mode-alist
                '("\\.dsp\\'" . faustine-mode))
+
+(when (boundp 'ac-sources)
+  (add-hook 'faustine-mode-mode-hook
+            (lambda ()
+              (setq ac-sources '(ac-source-words-in-buffer
+                                 ac-source-symbols
+                                 ac-source-abbrev
+                                 ac-source-dictionary
+                                 ac-source-emacs-lisp-features
+                                 ac-source-features
+                                 ac-source-filename
+                                 ac-source-files-in-current-dir
+                                 ac-source-functions
+                                 ac-source-symbols
+                                 ac-source-variables
+                                 ac-source-words-in-all-buffer
+                                 ac-source-words-in-buffer
+                                 ac-source-words-in-same-mode-buffers)))))
+
 
 (provide 'faustine)
 

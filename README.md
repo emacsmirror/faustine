@@ -21,17 +21,17 @@ Faustine is a [Faust](http://faust.grame.fr) major mode/IDE for [GNU Emacs](http
 - Modeline indicator of the state of the code
 
 ## Usage
-- Just open a .dsp file/project (use `faustine-configure` (`C-c C-p`) to set your own Faust file extension)
+- Just open a .dsp file/project (use `faustine-configure` to set your own Faust file extension)
 - Look at the modeline, in the bottom of the buffer: The bug is green when your Faust code compiles without errors, and red otherwise. This icon is also a menu where you can access Faustine's main functions and commands.
-- Use `faustine-toggle-output-buffer` (`C-c C-o`) to view the Faust build output
-- Use `faustine-diagram` (`C-c C-d`) to view the diagram of the current Faust file
-    - Use `faustine-diagram-all` (`C-c C-S-d`) to view the diagrams of the linked (component) Faust files
-- Use `faustine-build` (`C-c C-b`) to build the executable of the current Faust file
-    - Use `faustine-build-all` (`C-c C-S-d`) to build the executables of the linked (component) Faust files
-- Use `faustine-source-code` (`C-c C-s`) to view the C++ code of the current Faust file
-- Use `faustine-mdoc` (`C-c C-m`) to view the Mdoc (PDF) of the current Faust file
+- Use `faustine-toggle-output-buffer` to view the Faust build output
+- Use `faustine-diagram` to view the diagram of the current Faust file
+    - Use `faustine-diagram-all` to view the diagrams of the linked (component) Faust files
+- Use `faustine-build` to build the executable of the current Faust file
+    - Use `faustine-build-all` to build the executables of the linked (component) Faust files
+- Use `faustine-source-code` to view the C++ code of the current Faust file
+- Use `faustine-mdoc` to view the Mdoc (PDF) of the current Faust file
 - Select a Faust function, and use `C-c C-h` to view its definition/docstring
-- Use `faustine-configure` (`C-c C-p`) to set your options/preferences
+- Use `faustine-configure` to set your options/preferences
 - Use `C-h m` for help and commands
 
 ## Installation
