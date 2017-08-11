@@ -3,18 +3,78 @@
 ;; Copyright (C) 2017 Yassin Philip
 
 ;; Author: Yassin Philip <xaccrocheur@gmail.com>
-;; URL: https://bitbucket.org/yassinphilip/faustine
+;; Maintainer: Yassin Philip <xaccrocheur@gmail.com>
 ;; Keywords: modes, faust
 ;; Version: 1.0.1
+;; URL: https://bitbucket.org/yassinphilip/faustine
 ;; Package-Requires: ((emacs "24"))
-;; License: GPLv3
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
 ;; Edit, visualize, build and run Faust code.
 ;; Inspired by Faustworks, now deprecated.
+
+;;; Features:
+;; - Project-based (inter-linked Faust files)
+;; - Faust code syntax hightlighting, indentation and keyword completion
+;; - Build/compile with configurable output window
+;; - Graphic diagrams generation and vizualisation in the browser
+;; - Browse generated C++ code inside Emacs
+;; - Inter-linked files/buffers :
+;; - From "component" to Faust file
+;; - From "include" to library file
+;; - From error to file, direct to line number
+;; - From function name to online documentation
+;; - Fully configurable (build type/target/architecture/toolkit, keyboard shortcuts, etc.)
+;; - Automatic keyword completion
+;; - Modeline indicator of the state of the code
+
+;;; Installation:
+;; - Clone this repo in your PATH
+;; - Require the file in your init file:
+;;
+;;         (require 'faustine)
+
+;;; Usage:
+;; - Just open a .dsp file/project (use `faustine-configure` to set your own Faust file extension)
+;; - Look at the modeline, in the bottom of the buffer: The bug is green when your Faust code compiles without errors, and red otherwise. This icon is also a menu where you can access Faustine's main functions and commands.
+;; - Use `faustine-toggle-output-buffer` to view the Faust build output
+;; - Use `faustine-diagram` to view the diagram of the current Faust file
+;; - Use `faustine-diagram-all` to view the diagrams of the linked (component) Faust files
+;; - Use `faustine-build` to build the executable of the current Faust file
+;; - Use `faustine-build-all` to build the executables of the linked (component) Faust files
+;; - Use `faustine-source-code` to view the C++ code of the current Faust file
+;; - Use `faustine-mdoc` to view the Mdoc (PDF) of the current Faust file
+;; - Select a Faust function, and use `C-c C-h` to view its definition/docstring
+;; - Use `faustine-configure` to set your options/preferences
+;; - Use `C-h m` for help and commands
+
+;;; Notes:
 ;; Usage of Faustine with a completion backend system
 ;; like Auto-Complete or Company is highly recommended.
+
+
+;;; Credits:
+;; There are several ways you can help (by order of magnificence) :
+;;
+;; - Report any bugs and submit feature requests
+;; - Subscribe to [my YouTube channel](https://www.youtube.com/c/YassinPhilip-ManyRecords)
+;; - Buy my music on [Bandcamp](https://yassinphilip.bandcamp.com) (I'm told I'm on iTunes, Spotify, Google Music and stuff but I never seem to sell a single song)
+;; - Make a [donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=yassinphil%40gmail%2ecom&lc=BM&item_name=Yassin%20Philip&no_note=0&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest)
+;; - Help me on [Patreon](http://www.patreon.com/yassinphilip)
 
 ;;; Code:
 
@@ -105,6 +165,8 @@
    faustine-faust-keywords-lib-synth
    faustine-faust-keywords-lib-vaeffect)
   "All the Faust library function keywords")
+
+(defvar ac-sources)
 
 (defconst faustine-faust-keywords-statements
   '("process" "with" "case" "seq" "par" "sum" "prod" "include" "import" "component" "library" "environment" "declare" "define" "undef" "error" "pragma" "ident" "if" "def" "else" "elif" "endif" "line" "warning"))
@@ -214,10 +276,11 @@ This is only for use with the command `faustine-online-doc'."
   :type '(string)
   :group 'faustine)
 
-(defcustom faustine-faust-extension "dsp"
-  "The Faust files extension."
-  :type '(string)
-  :group 'faustine)
+(eval-and-compile
+  (defcustom faustine-faust-extension "dsp"
+    "The Faust files extension."
+    :type '(string)
+    :group 'faustine))
 
 (defcustom faustine-build-backend 'faust2jaqt
   "The Faust code-to-executable build backend script."
@@ -334,19 +397,19 @@ This is only for use with the command `faustine-online-doc'."
   :lighter faustine-red-mode-bug
   :keymap faustine-red-mode-map)
 
-(defvar faustine-mode-map
+(defvar faust-mode-map
    (let ((map (make-sparse-keymap)))
      map)
-   "Keymap for `faustine-mode'.")
+   "Keymap for `faust-mode'.")
 
- (defvar faustine-mode-syntax-table
+ (defvar faust-mode-syntax-table
    (let ((st (make-syntax-table)))
      (modify-syntax-entry ?/  ". 124b" st)
      (modify-syntax-entry ?*  ". 23" st)
      (modify-syntax-entry ?\n "> b" st)
      (modify-syntax-entry ?\^m "> b" st)
      st)
-   "Syntax table for `faustine-mode'.")
+   "Syntax table for `faust-mode'.")
 
 (defvar faustine-regexp-keywords-function (regexp-opt faustine-faust-keywords-functions 'words))
 (defvar faustine-regexp-keywords-statement (regexp-opt faustine-faust-keywords-statements 'words))
@@ -370,7 +433,7 @@ This is only for use with the command `faustine-online-doc'."
 
 (defconst faustine-regexp-exe
   (rx (submatch (and (or "./" "/") (one-or-more (any word "/")))) ";")
-  "The regexp to match `/some/thing;'.")
+  "The regexp to match `/some/thing'.")
 
 (defconst faustine-regexp-faust-operator (rx (any ",:*-+><")))
 
@@ -398,20 +461,7 @@ This is only for use with the command `faustine-online-doc'."
 
 (defconst faustine-output-mode-keywords-time
   (rx
-   (and
-    line-start
-    (one-or-more digit)
-    ":"
-    (one-or-more digit)
-    ":"
-    (one-or-more digit)
-    ;; digit
-    ;; digit
-    ;; ":"
-    ;; digit
-    ;; digit
-    ;; ":"
-    )))
+   (and line-start (one-or-more digit) ":" (one-or-more digit) ":" (one-or-more digit))))
 
 (defconst faustine-output-mode-keywords-status
   (rx (and word-start (or "started" "finished") word-end)))
@@ -419,7 +469,7 @@ This is only for use with the command `faustine-online-doc'."
 (defconst faustine-output-mode-keywords-bad
   (rx (and word-start (or "warning" "error") word-end)))
 
-(defconst faustine-mode-font-lock-keywords
+(defconst faust-mode-font-lock-keywords
   `((,faustine-regexp-keywords-function . font-lock-function-name-face)
     (,faustine-regexp-keywords-statement . font-lock-keyword-face)
     (,faustine-regexp-keywords-lib . font-lock-keyword-face)
@@ -444,47 +494,47 @@ This is only for use with the command `faustine-online-doc'."
   (font-lock-fontify-buffer))
 
 ;;;###autoload
-(define-derived-mode faustine-mode prog-mode "Faustine - A lightweight Emacs Faust IDE" "
+(define-derived-mode faust-mode prog-mode "Faustine - A lightweight Emacs Faust IDE" "
 Faustine is a lightweight IDE that leverages the mighty power of the faust executable.
 
 Use \\[faustine-configure] to set it up.
 Available commands while editing Faust (*.dsp) files:
 
-\\{faustine-mode-map}"
+\\{faust-mode-map}"
 
   (kill-all-local-variables)
   (setq-local comment-start "//")
   (setq mode-name "Faust"
-        major-mode 'faustine-mode
+        major-mode 'faust-mode
         comment-end ""
-        font-lock-defaults '(faustine-mode-font-lock-keywords))
+        font-lock-defaults '(faust-mode-font-lock-keywords))
+
+  (smie-setup nil #'ignore)
+
+  ;; (when (boundp 'ac-sources)
+  ;;   (auto-complete-mode t)
+  ;;   )
 
   (add-hook 'find-file-hook 'faustine-syntax-check nil t)
   (add-hook 'after-save-hook 'faustine-syntax-check nil t)
-  (set-syntax-table faustine-mode-syntax-table)
-  (use-local-map faustine-mode-map)
-  (define-key faustine-mode-map (kbd faustine-kb-configure) 'faustine-configure)
-  (define-key faustine-mode-map (kbd faustine-kb-build) 'faustine-build)
-  (define-key faustine-mode-map (kbd faustine-kb-build-all) '(lambda ()
-                                                                 (interactive)
-                                                                 (faustine-build t)))
-  (define-key faustine-mode-map (kbd faustine-kb-diagram) 'faustine-diagram)
-  (define-key faustine-mode-map (kbd faustine-kb-diagram-all) '(lambda ()
-                                                                 (interactive)
-                                                                 (faustine-diagram t)))
-  (define-key faustine-mode-map (kbd faustine-kb-online-doc) 'faustine-online-doc)
-  (define-key faustine-mode-map (kbd faustine-kb-toggle-output-buffer) 'faustine-toggle-output-buffer)
-  (define-key faustine-mode-map (kbd faustine-kb-mdoc) 'faustine-mdoc)
-  (define-key faustine-mode-map (kbd faustine-kb-run) 'faustine-run)
-  (define-key faustine-mode-map (kbd faustine-kb-source-code) 'faustine-source-code)
-  (define-key faustine-mode-map (kbd faustine-kb-syntax-check) 'faustine-syntax-check)
-  (smie-setup nil #'ignore)
+  (set-syntax-table faust-mode-syntax-table)
+  (use-local-map faust-mode-map)
+  (define-key faust-mode-map (kbd faustine-kb-configure) 'faustine-configure)
+  (define-key faust-mode-map (kbd faustine-kb-build) 'faustine-build)
+  (define-key faust-mode-map (kbd faustine-kb-build-all) '(lambda ()
+                                                            (interactive)
+                                                            (faustine-build t)))
+  (define-key faust-mode-map (kbd faustine-kb-diagram) 'faustine-diagram)
+  (define-key faust-mode-map (kbd faustine-kb-diagram-all) '(lambda ()
+                                                              (interactive)
+                                                              (faustine-diagram t)))
+  (define-key faust-mode-map (kbd faustine-kb-online-doc) 'faustine-online-doc)
+  (define-key faust-mode-map (kbd faustine-kb-toggle-output-buffer) 'faustine-toggle-output-buffer)
+  (define-key faust-mode-map (kbd faustine-kb-mdoc) 'faustine-mdoc)
+  (define-key faust-mode-map (kbd faustine-kb-run) 'faustine-run)
+  (define-key faust-mode-map (kbd faustine-kb-source-code) 'faustine-source-code)
+  (define-key faust-mode-map (kbd faustine-kb-syntax-check) 'faustine-syntax-check)
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
-
-(define-button-type 'faustine-button-nil
-  'help-echo "No clickz"
-  'face 'font-lock-function-name-face
-  )
 
 (define-button-type 'faustine-button-lib
   'help-echo "Click to open"
@@ -513,7 +563,7 @@ Available commands while editing Faust (*.dsp) files:
                      faustine-faust-libs-dir
                      (buffer-substring
                       (button-start button) (button-end button))))
-  (faustine-mode)
+  (faust-mode)
   (faustine-buttonize-buffer 'lib))
 
 (defun faustine-button-dsp-action (button)
@@ -595,16 +645,12 @@ Build a button from START to END."
   (add-to-list 'blist (expand-file-name fname))
   (with-temp-buffer
     (if (file-exists-p (expand-file-name fname))
-        (insert-file-contents fname))
+        (insert-file-contents-literally fname))
     (goto-char (point-min))
     (while (re-search-forward faustine-regexp-faust-file nil t nil)
       (when (match-string 0)
         (let ((uri (expand-file-name (match-string 1)))
-              (isok-p (file-exists-p (expand-file-name (match-string 1))))
-              ;; (cproc (if calling-process
-              ;;            calling-process
-              ;;          "None"))
-              )
+              (isok-p (file-exists-p (expand-file-name (match-string 1)))))
           (if (not isok-p)
               (faustine-sentinel (format "%s:%s" calling-process fname)
                                  (format "warning %s does not exist\n" uri)))
@@ -621,15 +667,11 @@ Build a button from START to END."
         (process (format "%s" process)))
     (with-current-buffer (get-buffer-create faustine-output-buffer-name)
       (faustine-output-mode)
-      (font-lock-fontify-buffer)
-
       (goto-char (point-max))
       (insert (format "%s | %s %s"
                       (format-time-string "%H:%M:%S")
                       process
                       event))
-      (when (string-prefix-p "Build" process)
-        (newline))
       (faustine-buttonize-buffer 'log)
       (faustine-buttonize-buffer 'exe)
       (when (get-buffer-window faustine-output-buffer-name `visible)
@@ -651,6 +693,9 @@ Build a button from START to END."
   (if faustine-pop-output-buffer
       (faustine-open-output-buffer)))
 
+
+
+
 (defun faustine-mdoc (&optional build-all)
   "Generate mdoc of the current file, display it in a buffer."
   (interactive)
@@ -665,7 +710,7 @@ Build a button from START to END."
   "Build the current buffer/file executable(s).
 If BUILD-ALL is set, build all Faust files referenced by this one."
   (interactive)
-  (faustine-sentinel (format "Build:%s" (buffer-name)) "started")
+  (faustine-sentinel (format "Build:%s" (buffer-name)) "started\n")
   (let* ((files-to-build (if build-all
                              (mapconcat 'identity (faustine-project-files (buffer-name) '() "Build") " ")
                            (current-buffer)))
@@ -834,7 +879,45 @@ img.scaled {
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist
-               '("\\.dsp\\'" . faustine-mode))
+             '("\\.dsp\\'" . faust-mode))
+
+(when (require 'auto-complete nil 'noerror)
+  (add-hook 'faust-mode-hook #'auto-complete-mode)
+  (add-hook 'faust-mode-mode-hook
+            (lambda ()
+              (setq ac-sources '(ac-source-words-in-buffer
+                                 ac-source-symbols
+                                 ac-source-abbrev
+                                 ac-source-dictionary
+                                 ac-source-emacs-lisp-features
+                                 ac-source-features
+                                 ac-source-filename
+                                 ac-source-files-in-current-dir
+                                 ac-source-functions
+                                 ac-source-symbols
+                                 ac-source-variables
+                                 ac-source-words-in-all-buffer
+                                 ac-source-words-in-buffer
+                                 ac-source-words-in-same-mode-buffers)))))
+
+;; (when (boundp #'auto-complete-mode)
+;;   (add-hook 'faust-mode-mode-hook
+;;             (lambda ()
+;;               (setq ac-sources '(ac-source-words-in-buffer
+;;                                  ac-source-symbols
+;;                                  ac-source-abbrev
+;;                                  ac-source-dictionary
+;;                                  ac-source-emacs-lisp-features
+;;                                  ac-source-features
+;;                                  ac-source-filename
+;;                                  ac-source-files-in-current-dir
+;;                                  ac-source-functions
+;;                                  ac-source-symbols
+;;                                  ac-source-variables
+;;                                  ac-source-words-in-all-buffer
+;;                                  ac-source-words-in-buffer
+;;                                  ac-source-words-in-same-mode-buffers)))))
+
 
 (provide 'faustine)
 
