@@ -12,68 +12,11 @@
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
-;;
-;; This program is distributed in the hope that it will be useful,
-;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;; GNU General Public License for more details.
-;;
-;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
 ;; Edit, visualize, build and run Faust code.
 ;; Inspired by Faustworks, now deprecated.
-
-;;; Features:
-;; - Project-based (inter-linked Faust files)
-;; - Faust code syntax hightlighting, indentation and keyword completion
-;; - Build/compile with configurable output window
-;; - Graphic diagrams generation and vizualisation in the browser
-;; - Browse generated C++ code inside Emacs
-;; - Inter-linked files/buffers :
-;; - From "component" to Faust file
-;; - From "include" to library file
-;; - From error to file, direct to line number
-;; - From function name to online documentation
-;; - Fully configurable (build type/target/architecture/toolkit, keyboard shortcuts, etc.)
-;; - Automatic keyword completion
-;; - Modeline indicator of the state of the code
-
-;;; Installation:
-;; - Clone this repo in your PATH
-;; - Require the file in your init file:
-;;
-;;         (require 'faustine)
-
-;;; Usage:
-;; - Just open a .dsp file/project (use `faustine-configure` to set your own Faust file extension)
-;; - Look at the modeline, in the bottom of the buffer: The bug is green when your Faust code compiles without errors, and red otherwise. This icon is also a menu where you can access Faustine's main functions and commands.
-;; - Use `faustine-toggle-output-buffer` to view the Faust build output
-;; - Use `faustine-diagram` to view the diagram of the current Faust file
-;; - Use `faustine-diagram-all` to view the diagrams of the linked (component) Faust files
-;; - Use `faustine-build` to build the executable of the current Faust file
-;; - Use `faustine-build-all` to build the executables of the linked (component) Faust files
-;; - Use `faustine-source-code` to view the C++ code of the current Faust file
-;; - Use `faustine-mdoc` to view the Mdoc (PDF) of the current Faust file
-;; - Select a Faust function, and use `C-c C-h` to view its definition/docstring
-;; - Use `faustine-configure` to set your options/preferences
-;; - Use `C-h m` for help and commands
-
-;;; Notes:
-;; Usage of Faustine with a completion backend system
-;; like Auto-Complete or Company is highly recommended.
-
-
-;;; Credits:
-;; There are several ways you can help (by order of magnificence) :
-;;
-;; - Report any bugs and submit feature requests
-;; - Subscribe to [my YouTube channel](https://www.youtube.com/c/YassinPhilip-ManyRecords)
-;; - Buy my music on [Bandcamp](https://yassinphilip.bandcamp.com) (I'm told I'm on iTunes, Spotify, Google Music and stuff but I never seem to sell a single song)
-;; - Make a [donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=yassinphil%40gmail%2ecom&lc=BM&item_name=Yassin%20Philip&no_note=0&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest)
-;; - Help me on [Patreon](http://www.patreon.com/yassinphilip)
 
 ;;; Code:
 
