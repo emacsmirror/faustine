@@ -7,7 +7,6 @@
 ;; Keywords: modes, faust
 ;; Version: 1.0.1
 ;; URL: https://bitbucket.org/yassinphilip/faustine
-;; Package-Requires: ((emacs "24"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -119,7 +118,7 @@
   '("noise" "multirandom" "multinoise" "noises" "pink_noise" "pink_noise_vm" "lfnoise" "lfnoise0" "lfnoiseN"))
 
 (defconst faustine-faust-keywords-lib-phafla
- '("flanger_mono" "flanger_stereo" "phaser2_mono" "phaser2_stereo"))
+  '("flanger_mono" "flanger_stereo" "phaser2_mono" "phaser2_stereo"))
 
 (defconst faustine-faust-keywords-lib-pm
   '("chain" "input" "output" "terminations" "fullTerminations" "leftTermination" "rightTermination" "waveguide" "idealString"))
@@ -398,18 +397,18 @@ This is only for use with the command `faustine-online-doc'."
   :keymap faustine-red-mode-map)
 
 (defvar faust-mode-map
-   (let ((map (make-sparse-keymap)))
-     map)
-   "Keymap for `faust-mode'.")
+  (let ((map (make-sparse-keymap)))
+    map)
+  "Keymap for `faust-mode'.")
 
- (defvar faust-mode-syntax-table
-   (let ((st (make-syntax-table)))
-     (modify-syntax-entry ?/  ". 124b" st)
-     (modify-syntax-entry ?*  ". 23" st)
-     (modify-syntax-entry ?\n "> b" st)
-     (modify-syntax-entry ?\^m "> b" st)
-     st)
-   "Syntax table for `faust-mode'.")
+(defvar faust-mode-syntax-table
+  (let ((st (make-syntax-table)))
+    (modify-syntax-entry ?/  ". 124b" st)
+    (modify-syntax-entry ?*  ". 23" st)
+    (modify-syntax-entry ?\n "> b" st)
+    (modify-syntax-entry ?\^m "> b" st)
+    st)
+  "Syntax table for `faust-mode'.")
 
 (defvar faustine-regexp-keywords-function (regexp-opt faustine-faust-keywords-functions 'words))
 (defvar faustine-regexp-keywords-statement (regexp-opt faustine-faust-keywords-statements 'words))
@@ -511,10 +510,6 @@ Available commands while editing Faust (*.dsp) files:
 
   (smie-setup nil #'ignore)
 
-  ;; (when (boundp 'ac-sources)
-  ;;   (auto-complete-mode t)
-  ;;   )
-
   (add-hook 'find-file-hook 'faustine-syntax-check nil t)
   (add-hook 'after-save-hook 'faustine-syntax-check nil t)
   (set-syntax-table faust-mode-syntax-table)
@@ -604,7 +599,7 @@ Available commands while editing Faust (*.dsp) files:
             (progn
               (remove-overlays (match-beginning 1) (match-end 1) nil nil)
               (make-button (match-beginning 1) (match-end 1)
-                         :type (intern-soft (concat "faustine-button-" (symbol-name type)))))
+                           :type (intern-soft (concat "faustine-button-" (symbol-name type)))))
           (remove-overlays (match-beginning 1) (match-end 1) nil nil))))))
 
 (defun faustine-configure ()
@@ -655,31 +650,36 @@ Build a button from START to END."
               (faustine-sentinel (format "%s:%s" calling-process fname)
                                  (format "warning %s does not exist\n" uri)))
           (if (and isok-p (not (member uri blist)))
-                (setq blist (faustine-project-files uri blist))))))
+              (setq blist (faustine-project-files uri blist))))))
     (identity blist)))
 
 (defun faustine-sentinel (process event)
   "Log PROCESS and EVENT to output buffer."
   (let ((calling-buffer (cadr (split-string (format "%s" process) ":")))
         (file-name (file-name-sans-extension
-                      (cadr (split-string (format "%s" process) ":"))))
+                    (cadr (split-string (format "%s" process) ":"))))
         (status-ok (string-prefix-p "finished" event))
         (process (format "%s" process)))
     (with-current-buffer (get-buffer-create faustine-output-buffer-name)
       (faustine-output-mode)
       (goto-char (point-max))
+
       (insert (format "%s | %s %s"
                       (format-time-string "%H:%M:%S")
                       process
                       event))
+
       (faustine-buttonize-buffer 'log)
       (faustine-buttonize-buffer 'exe)
       (when (get-buffer-window faustine-output-buffer-name `visible)
         (with-selected-window (get-buffer-window (current-buffer))
           (goto-char  (point-max)))))
-    (if status-ok
-        (progn (faustine-red-mode 0) (faustine-green-mode t))
-      (progn (faustine-green-mode 0) (faustine-red-mode t)))
+
+    (when (string-prefix-p "Check" process)
+      (if status-ok
+          (progn (faustine-red-mode 0) (faustine-green-mode t))
+        (progn (faustine-green-mode 0) (faustine-red-mode t))))
+
     (when status-ok
       (when (string-prefix-p "Mdoc" process)
         (browse-url-of-file (format "%s-mdoc/pdf/%s.pdf" file-name file-name)))
@@ -693,8 +693,14 @@ Build a button from START to END."
   (if faustine-pop-output-buffer
       (faustine-open-output-buffer)))
 
-
-
+(defun faustine-syntax-check ()
+  "Check if Faust code buffer compiles. Runs at load and save time."
+  (interactive)
+  (let ((process (start-process-shell-command
+                  (format "Check:%s" (buffer-name))
+                  faustine-output-buffer-name
+                  (format "faust %s > /dev/null" (buffer-name)))))
+    (set-process-sentinel process 'faustine-sentinel)))
 
 (defun faustine-mdoc (&optional build-all)
   "Generate mdoc of the current file, display it in a buffer."
@@ -737,24 +743,15 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
                    command)))
     (set-process-sentinel process 'faustine-sentinel)))
 
-(defun faustine-syntax-check ()
-  "Check if Faust code buffer compiles. Runs at load and save time."
-  (interactive)
-  (let ((process (start-process-shell-command
-                  (format "Check:%s" (buffer-name))
-                   faustine-output-buffer-name
-                   (format "faust %s > /dev/null" (buffer-name)))))
-    (set-process-sentinel process 'faustine-sentinel)))
-
 (defun faustine-source-code ()
   "Generate Faust C++ code of the current faust file, display it in `faustine-c++-buffer-name'."
   (interactive)
   (let ((process (start-process-shell-command
                   (format "C++:%s" (buffer-name))
-                   nil
-                   (format "faust -uim %s -o %s.cpp"
-                           (buffer-name)
-                           (file-name-sans-extension (buffer-name))))))
+                  nil
+                  (format "faust -uim %s -o %s.cpp"
+                          (buffer-name)
+                          (file-name-sans-extension (buffer-name))))))
     (set-process-sentinel process 'faustine-sentinel)))
 
 (defun faustine-diagram (&optional build-all)
@@ -776,7 +773,7 @@ If BUILD-ALL is set, build all `faustine-faust-extension` files referenced by th
   "Build a minimal HTML (web) page to display Faust diagram(s).
 LIST is the list of files to display, DIAGRAM is the current file, and DISPLAY-MODE is the mode."
   (when (file-regular-p faustine-diagram-page-name)
-      (delete-file faustine-diagram-page-name))
+    (delete-file faustine-diagram-page-name))
   (let ((flex-value (if (equal display-mode "all") "" "100%")))
     (write-region (format "<!DOCTYPE html>
 <html>
