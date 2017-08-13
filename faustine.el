@@ -106,7 +106,7 @@
    faustine-faust-keywords-lib-spat
    faustine-faust-keywords-lib-synth
    faustine-faust-keywords-lib-vaeffect)
-  "All the Faust library function keywords")
+  "All the Faust library function keywords.")
 
 (defvar ac-sources)
 
@@ -358,9 +358,13 @@ This is only for use with the command `faustine-online-doc'."
 (defvar faustine-regexp-keywords-lib (regexp-opt faustine-faust-keywords-lib 'words))
 (defvar faustine-regexp-keywords-ui (regexp-opt faustine-faust-keywords-ui 'words))
 
-(defvar faustine-regexp-faust-file
-  (rx
-   "\"" (submatch (and word-start (one-or-more word) "." (eval faustine-faust-extension))) "\"")
+(defvar faustine-regexp-faust-file (rx
+                                    "\"" (submatch
+                                          (and word-start
+                                               (one-or-more word)
+                                               "."
+                                               (eval faustine-faust-extension)))
+                                    "\"")
   "The regexp to match `something.faust'.")
 
 (defvar faustine-regexp-log
@@ -369,19 +373,22 @@ This is only for use with the command `faustine-online-doc'."
                   (one-or-more word) "." (eval faustine-faust-extension) ":" (one-or-more digit))))
   "The regexp to match `something.faust:num'.")
 
-(defconst faustine-regexp-lib
-  (rx "\"" (submatch (and word-start (one-or-more word) ".lib")) "\"")
+(defconst faustine-regexp-lib (rx
+                               "\"" (submatch (and word-start (one-or-more word) ".lib")) "\"")
   "The regexp to match `something.lib'.")
 
-(defconst faustine-regexp-exe
-  (rx (submatch (and (or "./" "/") (one-or-more (any word "/")))) ";")
+(defconst faustine-regexp-exe (rx
+                               (submatch (and (or "./" "/") (one-or-more (any word "/")))) ";")
   "The regexp to match `/some/thing'.")
 
-(defconst faustine-regexp-faust-operator (rx (any ",:*-+><")))
+(defconst faustine-regexp-faust-operator (rx
+                                          (any ",:*-+><")))
 
-(defconst faustine-regexp-faust-delimiters (rx (any "{}()[];")))
+(defconst faustine-regexp-faust-delimiters (rx
+                                            (any "{}()[];")))
 
-(defconst faustine-regexp-faust-numbers (rx (one-or-more digit)))
+(defconst faustine-regexp-faust-numbers (rx
+                                         (one-or-more digit)))
 
 (defconst faustine-output-mode-keywords-proc
   (rx
@@ -438,16 +445,6 @@ This is only for use with the command `faustine-online-doc'."
 (defvar faust-mode-ac-source
   '((candidates . faustine-faust-keywords-lib)))
 
-(defun faustine-diagram-all ()
-  "Build all diagrams"
-  (interactive)
-  (faustine-diagram t))
-
-(defun faustine-build-all ()
-  "Build all executables"
-  (interactive)
-  (faustine-build t))
-
 ;;;###autoload
 (define-derived-mode faust-mode prog-mode "Faustine - A lightweight Emacs Faust IDE"
 
@@ -493,6 +490,65 @@ Available commands while editing Faust (*.dsp) files:
   (define-key faust-mode-map (kbd faustine-kb-toggle-output-buffer) 'faustine-toggle-output-buffer)
 
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
+
+(defun faustine-project-files (fname blist &optional calling-process)
+  "Recursively find all Faust links in FNAME, put them in BLIST, return BLIST.
+Log CALLING-PROCESS to output buffer."
+  (add-to-list 'blist (expand-file-name fname))
+  (with-temp-buffer
+    (if (file-exists-p (expand-file-name fname))
+        (insert-file-contents-literally fname))
+    (goto-char (point-min))
+    (while (re-search-forward faustine-regexp-faust-file nil t nil)
+      (when (match-string 0)
+        (let ((uri (expand-file-name (match-string 1)))
+              (isok-p (file-exists-p (expand-file-name (match-string 1)))))
+          (if (not isok-p)
+              (faustine-sentinel (format "%s:%s" calling-process fname)
+                                 (format "warning %s does not exist\n" uri)))
+          (if (and isok-p (not (member uri blist)))
+              (setq blist (faustine-project-files uri blist))))))
+    (identity blist)))
+
+(defun faustine-sentinel (process event)
+  "Log PROCESS and EVENT to output buffer."
+  (let ((calling-buffer (cadr (split-string (format "%s" process) ":")))
+        (file-name (file-name-sans-extension
+                    (cadr (split-string (format "%s" process) ":"))))
+        (status-ok (string-prefix-p "finished" event))
+        (process (format "%s" process)))
+    (with-current-buffer (get-buffer-create faustine-output-buffer-name)
+      (faustine-output-mode)
+      (goto-char (point-max))
+
+      (insert (format "%s | %s %s"
+                      (format-time-string "%H:%M:%S")
+                      process
+                      event))
+
+      (faustine-buttonize-buffer 'log)
+      (faustine-buttonize-buffer 'exe)
+      (when (get-buffer-window faustine-output-buffer-name `visible)
+        (with-selected-window (get-buffer-window (current-buffer))
+          (goto-char  (point-max)))))
+
+    (when (string-prefix-p "Check" process)
+      (if status-ok
+          (progn (faustine-red-mode 0) (faustine-green-mode t))
+        (progn (faustine-green-mode 0) (faustine-red-mode t))))
+
+    (when status-ok
+      (when (string-prefix-p "Mdoc" process)
+        (browse-url-of-file (format "%s-mdoc/pdf/%s.pdf" file-name file-name)))
+      (when (string-prefix-p "C++" process)
+        (find-file-other-window (format "%s.cpp" file-name)))
+      (when (string-prefix-p "Diagram" process)
+        (browse-url-of-file faustine-diagram-page-name))))
+  (faustine-buttonize-buffer 'dsp)
+  (faustine-buttonize-buffer 'lib)
+  (bury-buffer faustine-output-buffer-name)
+  (if faustine-pop-output-buffer
+      (faustine-open-output-buffer)))
 
 (define-button-type 'faustine-button-lib
   'help-echo "Click to open"
@@ -565,6 +621,16 @@ Available commands while editing Faust (*.dsp) files:
                            :type (intern-soft (concat "faustine-button-" (symbol-name type)))))
           (remove-overlays (match-beginning 1) (match-end 1) nil nil))))))
 
+(defun faustine-diagram-all ()
+  "Build all linked diagrams."
+  (interactive)
+  (faustine-diagram t))
+
+(defun faustine-build-all ()
+  "Build all linked executables."
+  (interactive)
+  (faustine-build t))
+
 (defun faustine-configure ()
   "Use `cutomize-group' to set up Faustine preferences."
   (interactive)
@@ -598,66 +664,9 @@ Build a button from START to END."
           (window-resize (get-buffer-window faustine-output-buffer-name `visible)
                          (- faustine-output-buffer-height) nil)))))
 
-(defun faustine-project-files (fname blist &optional calling-process)
-  "Recursively find all Faust links in FNAME, canonicalize and put them in BLIST, return BLIST."
-  (add-to-list 'blist (expand-file-name fname))
-  (with-temp-buffer
-    (if (file-exists-p (expand-file-name fname))
-        (insert-file-contents-literally fname))
-    (goto-char (point-min))
-    (while (re-search-forward faustine-regexp-faust-file nil t nil)
-      (when (match-string 0)
-        (let ((uri (expand-file-name (match-string 1)))
-              (isok-p (file-exists-p (expand-file-name (match-string 1)))))
-          (if (not isok-p)
-              (faustine-sentinel (format "%s:%s" calling-process fname)
-                                 (format "warning %s does not exist\n" uri)))
-          (if (and isok-p (not (member uri blist)))
-              (setq blist (faustine-project-files uri blist))))))
-    (identity blist)))
-
-(defun faustine-sentinel (process event)
-  "Log PROCESS and EVENT to output buffer."
-  (let ((calling-buffer (cadr (split-string (format "%s" process) ":")))
-        (file-name (file-name-sans-extension
-                    (cadr (split-string (format "%s" process) ":"))))
-        (status-ok (string-prefix-p "finished" event))
-        (process (format "%s" process)))
-    (with-current-buffer (get-buffer-create faustine-output-buffer-name)
-      (faustine-output-mode)
-      (goto-char (point-max))
-
-      (insert (format "%s | %s %s"
-                      (format-time-string "%H:%M:%S")
-                      process
-                      event))
-
-      (faustine-buttonize-buffer 'log)
-      (faustine-buttonize-buffer 'exe)
-      (when (get-buffer-window faustine-output-buffer-name `visible)
-        (with-selected-window (get-buffer-window (current-buffer))
-          (goto-char  (point-max)))))
-
-    (when (string-prefix-p "Check" process)
-      (if status-ok
-          (progn (faustine-red-mode 0) (faustine-green-mode t))
-        (progn (faustine-green-mode 0) (faustine-red-mode t))))
-
-    (when status-ok
-      (when (string-prefix-p "Mdoc" process)
-        (browse-url-of-file (format "%s-mdoc/pdf/%s.pdf" file-name file-name)))
-      (when (string-prefix-p "C++" process)
-        (find-file-other-window (format "%s.cpp" file-name)))
-      (when (string-prefix-p "Diagram" process)
-        (browse-url-of-file faustine-diagram-page-name))))
-  (faustine-buttonize-buffer 'dsp)
-  (faustine-buttonize-buffer 'lib)
-  (bury-buffer faustine-output-buffer-name)
-  (if faustine-pop-output-buffer
-      (faustine-open-output-buffer)))
-
 (defun faustine-syntax-check ()
-  "Check if Faust code buffer compiles. Runs at load and save time."
+  "Check if Faust code buffer compiles.
+Run at load and save time."
   (interactive)
   (let ((process (start-process-shell-command
                   (format "Check:%s" (buffer-name))
@@ -666,7 +675,8 @@ Build a button from START to END."
     (set-process-sentinel process 'faustine-sentinel)))
 
 (defun faustine-mdoc (&optional build-all)
-  "Generate mdoc of the current file, display it in a buffer."
+  "Generate mdoc of the current file, display it in a buffer.
+If BUILD-ALL is set, build all linked files."
   (interactive)
   (let ((process (start-process-shell-command
                   (format "Mdoc:%s" (buffer-name))
