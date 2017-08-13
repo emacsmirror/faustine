@@ -21,8 +21,8 @@
 ;;; Code:
 
 (require 'smie)
-(require 'easymenu)
-(require 'rx)
+;; (require 'easymenu)
+;; (require 'rx)
 
 (defconst faustine-faust-keywords-lib-analyzer
   '("amp_follower" "amp_follower_ud" "amp_follower_ar" "mth_octave_analyzer[N]" "mth_octave_spectral_level6e" "octave_filterbank" "octave_analyzer" "half_octave_filterbank" "half_octave_analyzer" "third_octave_filterbank" "third_octave_analyzer" "analyzer"))
@@ -435,6 +435,12 @@ This is only for use with the command `faustine-online-doc'."
   (setq font-lock-defaults '(faustine-output-mode-font-lock-keywords t))
   (font-lock-fontify-buffer))
 
+(defvar ac-source-to-mailaddr
+  '((candidates . faustine-faust-keywords-lib)))
+
+(eval-after-load 'auto-complete
+  (message "plop"))
+
 ;;;###autoload
 (define-derived-mode faust-mode prog-mode "Faustine - A lightweight Emacs Faust IDE" "
 Faustine is a lightweight IDE that leverages the mighty power of the faust executable.
@@ -450,6 +456,14 @@ Available commands while editing Faust (*.dsp) files:
         major-mode 'faust-mode
         comment-end ""
         font-lock-defaults '(faust-mode-font-lock-keywords))
+
+
+  (if (boundp 'auto-complete-mode)
+      (progn
+        (setq ac-sources '(ac-source-to-mailaddr))
+        (auto-complete-mode t)
+        (message "auto-complete-mode is installed and now on"))
+    (message "You should really install auto-complete"))
 
   (smie-setup nil #'ignore)
 
@@ -821,24 +835,29 @@ img.scaled {
 (add-to-list 'auto-mode-alist
              '("\\.dsp\\'" . faust-mode))
 
-(when (require 'auto-complete nil 'noerror)
-  (add-hook 'faust-mode-hook #'auto-complete-mode)
-  (add-hook 'faust-mode-mode-hook
-            (lambda ()
-              (setq ac-sources '(ac-source-words-in-buffer
-                                 ac-source-symbols
-                                 ac-source-abbrev
-                                 ac-source-dictionary
-                                 ac-source-emacs-lisp-features
-                                 ac-source-features
-                                 ac-source-filename
-                                 ac-source-files-in-current-dir
-                                 ac-source-functions
-                                 ac-source-symbols
-                                 ac-source-variables
-                                 ac-source-words-in-all-buffer
-                                 ac-source-words-in-buffer
-                                 ac-source-words-in-same-mode-buffers)))))
+;;;###autoload
+;;(add-to-list 'ac-modes 'faust-mode)
+
+;; (when (require 'auto-complete)
+;;   (message "plop")
+;;   ;; (add-hook 'faust-mode-hook #'auto-complete-mode)
+;;   (add-hook 'faust-mode-mode-hook
+;;             (lambda ()
+;;               (setq ac-sources '(ac-source-words-in-buffer
+;;                                  ac-source-symbols
+;;                                  ac-source-abbrev
+;;                                  ac-source-dictionary
+;;                                  ac-source-emacs-lisp-features
+;;                                  ac-source-features
+;;                                  ac-source-filename
+;;                                  ac-source-files-in-current-dir
+;;                                  ac-source-functions
+;;                                  ac-source-symbols
+;;                                  ac-source-variables
+;;                                  ac-source-words-in-all-buffer
+;;                                  ac-source-words-in-buffer
+;;                                  ac-source-words-in-same-mode-buffers))))
+;;   )
 
 ;; (when (boundp #'auto-complete-mode)
 ;;   (add-hook 'faust-mode-mode-hook
@@ -858,7 +877,12 @@ img.scaled {
 ;;                                  ac-source-words-in-buffer
 ;;                                  ac-source-words-in-same-mode-buffers)))))
 
+;; (ac-define-source mysource3
+;;   '((candidates . (list "Foo" "Bar" "Baz"))))
 
 (provide 'faustine)
 
+;; Local Variables:
+;; byte-compile-warnings: (not free-vars)
+;; End:
 ;;; faustine.el ends here
