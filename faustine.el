@@ -12,17 +12,30 @@
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
 ;; Edit, visualize, build and run Faust code.
 ;; Inspired by Faustworks, now deprecated.
 
+;; Plop:
+;; - plip
+;; - zob
+;; - zoub
+;; - zoubidz
+
+
 ;;; Code:
 
 (require 'smie)
-;; (require 'easymenu)
-;; (require 'rx)
 
 (defconst faustine-faust-keywords-lib-analyzer
   '("amp_follower" "amp_follower_ud" "amp_follower_ar" "mth_octave_analyzer[N]" "mth_octave_spectral_level6e" "octave_filterbank" "octave_analyzer" "half_octave_filterbank" "half_octave_analyzer" "third_octave_filterbank" "third_octave_analyzer" "analyzer"))
@@ -707,11 +720,9 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
                     (format "./%s" (file-name-sans-extension
                                     (file-name-nondirectory
                                      (buffer-name))))))
-         (buf (if button
-                  "Click"
-                (buffer-name)))
+         (buffer (if button "Click" (buffer-name)))
          (process (start-process-shell-command
-                   (format "Run:%s" buf)
+                   (format "Run:%s" buffer)
                    faustine-output-buffer-name
                    command)))
     (set-process-sentinel process 'faustine-sentinel)))
