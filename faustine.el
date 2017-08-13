@@ -453,12 +453,7 @@ This is only for use with the command `faustine-online-doc'."
 
   "Faustine is a lightweight IDE that leverages the mighty power of the faust executable.
 
-Most useful functions are (see full keymap below for other functions):
-
-\\[faustine-syntax-check]  `faustine-syntax-check'
-\\[faustine-run]  `faustine-run'
-
-Use \\[faustine-configure] to set it up.
+Use `faustine-configure' (\\[faustine-configure]) to set it up.
 Available commands while editing Faust (*.dsp) files:
 
 \\{faust-mode-map}"
