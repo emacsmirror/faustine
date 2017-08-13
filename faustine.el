@@ -449,17 +449,11 @@ This is only for use with the command `faustine-online-doc'."
     (,faustine-output-mode-keywords-time . 'font-lock-type-face)
     (,faustine-output-mode-keywords-status . 'font-lock-keyword-face)))
 
-(define-derived-mode faustine-output-mode fundamental-mode
-  "The Faust output buffer mode."
-  (kill-all-local-variables)
-  (setq font-lock-defaults '(faustine-output-mode-font-lock-keywords t))
-  (font-lock-fontify-buffer))
-
 (defvar faust-mode-ac-source
   '((candidates . faustine-faust-keywords-lib)))
 
 ;;;###autoload
-(define-derived-mode faust-mode prog-mode "Faustine - A lightweight Emacs Faust IDE"
+(define-derived-mode faust-mode prog-mode "Faust"
 
   "Faustine is a lightweight IDE that leverages the mighty power of the faust executable.
 
@@ -503,6 +497,12 @@ Available commands while editing Faust (*.dsp) files:
   (define-key faust-mode-map (kbd faustine-kb-toggle-output-buffer) 'faustine-toggle-output-buffer)
 
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
+
+(define-derived-mode faustine-output-mode fundamental-mode
+  "The Faust output buffer mode."
+  (kill-all-local-variables)
+  (setq font-lock-defaults '(faustine-output-mode-font-lock-keywords t))
+  (font-lock-fontify-buffer))
 
 (defun faustine-project-files (fname blist &optional calling-process)
   "Recursively find all Faust links in FNAME, put them in BLIST, return BLIST.
