@@ -435,15 +435,28 @@ This is only for use with the command `faustine-online-doc'."
   (setq font-lock-defaults '(faustine-output-mode-font-lock-keywords t))
   (font-lock-fontify-buffer))
 
-(defvar ac-source-to-mailaddr
+(defvar faust-mode-ac-source
   '((candidates . faustine-faust-keywords-lib)))
 
-(eval-after-load 'auto-complete
-  (message "plop"))
+(defun faustine-diagram-all ()
+  "Build all diagrams"
+  (interactive)
+  (faustine-diagram t))
+
+(defun faustine-build-all ()
+  "Build all executables"
+  (interactive)
+  (faustine-build t))
 
 ;;;###autoload
-(define-derived-mode faust-mode prog-mode "Faustine - A lightweight Emacs Faust IDE" "
-Faustine is a lightweight IDE that leverages the mighty power of the faust executable.
+(define-derived-mode faust-mode prog-mode "Faustine - A lightweight Emacs Faust IDE"
+
+  "Faustine is a lightweight IDE that leverages the mighty power of the faust executable.
+
+Most useful functions are (see full keymap below for other functions):
+
+\\[faustine-syntax-check]  `faustine-syntax-check'
+\\[faustine-run]  `faustine-run'
 
 Use \\[faustine-configure] to set it up.
 Available commands while editing Faust (*.dsp) files:
@@ -452,40 +465,38 @@ Available commands while editing Faust (*.dsp) files:
 
   (kill-all-local-variables)
   (setq-local comment-start "//")
+
   (setq mode-name "Faust"
         major-mode 'faust-mode
         comment-end ""
         font-lock-defaults '(faust-mode-font-lock-keywords))
 
-
-  (if (boundp 'auto-complete-mode)
+  (if (boundp 'ac-sources)
       (progn
-        (setq ac-sources '(ac-source-to-mailaddr))
-        (auto-complete-mode t)
-        (message "auto-complete-mode is installed and now on"))
+        (add-to-list 'ac-modes 'faust-mode)
+        (add-to-list 'ac-sources 'faust-mode-ac-source))
     (message "You should really install auto-complete"))
 
   (smie-setup nil #'ignore)
 
   (add-hook 'find-file-hook 'faustine-syntax-check nil t)
   (add-hook 'after-save-hook 'faustine-syntax-check nil t)
+
   (set-syntax-table faust-mode-syntax-table)
   (use-local-map faust-mode-map)
+
   (define-key faust-mode-map (kbd faustine-kb-configure) 'faustine-configure)
   (define-key faust-mode-map (kbd faustine-kb-build) 'faustine-build)
-  (define-key faust-mode-map (kbd faustine-kb-build-all) '(lambda ()
-                                                            (interactive)
-                                                            (faustine-build t)))
+  (define-key faust-mode-map (kbd faustine-kb-build-all) 'faustine-build-all)
   (define-key faust-mode-map (kbd faustine-kb-diagram) 'faustine-diagram)
-  (define-key faust-mode-map (kbd faustine-kb-diagram-all) '(lambda ()
-                                                              (interactive)
-                                                              (faustine-diagram t)))
-  (define-key faust-mode-map (kbd faustine-kb-online-doc) 'faustine-online-doc)
-  (define-key faust-mode-map (kbd faustine-kb-toggle-output-buffer) 'faustine-toggle-output-buffer)
+  (define-key faust-mode-map (kbd faustine-kb-diagram-all) 'faustine-diagram-all)
   (define-key faust-mode-map (kbd faustine-kb-mdoc) 'faustine-mdoc)
+  (define-key faust-mode-map (kbd faustine-kb-online-doc) 'faustine-online-doc)
   (define-key faust-mode-map (kbd faustine-kb-run) 'faustine-run)
   (define-key faust-mode-map (kbd faustine-kb-source-code) 'faustine-source-code)
   (define-key faust-mode-map (kbd faustine-kb-syntax-check) 'faustine-syntax-check)
+  (define-key faust-mode-map (kbd faustine-kb-toggle-output-buffer) 'faustine-toggle-output-buffer)
+
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
 (define-button-type 'faustine-button-lib
@@ -666,7 +677,7 @@ Build a button from START to END."
                   (format "Mdoc:%s" (buffer-name))
                   faustine-output-buffer-name
                   (format "faust2mathdoc %s" (current-buffer)))))
-    (faustine-sentinel (format "Mdoc:%s" (buffer-name)) "started")
+    (faustine-sentinel (format "Mdoc:%s" (buffer-name)) "started\n")
     (set-process-sentinel process 'faustine-sentinel)))
 
 (defun faustine-build (&optional build-all)
@@ -715,6 +726,7 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
   "Generate Faust diagram(s).
 If BUILD-ALL is set, build all `faustine-faust-extension` files referenced by this one."
   (interactive)
+  (message "plop")
   (let ((files-to-build
          (if build-all (faustine-project-files (buffer-name) '() "Diagram") (list (buffer-name))))
         (display-mode
@@ -834,9 +846,6 @@ img.scaled {
 ;;;###autoload
 (add-to-list 'auto-mode-alist
              '("\\.dsp\\'" . faust-mode))
-
-;;;###autoload
-;;(add-to-list 'ac-modes 'faust-mode)
 
 ;; (when (require 'auto-complete)
 ;;   (message "plop")
