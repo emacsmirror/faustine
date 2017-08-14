@@ -1,6 +1,8 @@
 ;; auto-doc.el is just an helper script to generate the README.md
 ;; The mode MUST be loaded before running
 
+(require 'subr-x)
+
 (setq myregexp-key
       (rx
        (submatch
@@ -56,10 +58,11 @@
         (insert gpl3)
         (insert passing)
         (insert mymode-features)
-        (insert "\n\n## Keys\n")
+        (insert "\n\n## Keys\n\nKey binding  | Command \n------------- | ------------- \n")
 
         (mapc (lambda (x)
-                (insert (format "\n- %s" x)))
+                (insert (format "%s | %s\n"  (car (split-string x "  "))
+                                (car (last (split-string x "  "))))))
               (cdr clean))
 
         (insert "\n\n## Interactive functions")
