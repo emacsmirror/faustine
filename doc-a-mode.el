@@ -1,4 +1,4 @@
-;; auto-doc.el is just an helper script to generate the README.md
+;; doc-a-mode.el is just an helper script to generate the README.md
 ;; The mode MUST be loaded before running
 
 (require 'subr-x)
@@ -19,6 +19,8 @@ will be better/faster/stronger.
 - [Emacs-helm](https://github.com/emacs-helm/helm)
 - [YASnippet](https://github.com/joaotavora/yasnippet)
 ")
+
+(defconst mode-image-logo "![Logo](https://bytebucket.org/yassinphilip/faustine/raw/master/faustine.png)")
 
 (defconst mymode-features "
 
@@ -66,7 +68,9 @@ will be better/faster/stronger.
            (clean (split-string fiv (rx (and "\n")))))
 
       (with-temp-buffer
-        (insert (format "\# Faustine\n\n%s\n---\n" heading))
+        (insert "\# Faustine\n\n")
+        (insert mode-image-logo)
+        (insert (format "\n%s\n---\n" heading))
         (insert gpl3-badge)
         (insert codeship-badge)
         (insert mymode-features)
