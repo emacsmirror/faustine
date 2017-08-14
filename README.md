@@ -49,8 +49,6 @@ Generate mdoc of the current file, display it in a buffer.
 If BUILD-ALL is set, build all linked files.
 
 ### faustine-toggle-output-buffer 
-`faustine.el'.
-
 Show/hide Faust output buffer.
 
 ### faustine-configure 

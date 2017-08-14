@@ -1,10 +1,10 @@
+;; auto-doc.el is just an helper script to generate the README.md
+
 (setq myregexp-key
       (rx
        (submatch
         (and word-start
              (one-or-more anything))) "\nkey "))
-
-;; [![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html)
 
 (defconst gpl3 "[![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html) ")
 
@@ -71,5 +71,6 @@
                      "faustine.el")) nil t nil)
           (beginning-of-line)
           (kill-line 2)
-          (write-region (buffer-string) nil "README.md" 'append 0 nil nil)
-          (find-file "README.md"))))))
+          (write-region (buffer-string) nil "README.md" nil 0 nil nil)
+          ;; (find-file "README.md")
+          )))))
