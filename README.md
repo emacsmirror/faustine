@@ -27,8 +27,8 @@ Available commands while editing Faust (*.dsp) files:
 
 ## Keys
 
-Key binding  | Command
-------------- | -------------
+Key binding  | Command 
+------------- | ------------- 
 C-c C-c |  faustine-syntax-check
 C-c C-d |  faustine-diagram
 C-c C-h |  faustine-online-doc
@@ -40,16 +40,6 @@ C-c r |  faustine-run
 C-c C-S-b |  faustine-build-all
 C-c C-S-d |  faustine-diagram-all
 
-- C-c C-c         faustine-syntax-check
-- C-c C-d         faustine-diagram
-- C-c C-h         faustine-online-doc
-- C-c RET         faustine-mdoc
-- C-c C-o         faustine-toggle-output-buffer
-- C-c C-p         faustine-configure
-- C-c C-s         faustine-source-code
-- C-c r           faustine-run
-- C-c C-S-b       faustine-build-all
-- C-c C-S-d       faustine-diagram-all
 
 ## Interactive functions
 

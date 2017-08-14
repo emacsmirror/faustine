@@ -58,21 +58,11 @@
         (insert gpl3)
         (insert passing)
         (insert mymode-features)
-        (insert "\n\n## Keys\n")
-
-        (insert "
-Key binding  | Command
-------------- | -------------
-")
+        (insert "\n\n## Keys\n\nKey binding  | Command \n------------- | ------------- \n")
 
         (mapc (lambda (x)
                 (insert (format "%s | %s\n"  (car (split-string x "  "))
-                                (string-trim
-                                 (car (last (split-string x "  ")))))))
-              (cdr clean))
-
-        (mapc (lambda (x)
-                (insert (format "\n- %s" x)))
+                                (car (last (split-string x "  "))))))
               (cdr clean))
 
         (insert "\n\n## Interactive functions")
