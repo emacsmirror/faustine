@@ -469,6 +469,11 @@ Available commands while editing Faust (*.dsp) files:
         (add-to-list 'ac-sources 'faust-mode-ac-source))
     (message "You should really install auto-complete"))
 
+  (if (boundp 'yas-snippet-dirs)
+
+      (setq yas-snippet-dirs (append yas-snippet-dirs
+                                     '("snippets"))))
+
   (smie-setup nil #'ignore)
 
   (add-hook 'find-file-hook 'faustine-syntax-check nil t)
