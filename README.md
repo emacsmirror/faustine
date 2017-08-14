@@ -1,6 +1,7 @@
 # Faustine
 
 ![Logo](https://bytebucket.org/yassinphilip/faustine/raw/master/faustine.png)
+
 Faustine allows the edition of Faust (http://faust.grame.fr/) code.
 Edit, visualize, build and run Faust code files.
 
