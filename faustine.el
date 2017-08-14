@@ -452,7 +452,7 @@ This is only for use with the command `faustine-online-doc'."
 Edit, visualize, build and run Faust code files.
 
 Use `faustine-configure' (\\[faustine-configure]) to set it up.
-Available commands while editing Faust (*.dsp) files:
+Available commands while editing Faust files:
 
 \\{faust-mode-map}"
 
