@@ -26,13 +26,6 @@
 ;; Edit, visualize, build and run Faust code.
 ;; Inspired by Faustworks, now deprecated.
 
-;; Plop:
-;; - plip
-;; - zob
-;; - zoub
-;; - zoubidz
-
-
 ;;; Code:
 
 (require 'smie)
@@ -862,48 +855,6 @@ img.scaled {
 ;;;###autoload
 (add-to-list 'auto-mode-alist
              '("\\.dsp\\'" . faust-mode))
-
-;; (when (require 'auto-complete)
-;;   (message "plop")
-;;   ;; (add-hook 'faust-mode-hook #'auto-complete-mode)
-;;   (add-hook 'faust-mode-mode-hook
-;;             (lambda ()
-;;               (setq ac-sources '(ac-source-words-in-buffer
-;;                                  ac-source-symbols
-;;                                  ac-source-abbrev
-;;                                  ac-source-dictionary
-;;                                  ac-source-emacs-lisp-features
-;;                                  ac-source-features
-;;                                  ac-source-filename
-;;                                  ac-source-files-in-current-dir
-;;                                  ac-source-functions
-;;                                  ac-source-symbols
-;;                                  ac-source-variables
-;;                                  ac-source-words-in-all-buffer
-;;                                  ac-source-words-in-buffer
-;;                                  ac-source-words-in-same-mode-buffers))))
-;;   )
-
-;; (when (boundp #'auto-complete-mode)
-;;   (add-hook 'faust-mode-mode-hook
-;;             (lambda ()
-;;               (setq ac-sources '(ac-source-words-in-buffer
-;;                                  ac-source-symbols
-;;                                  ac-source-abbrev
-;;                                  ac-source-dictionary
-;;                                  ac-source-emacs-lisp-features
-;;                                  ac-source-features
-;;                                  ac-source-filename
-;;                                  ac-source-files-in-current-dir
-;;                                  ac-source-functions
-;;                                  ac-source-symbols
-;;                                  ac-source-variables
-;;                                  ac-source-words-in-all-buffer
-;;                                  ac-source-words-in-buffer
-;;                                  ac-source-words-in-same-mode-buffers)))))
-
-;; (ac-define-source mysource3
-;;   '((candidates . (list "Foo" "Bar" "Baz"))))
 
 (provide 'faustine)
 
