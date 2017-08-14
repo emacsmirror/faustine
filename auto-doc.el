@@ -147,6 +147,9 @@ during initialization.
 
 ;; [![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html)
 
+(defconst gpl3 "[![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html) ")
+
+(defconst passing "[ ![Codeship Status for yassinphilip/faustine](https://app.codeship.com/projects/c2385cd0-5dc6-0135-04b2-0a800465306c/status?branch=master)](https://app.codeship.com/projects/238325)")
 
 (defun doc-a-mode ()
   "Searches for next define-derived-mode and print markdown documentation."
@@ -158,8 +161,7 @@ during initialization.
     (insert (documentation 'faust-mode))
     (goto-char (point-min))
     (when (re-search-forward myregexp-key)
-      (setq heading (match-string 1))
-      (message "Heading (%s)" heading))
+      (setq heading (match-string 1)))
 
     (let* ((mylist (split-string (buffer-string) "^\\s-*$" t "\n"))
            (one (nth 0 mylist))
@@ -176,12 +178,10 @@ during initialization.
         (insert "\# Faustine\n")
         (insert (format "\n%s\n\n" heading))
         (insert "\n---\n")
-        (insert "[![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html) ")
-
-        (insert "[ ![Codeship Status for yassinphilip/faustine](https://app.codeship.com/projects/c2385cd0-5dc6-0135-04b2-0a800465306c/status?branch=master)](https://app.codeship.com/projects/238325)")
+        (insert gpl3)
+        (insert passing)
 
         (insert "\n## Keys\n")
-        (insert "\n<kbd>CTRL</kbd>+<kbd>Z</kbd>\n")
 
         (mapc (lambda (x)
                 (insert (format "\n- %s" x)))
