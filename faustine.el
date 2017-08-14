@@ -448,7 +448,7 @@ This is only for use with the command `faustine-online-doc'."
 ;;;###autoload
 (define-derived-mode faust-mode prog-mode "Faust"
 
-  "Faustine allows the edition of Faust (http://faust.grame.fr/) code.
+  "Faustine allows the edition of Faust (http://faust.grame.fr) code.
 Edit, visualize, build and run Faust code files.
 
 Use `faustine-configure' (\\[faustine-configure]) to set it up.
