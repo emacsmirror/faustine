@@ -8,6 +8,22 @@ Available commands while editing Faust (*.dsp) files:
 ---
 [![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html) [ ![Codeship Status for yassinphilip/faustine](https://app.codeship.com/projects/c2385cd0-5dc6-0135-04b2-0a800465306c/status?branch=master)](https://app.codeship.com/projects/238325)
 
+## Features
+
+- Project-based (inter-linked Faust files)
+- Faust code syntax hightlighting, indentation and keyword completion
+- Build/compile with configurable output window
+- Graphic diagrams generation and vizualisation in the browser
+- Browse generated C++ code inside Emacs
+- Inter-linked files/buffers :
+    - From "component" to Faust file
+    - From "include" to library file
+- From error to file, direct to line number
+- From function name to online documentation
+- Fully configurable (build type/target/architecture/toolkit, keyboard shortcuts, etc.)
+- Automatic keyword completion
+- Modeline indicator of the state of the code
+
 ## Keys
 
 - C-c C-c         faustine-syntax-check
@@ -69,3 +85,6 @@ Build all linked executables.
 ### faustine-diagram-all 
 
 Build all linked diagrams.
+
+##### Doc auto-made on 04:18:21
+---
