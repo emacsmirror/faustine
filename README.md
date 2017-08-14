@@ -1,147 +1,149 @@
-## faustine.el
-*Edit, visualize, build and run Faust code*
+# Faustine
+
+Faustine is a lightweight IDE that leverages the mighty power of the faust executable.
+
+Use `faustine-configure' (M-x faustine-configure) to set it up.
+Available commands while editing Faust (*.dsp) files:
+
+
 
 ---
-[![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html)
+[![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html) [ ![Codeship Status for yassinphilip/faustine](https://app.codeship.com/projects/c2385cd0-5dc6-0135-04b2-0a800465306c/status?branch=master)](https://app.codeship.com/projects/238325)
+## Keys
 
-Edit, visualize, build and run Faust code.
-Inspired by Faustworks, now deprecated.
+<kbd>CTRL</kbd>+<kbd>Z</kbd>
 
-### Features
+- C-c C-c         faustine-syntax-check
+- C-c C-d         faustine-diagram
+- C-c C-h         faustine-online-doc
+- C-c RET         faustine-mdoc
+- C-c C-o         faustine-toggle-output-buffer
+- C-c C-p         faustine-configure
+- C-c C-s         faustine-source-code
+- C-c r           faustine-run
+- C-c C-S-b       faustine-build-all
+- C-c C-S-d       faustine-diagram-all
 
-- Project-based (inter-linked Faust files)
-- Faust code syntax hightlighting, indentation and keyword completion
-- Build/compile with configurable output window
-- Graphic diagrams generation and vizualisation in the browser
-- Browse generated C++ code inside Emacs
-- Inter-linked files/buffers :
-- From "component" to Faust file
-- From "include" to library file
-- From error to file, direct to line number
-- From function name to online documentation
-- Fully configurable (build type/target/architecture/toolkit, keyboard shortcuts, etc.)
-- Automatic keyword completion
-- Modeline indicator of the state of the code
+## Interactive functions
 
-### Installation
-
-- Clone this repo in your PATH
-- Require the file in your init file:
-
-        (require 'faustine)
-
-### Usage
-
-- Just open a .dsp file/project (use `faustine-configure` to set your own Faust file extension)
-- Look at the modeline, in the bottom of the buffer: The bug is green when your Faust code compiles without errors, and red otherwise. This icon is also a menu where you can access Faustine's main functions and commands.
-- Use `faustine-toggle-output-buffer` to view the Faust build output
-- Use `faustine-diagram` to view the diagram of the current Faust file
-- Use `faustine-diagram-all` to view the diagrams of the linked (component) Faust files
-- Use `faustine-build` to build the executable of the current Faust file
-- Use `faustine-build-all` to build the executables of the linked (component) Faust files
-- Use `faustine-source-code` to view the C++ code of the current Faust file
-- Use `faustine-mdoc` to view the Mdoc (PDF) of the current Faust file
-- Select a Faust function, and use `C-c C-h` to view its definition/docstring
-- Use `faustine-configure` to set your options/preferences
-- Use `C-h m` for help and commands
-
-### Notes
-
-Usage of Faustine with a completion backend system
-like Auto-Complete or Company is highly recommended.
-
-
-### Credits
-
-There are several ways you can help (by order of magnificence) :
-
-- Report any bugs and submit feature requests
-- Subscribe to [my YouTube channel](https://www.youtube.com/c/YassinPhilip-ManyRecords)
-- Buy my music on [Bandcamp](https://yassinphilip.bandcamp.com) (I'm told I'm on iTunes, Spotify, Google Music and stuff but I never seem to sell a single song)
-- Make a [donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=yassinphil%40gmail%2ecom&lc=BM&item_name=Yassin%20Philip&no_note=0&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest)
-- Help me on [Patreon](http://www.patreon.com/yassinphilip)
-
-### Function Documentation
-
-
-#### `(faustine-button-lib-action BUTTON)`
-
-Search Faust library file and insert BUTTON.
-
-#### `(faustine-button-dsp-action BUTTON)`
-
-Search Faust file and insert BUTTON.
-
-#### `(faustine-button-log-action BUTTON)`
-
-Search Faust output buffer and insert BUTTON.
-
-#### `(faustine-button-exe-action BUTTON)`
-
-Run the executable described by BUTTON.
-
-#### `(faustine-buttonize-buffer TYPE)`
-
-Turn all found strings into buttons of type TYPE.
-
-#### `(faustine-configure)`
-
-Use `cutomize-group` to set up Faustine preferences.
-
-#### `(faustine-online-doc START END)`
-
-Websearch selected (or under point) string on faust.grame.fr.
-Build a button from START to END.
-
-#### `(faustine-toggle-output-buffer)`
-
-Show/hide Faust output buffer.
-
-#### `(faustine-open-output-buffer)`
-
-Show Faust output buffer.
-
-#### `(faustine-project-files FNAME BLIST &optional CALLING-PROCESS)`
-
-Recursively find all Faust links in FNAME, canonicalize and put them in BLIST, return BLIST.
-
-#### `(faustine-sentinel PROCESS EVENT)`
-
-Log PROCESS and EVENT to output buffer.
-
-#### `(faustine-mdoc &optional BUILD-ALL)`
-
-Generate mdoc of the current file, display it in a buffer.
-
-#### `(faustine-build &optional BUILD-ALL)`
+### faustine-build 
 
 Build the current buffer/file executable(s).
 If BUILD-ALL is set, build all Faust files referenced by this one.
 
-#### `(faustine-run &optional BUTTON)`
+### faustine-syntax-check 
+Check if Faust code buffer compiles.
+Run at load and save time.
 
-Run the executable generated by the current Faust code buffer or passed by BUTTON.
-
-#### `(faustine-syntax-check)`
-
-Check if Faust code buffer compiles. Runs at load and save time.
-
-#### `(faustine-source-code)`
-
-Generate Faust C++ code of the current faust file, display it in `faustine-c++-buffer-name`.
-
-#### `(faustine-diagram &optional BUILD-ALL)`
+### faustine-diagram 
 
 Generate Faust diagram(s).
 If BUILD-ALL is set, build all `faustine-faust-extension` files referenced by this one.
 
-#### `(faustine-build-html-file LIST DIAGRAM DISPLAY-MODE)`
+### faustine-online-doc 
 
-Build a minimal HTML (web) page to display Faust diagram(s).
-LIST is the list of files to display, DIAGRAM is the current file, and DISPLAY-MODE is the mode.
+Websearch selected (or under point) string on faust.grame.fr.
+Build a button from START to END.
 
------
-<div style="padding-top:15px;color: #d0d0d0;">
-Markdown README file generated by
-<a href="https://github.com/mgalgs/make-readme-markdown">make-readme-markdown.el</a>
-</div>
+### faustine-mdoc 
+
+Generate mdoc of the current file, display it in a buffer.
+If BUILD-ALL is set, build all linked files.
+
+### faustine-toggle-output-buffer 
+`faustine.el'.
+
+Show/hide Faust output buffer.
+
+### faustine-configure 
+
+Use `cutomize-group' to set up Faustine preferences.
+
+### faustine-source-code 
+
+Generate Faust C++ code of the current faust file, display it in `faustine-c++-buffer-name'.
+
+### faustine-run 
+
+Run the executable generated by the current Faust code buffer or passed by BUTTON.
+
+### faustine-build-all 
+
+Build all linked executables.
+
+### faustine-diagram-all 
+
+Build all linked diagrams.# Faustine
+
+Faustine is a lightweight IDE that leverages the mighty power of the faust executable.
+
+Use `faustine-configure' (M-x faustine-configure) to set it up.
+Available commands while editing Faust (*.dsp) files:
+
+
+
+---
+[![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html) [ ![Codeship Status for yassinphilip/faustine](https://app.codeship.com/projects/c2385cd0-5dc6-0135-04b2-0a800465306c/status?branch=master)](https://app.codeship.com/projects/238325)
+## Keys
+
+<kbd>CTRL</kbd>+<kbd>Z</kbd>
+
+- C-c C-c         faustine-syntax-check
+- C-c C-d         faustine-diagram
+- C-c C-h         faustine-online-doc
+- C-c RET         faustine-mdoc
+- C-c C-o         faustine-toggle-output-buffer
+- C-c C-p         faustine-configure
+- C-c C-s         faustine-source-code
+- C-c r           faustine-run
+- C-c C-S-b       faustine-build-all
+- C-c C-S-d       faustine-diagram-all
+
+## Interactive functions
+
+### faustine-build 
+
+Build the current buffer/file executable(s).
+If BUILD-ALL is set, build all Faust files referenced by this one.
+
+### faustine-syntax-check 
+Check if Faust code buffer compiles.
+Run at load and save time.
+
+### faustine-diagram 
+
+Generate Faust diagram(s).
+If BUILD-ALL is set, build all `faustine-faust-extension` files referenced by this one.
+
+### faustine-online-doc 
+
+Websearch selected (or under point) string on faust.grame.fr.
+Build a button from START to END.
+
+### faustine-mdoc 
+
+Generate mdoc of the current file, display it in a buffer.
+If BUILD-ALL is set, build all linked files.
+
+### faustine-toggle-output-buffer 
+Show/hide Faust output buffer.
+
+### faustine-configure 
+
+Use `cutomize-group' to set up Faustine preferences.
+
+### faustine-source-code 
+
+Generate Faust C++ code of the current faust file, display it in `faustine-c++-buffer-name'.
+
+### faustine-run 
+
+Run the executable generated by the current Faust code buffer or passed by BUTTON.
+
+### faustine-build-all 
+
+Build all linked executables.
+
+### faustine-diagram-all 
+
+Build all linked diagrams.
