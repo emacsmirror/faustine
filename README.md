@@ -1,5 +1,6 @@
 # Faustine
 
+![Logo](https://bytebucket.org/yassinphilip/faustine/raw/master/faustine.png)
 Faustine allows the edition of Faust (http://faust.grame.fr/) code.
 Edit, visualize, build and run Faust code files.
 
@@ -43,9 +44,13 @@ C-c C-S-d |  faustine-diagram-all
 
 ## Recommended packages
 
-- [YASnippet](https://github.com/joaotavora/yasnippet)
+Those packages are totally optional, but if you use them, and you
+should, Faustine will take advantage of it, and your experience
+will be better/faster/stronger.
+
 - [Auto-Complete](https://github.com/auto-complete/auto-complete)
 - [Emacs-helm](https://github.com/emacs-helm/helm)
+- [YASnippet](https://github.com/joaotavora/yasnippet)
 
 
 ## Interactive functions
