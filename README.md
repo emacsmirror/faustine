@@ -41,6 +41,13 @@ C-c C-S-b |  faustine-build-all
 C-c C-S-d |  faustine-diagram-all
 
 
+## Recommended packages
+
+- [YASnippet](https://github.com/joaotavora/yasnippet)
+- [Auto-Complete](https://github.com/auto-complete/auto-complete)
+- [Emacs-helm](https://github.com/emacs-helm/helm)
+
+
 ## Interactive functions
 
 ### faustine-build 
