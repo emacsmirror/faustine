@@ -1,6 +1,7 @@
 # Faustine
 
-Faustine is a lightweight IDE that leverages the mighty power of the faust executable.
+Faustine allows the edition of Faust (http://faust.grame.fr/) code.
+Edit, visualize, build and run Faust code files.
 
 Use `faustine-configure' (M-x faustine-configure) to set it up.
 Available commands while editing Faust (*.dsp) files:
@@ -86,5 +87,5 @@ Build all linked executables.
 
 Build all linked diagrams.
 
-##### Doc auto-made on 04:18:21
+##### Doc auto-made on 04:38:41
 ---

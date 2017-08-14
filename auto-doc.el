@@ -1,5 +1,5 @@
 ;; auto-doc.el is just an helper script to generate the README.md
-;; The mode MUST have been loaded before running
+;; The mode MUST be loaded before running
 
 (setq myregexp-key
       (rx
@@ -11,7 +11,7 @@
 
 (defconst passing "[ ![Codeship Status for yassinphilip/faustine](https://app.codeship.com/projects/c2385cd0-5dc6-0135-04b2-0a800465306c/status?branch=master)](https://app.codeship.com/projects/238325)")
 
-(defconst mode-features "
+(defconst mymode-features "
 
 \## Features
 
@@ -29,7 +29,7 @@
 - Automatic keyword completion
 - Modeline indicator of the state of the code")
 
-(defvar gen-time (format-time-string "%H:%M:%S"))
+(defvar mygen-time (format-time-string "%H:%M:%S"))
 
 (defun doc-a-mode ()
   "Search for next define-derived-mode and print markdown documentation."
@@ -55,7 +55,7 @@
         (insert (format "\# Faustine\n\n%s\n---\n" heading))
         (insert gpl3)
         (insert passing)
-        (insert mode-features)
+        (insert mymode-features)
         (insert "\n\n## Keys\n")
 
         (mapc (lambda (x)
@@ -74,7 +74,7 @@
                           (describe-function
                            (eval (read (format "(function faustine%s)" x)))))
                         (cdr cmds)))
-        (insert (format "\n\n##### Doc auto-made on %s\n---\n" gen-time))
+        (insert (format "\n\n##### Doc auto-made on %s\n---\n" mygen-time))
 
         (goto-char (point-min))
         (while (re-search-forward
