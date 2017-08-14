@@ -28,8 +28,8 @@ Available commands while editing Faust (*.dsp) files:
 
 First Header  | Second Header
 ------------- | -------------
-Content Cell  | Content Cell
-Content Cell  | Content Cell
+Content Cell | Content Cell
+Content Cell | Content Cell
 
 
 ## Keys
