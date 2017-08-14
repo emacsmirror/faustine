@@ -3,15 +3,22 @@
 
 (require 'subr-x)
 
-(setq myregexp-key
-      (rx
-       (submatch
-        (and word-start
-             (one-or-more anything))) "\nkey "))
+(defconst gpl3-badge "[![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html) ")
 
-(defconst gpl3 "[![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html) ")
+(defconst codeship-badge "[ ![Codeship Status for yassinphilip/faustine](https://app.codeship.com/projects/c2385cd0-5dc6-0135-04b2-0a800465306c/status?branch=master)](https://app.codeship.com/projects/238325)")
 
-(defconst passing "[ ![Codeship Status for yassinphilip/faustine](https://app.codeship.com/projects/c2385cd0-5dc6-0135-04b2-0a800465306c/status?branch=master)](https://app.codeship.com/projects/238325)")
+(defconst rec-packs "
+
+\## Recommended packages
+
+Those packages are totally optional, but if you use them, and you
+should, Faustine will take advantage of it, and your experience
+will be better/faster/stronger.
+
+- [Auto-Complete](https://github.com/auto-complete/auto-complete)
+- [Emacs-helm](https://github.com/emacs-helm/helm)
+- [YASnippet](https://github.com/joaotavora/yasnippet)
+")
 
 (defconst mymode-features "
 
@@ -33,6 +40,12 @@
 
 (defvar mygen-time (format-time-string "%H:%M:%S"))
 
+(setq myregexp-key
+      (rx
+       (submatch
+        (and word-start
+             (one-or-more anything))) "\nkey "))
+
 (defun doc-a-mode ()
   "Search for next define-derived-mode and print markdown documentation."
   (interactive)
@@ -48,23 +61,22 @@
            (one (nth 0 mylist))
            (fiv (nth 4 mylist))
            (cmds (split-string fiv (rx
-                                    (and line-start
-                                         (zero-or-more not-newline))
+                                    (and line-start (zero-or-more not-newline))
                                     (submatch "faustine"))))
            (clean (split-string fiv (rx (and "\n")))))
 
       (with-temp-buffer
         (insert (format "\# Faustine\n\n%s\n---\n" heading))
-        (insert gpl3)
-        (insert passing)
+        (insert gpl3-badge)
+        (insert codeship-badge)
         (insert mymode-features)
         (insert "\n\n## Keys\n\nKey binding  | Command \n------------- | ------------- \n")
-
         (mapc (lambda (x)
                 (insert (format "%s | %s\n"  (car (split-string x "  "))
                                 (car (last (split-string x "  "))))))
               (cdr clean))
 
+        (insert rec-packs)
         (insert "\n\n## Interactive functions")
         (mapcar (lambda (x)
                   (insert (format
@@ -78,7 +90,6 @@
                            (eval (read (format "(function faustine%s)" x)))))
                         (cdr cmds)))
         (insert (format "\n\n##### Doc auto-made on %s\n---\n" mygen-time))
-
         (goto-char (point-min))
         (while (re-search-forward
                 (rx (and line-start
