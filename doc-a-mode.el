@@ -70,7 +70,7 @@ will be better/faster/stronger.
       (with-temp-buffer
         (insert "\# Faustine\n\n")
         (insert mode-image-logo)
-        (insert (format "\n%s\n---\n" heading))
+        (insert (format "\n\n%s\n---\n" heading))
         (insert gpl3-badge)
         (insert codeship-badge)
         (insert mymode-features)
