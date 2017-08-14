@@ -1,5 +1,5 @@
 ;; doc-a-mode.el is just an helper script to generate the README.md
-;; The mode MUST be loaded before running
+;; The mode MUST be re/loaded before running
 
 (require 'subr-x)
 
@@ -17,7 +17,7 @@ will be better/faster/stronger.
 
 - [Auto-Complete](https://github.com/auto-complete/auto-complete)
 - [Emacs-helm](https://github.com/emacs-helm/helm)
-- [YASnippet](https://github.com/joaotavora/yasnippet)
+- [YASnippet](https://github.com/joaotavora/yasnippet) (includes [Faust snippets](https://github.com/AndreaCrotti/yasnippet-snippets/tree/885050d34737e2fb36a3e7759d60c09347bd4ce0/faust-mode))
 ")
 
 (defconst mode-image-logo "![Logo](https://bytebucket.org/yassinphilip/faustine/raw/master/faustine.png)")
