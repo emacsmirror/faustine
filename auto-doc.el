@@ -1,5 +1,6 @@
 ;; auto-doc.el is just an helper script to generate the README.md
 
+
 (setq myregexp-key
       (rx
        (submatch
