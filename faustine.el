@@ -12,6 +12,14 @@
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -21,8 +29,6 @@
 ;;; Code:
 
 (require 'smie)
-;; (require 'easymenu)
-;; (require 'rx)
 
 (defconst faustine-faust-keywords-lib-analyzer
   '("amp_follower" "amp_follower_ud" "amp_follower_ar" "mth_octave_analyzer[N]" "mth_octave_spectral_level6e" "octave_filterbank" "octave_analyzer" "half_octave_filterbank" "half_octave_analyzer" "third_octave_filterbank" "third_octave_analyzer" "analyzer"))
@@ -436,19 +442,14 @@ This is only for use with the command `faustine-online-doc'."
     (,faustine-output-mode-keywords-time . 'font-lock-type-face)
     (,faustine-output-mode-keywords-status . 'font-lock-keyword-face)))
 
-(define-derived-mode faustine-output-mode fundamental-mode
-  "The Faust output buffer mode."
-  (kill-all-local-variables)
-  (setq font-lock-defaults '(faustine-output-mode-font-lock-keywords t))
-  (font-lock-fontify-buffer))
-
 (defvar faust-mode-ac-source
   '((candidates . faustine-faust-keywords-lib)))
 
 ;;;###autoload
-(define-derived-mode faust-mode prog-mode "Faustine - A lightweight Emacs Faust IDE"
+(define-derived-mode faust-mode prog-mode "Faust"
 
-  "Faustine is a lightweight IDE that leverages the mighty power of the faust executable.
+  "Faustine allows the edition of Faust (http://faust.grame.fr/) code.
+Edit, visualize, build and run Faust code files.
 
 Use `faustine-configure' (\\[faustine-configure]) to set it up.
 Available commands while editing Faust (*.dsp) files:
@@ -490,6 +491,12 @@ Available commands while editing Faust (*.dsp) files:
   (define-key faust-mode-map (kbd faustine-kb-toggle-output-buffer) 'faustine-toggle-output-buffer)
 
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
+
+(define-derived-mode faustine-output-mode fundamental-mode
+  "The Faust output buffer mode."
+  (kill-all-local-variables)
+  (setq font-lock-defaults '(faustine-output-mode-font-lock-keywords t))
+  (font-lock-fontify-buffer))
 
 (defun faustine-project-files (fname blist &optional calling-process)
   "Recursively find all Faust links in FNAME, put them in BLIST, return BLIST.
@@ -707,11 +714,9 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
                     (format "./%s" (file-name-sans-extension
                                     (file-name-nondirectory
                                      (buffer-name))))))
-         (buf (if button
-                  "Click"
-                (buffer-name)))
+         (buffer (if button "Click" (buffer-name)))
          (process (start-process-shell-command
-                   (format "Run:%s" buf)
+                   (format "Run:%s" buffer)
                    faustine-output-buffer-name
                    command)))
     (set-process-sentinel process 'faustine-sentinel)))
@@ -851,48 +856,6 @@ img.scaled {
 ;;;###autoload
 (add-to-list 'auto-mode-alist
              '("\\.dsp\\'" . faust-mode))
-
-;; (when (require 'auto-complete)
-;;   (message "plop")
-;;   ;; (add-hook 'faust-mode-hook #'auto-complete-mode)
-;;   (add-hook 'faust-mode-mode-hook
-;;             (lambda ()
-;;               (setq ac-sources '(ac-source-words-in-buffer
-;;                                  ac-source-symbols
-;;                                  ac-source-abbrev
-;;                                  ac-source-dictionary
-;;                                  ac-source-emacs-lisp-features
-;;                                  ac-source-features
-;;                                  ac-source-filename
-;;                                  ac-source-files-in-current-dir
-;;                                  ac-source-functions
-;;                                  ac-source-symbols
-;;                                  ac-source-variables
-;;                                  ac-source-words-in-all-buffer
-;;                                  ac-source-words-in-buffer
-;;                                  ac-source-words-in-same-mode-buffers))))
-;;   )
-
-;; (when (boundp #'auto-complete-mode)
-;;   (add-hook 'faust-mode-mode-hook
-;;             (lambda ()
-;;               (setq ac-sources '(ac-source-words-in-buffer
-;;                                  ac-source-symbols
-;;                                  ac-source-abbrev
-;;                                  ac-source-dictionary
-;;                                  ac-source-emacs-lisp-features
-;;                                  ac-source-features
-;;                                  ac-source-filename
-;;                                  ac-source-files-in-current-dir
-;;                                  ac-source-functions
-;;                                  ac-source-symbols
-;;                                  ac-source-variables
-;;                                  ac-source-words-in-all-buffer
-;;                                  ac-source-words-in-buffer
-;;                                  ac-source-words-in-same-mode-buffers)))))
-
-;; (ac-define-source mysource3
-;;   '((candidates . (list "Foo" "Bar" "Baz"))))
 
 (provide 'faustine)
 
