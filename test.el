@@ -129,61 +129,119 @@ during initialization.
   "Plop."
   (interactive)
   ;; (goto-char (point-min))
-  (if (re-search-forward myregexp-keys)
+  (if (re-search-forward myregexp-key)
       (progn
-        (message "Found (%s) AND (%s) AND (%s)"
+        (message "Found (%s) AND (%s)"
                  (match-string 0)
                  (match-string 1)
-                 (match-string 2)
+                 ;; (match-string 2)
                  ))))
 
 (require 'cl)
+
+(setq myregexp-key
+      (rx
+       (submatch
+        (and word-start
+             (one-or-more anything))) "\nkey "))
+
+;; [![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html)
+
 
 (defun doc-a-mode ()
   "Searches for next define-derived-mode and print markdown documentation."
   (interactive)
 
+  (if (file-regular-p "README.md") (delete-file "README.md"))
+
   (with-temp-buffer
     (insert (documentation 'faust-mode))
+    (goto-char (point-min))
+    (when (re-search-forward myregexp-key)
+      (setq heading (match-string 1))
+      (message "Heading (%s)" heading))
+
     (let* ((mylist (split-string (buffer-string) "^\\s-*$" t "\n"))
            (one (nth 0 mylist))
-           (two (nth 1 mylist))
-           (tre (nth 2 mylist))
-           (for (nth 3 mylist))
            (fiv (nth 4 mylist))
            (cmds (split-string fiv (rx
                                     (and
                                      line-start
-                                     (zero-or-more not-newline)
-                                     )
+                                     (zero-or-more not-newline))
                                     (submatch
-                                     "faustine")
-                                    ))))
-      (message "Header: (%s)" one)
-      (message "Keys: (%s)" fiv)
+                                     "faustine"))))
+           (clean (split-string fiv (rx (and "\n")))))
 
-      (setq sequence
-            (mapcar (lambda (x)
-                      (describe-function
-                       (eval (read (format "(function faustine%s)" x)))))
-                    (cdr cmds)))
-      (mapcar (lambda (x) (message "cmd: (%s)"
-                                   (replace-regexp-in-string
-                                    (rx
-                                     (and
-                                      "is an interactive"
-                                      (zero-or-more not-newline)
-                                      line-end)
-                                     )
-                                    "" x)
-                                   )) sequence)
-      ;; (message "Cmds: [%s] (length %s)" (cdr funcs) (length '(cdr (funcs))))
+      (with-temp-buffer
+        (insert "\# Faustine\n")
+        (insert (format "\n%s\n\n" heading))
+        (insert "\n---\n")
+        (insert "[![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html) ")
 
-      ;; (message "Cmds: [%s]" (car funcs))
-      )
-    )
-  )
+        (insert "[ ![Codeship Status for yassinphilip/faustine](https://app.codeship.com/projects/c2385cd0-5dc6-0135-04b2-0a800465306c/status?branch=master)](https://app.codeship.com/projects/238325)")
 
+        (insert "\n## Keys\n")
+        (insert "\n<kbd>CTRL</kbd>+<kbd>Z</kbd>\n")
+
+        (mapc (lambda (x)
+                (insert (format "\n- %s" x)))
+              (cdr clean))
+
+        (insert "\n\n## Interactive functions")
+        (mapcar (lambda (x)
+                  (insert (format
+                           "\n\n### %s"
+                           (replace-regexp-in-string
+                            (rx
+                             (and "is an interactive" (zero-or-more not-newline)
+                                  (or line-end "\n"))) "" x))))
+                (mapcar (lambda (x)
+                          (describe-function
+                           (eval (read (format "(function faustine%s)" x)))))
+                        (cdr cmds)))
+        (goto-char (point-min))
+        (while (re-search-forward
+                (rx (and line-start
+                         "\(")) nil t nil)
+          (beginning-of-line)
+          (kill-line 2))
+        (goto-char (point-min))
+
+        (while (re-search-forward
+                (rx (and
+                     "faustine.el")) nil t nil)
+          (beginning-of-line)
+          (kill-line 2)
+          (write-region (buffer-string) nil "README.md" 'append 0 nil nil)
+          (find-file "README.md"))))))
+
+(require 'markdown-mode)
+
+(format "%s" (replace-regexp-in-string
+              (format
+               "\n\n# %s"
+               (replace-regexp-in-string
+                (rx
+                 (and
+                  "is an interactive"
+                  (zero-or-more not-newline)
+                  line-end))
+                "" "faustine-build is an interactive blah
+
+(faustine-build &optional BUILD-ALL)
+
+Build the current buffer/file executable(s).
+If BUILD-ALL is set, build all Faust files referenced by this one."))
+(rx
+ (and
+  word-start
+  "current"
+
+  )) "plop"))
+
+(write-region "</div>
+</body>
+</html>\n" nil faustine-diagram-page-name 'append 0 nil nil)
 
 ;; (if (re-search-forward
 ;;      (rx
