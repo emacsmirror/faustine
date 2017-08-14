@@ -6,6 +6,4 @@
   (byte-compile-file "faustine.el")
   (switch-to-buffer "*Compile-Log*")
   (let ((lines (buffer-substring (point-min) (point-max))))
-    (should (not (string-match "Warning:" lines)) )
-    )
-  )
+    (should (not (string-match "Warning:" lines)))))
