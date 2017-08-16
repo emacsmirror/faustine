@@ -4,7 +4,7 @@
 
 ;; Author: Yassin Philip <xaccrocheur@gmail.com>
 ;; Maintainer: Yassin Philip <xaccrocheur@gmail.com>
-;; Keywords: modes, faust
+;; Keywords: languages, faust
 ;; Version: 1.0.1
 ;; URL: https://bitbucket.org/yassinphilip/faustine
 
