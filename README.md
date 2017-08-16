@@ -99,5 +99,5 @@ using the `faustine-build-backend'.
 Build diagram of all the files referenced by his one.
 Construct a minimal HTML page and display it in the default browser.
 
-##### Doc auto-made on 03:36:40
+##### Doc auto-made on 03:43:48
 ---
