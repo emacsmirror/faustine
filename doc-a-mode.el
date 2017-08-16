@@ -1,5 +1,5 @@
 ;; doc-a-mode.el is just an helper script to generate the README.md
-;; The mode MUST be re/loaded before running
+;; The mode MUST be re/loaded before running, oh, and indent-tabs-mode nil, too.
 
 (require 'subr-x)
 
@@ -68,7 +68,7 @@ will be better/faster/stronger.
            (clean (split-string fiv (rx (and "\n")))))
 
       (with-temp-buffer
-        (insert "\# Faustine\n\n")
+        (insert "\# Faustine")
         ;; (insert mode-image-logo)
         (insert (format "\n\n%s\n---\n" heading))
         (insert gpl3-badge)
@@ -79,7 +79,7 @@ will be better/faster/stronger.
                 (insert (format "%s | %s\n"  (car (split-string x "  "))
                                 (car (last (split-string x "  "))))))
               (cdr clean))
-
+	
         (insert rec-packs)
         (insert "\n\n## Interactive functions")
         (mapcar (lambda (x)

@@ -1,7 +1,5 @@
 # Faustine
 
-
-
 Faustine allows the edition of Faust (http://faust.grame.fr) code.
 Edit, visualize, build and run Faust code files.
 
@@ -31,16 +29,16 @@ Available commands while editing Faust files:
 
 Key binding  | Command 
 ------------- | ------------- 
-C-c C-c		faustine-syntax-check | C-c C-c		faustine-syntax-check
-C-c C-d		faustine-diagram | C-c C-d		faustine-diagram
-C-c C-h		faustine-online-doc | C-c C-h		faustine-online-doc
-C-c RET		faustine-mdoc | C-c RET		faustine-mdoc
-C-c C-o		faustine-toggle-output-buffer | C-c C-o		faustine-toggle-output-buffer
-C-c C-p		faustine-configure | C-c C-p		faustine-configure
-C-c C-s		faustine-source-code | C-c C-s		faustine-source-code
-C-c r		faustine-run | C-c r		faustine-run
-C-c C-S-b	faustine-build-all | C-c C-S-b	faustine-build-all
-C-c C-S-d	faustine-diagram-all | C-c C-S-d	faustine-diagram-all
+C-c C-c |  faustine-syntax-check
+C-c C-d |  faustine-diagram
+C-c C-h |  faustine-online-doc
+C-c RET |  faustine-mdoc
+C-c C-o |  faustine-toggle-output-buffer
+C-c C-p |  faustine-configure
+C-c C-s |  faustine-source-code
+C-c r |  faustine-run
+C-c C-S-b |  faustine-build-all
+C-c C-S-d |  faustine-diagram-all
 
 
 ## Recommended packages
@@ -99,5 +97,5 @@ using the `faustine-build-backend'.
 Build diagram of all the files referenced by his one.
 Construct a minimal HTML page and display it in the default browser.
 
-##### Doc auto-made on 03:43:48
+##### Doc auto-made on 04:14:25
 ---
