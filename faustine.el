@@ -492,7 +492,13 @@ Available commands while editing Faust files:
   "The Faust output buffer mode."
   (kill-all-local-variables)
   (setq font-lock-defaults '(faustine-output-mode-font-lock-keywords t))
-  (font-lock-fontify-buffer))
+  (if (functionp 'font-lock-ensure)
+      (font-lock-ensure)
+    ;; font-lock-fontify-buffer is marked as interactive only
+    ;; in Emacs 25.  Call interactively to avoid
+    ;; byte-compilation errors
+    (call-interactively 'font-lock-fontify-buffer))
+  )
 
 (defun faustine-project-files (fname blist &optional calling-process)
   "Recursively find all Faust links in FNAME, put them in BLIST, return BLIST.
