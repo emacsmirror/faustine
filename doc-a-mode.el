@@ -93,7 +93,8 @@ will be better/faster/stronger.
                           (describe-function
                            (eval (read (format "(function faustine%s)" x)))))
                         (cdr cmds)))
-        (insert (format "\n\n##### Doc auto-made on %s\n---\n" mygen-time))
+        
+        (insert (format "\n---\n_Icon by [Mattahan](https://mattahan.deviantart.com/art/Buuf-37966044)_ \n\n##### Doc auto-made on %s\n---\n" mygen-time))
         (goto-char (point-min))
         (while (re-search-forward
                 (rx (and line-start

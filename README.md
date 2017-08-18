@@ -95,7 +95,8 @@ using the `faustine-build-backend'.
 
 ### faustine-diagram-all 
 Build diagram of all the files referenced by his one.
-Construct a minimal HTML page and display it in the default browser.
+Construct a minimal HTML page and display it in the default browser.---
+_Icon by [Mattahan](https://mattahan.deviantart.com/art/Buuf-37966044)_ 
 
-##### Doc auto-made on 04:14:25
+##### Doc auto-made on 05:11:04
 ---
