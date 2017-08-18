@@ -1,4 +1,4 @@
-.PHONY : tests clearscr
+.PHONY : tests clr
 
 EMACS ?= emacs
 CASK ?= cask
@@ -9,9 +9,9 @@ LOADPATH = -L .
 ELPA_DIR = \
 	.cask/$(shell $(EMACS) -Q --batch --eval '(princ emacs-version)')/elpa
 
-all: clearscr tests
+all: clr tests
 
-clearscr:
+clr:
 	clear
 
 install_cask:
