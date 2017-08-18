@@ -1,4 +1,4 @@
-.PHONY : tests bidule clearscr
+.PHONY : tests clearscr
 
 EMACS ?= emacs
 CASK ?= cask
@@ -9,12 +9,7 @@ LOADPATH = -L .
 ELPA_DIR = \
 	.cask/$(shell $(EMACS) -Q --batch --eval '(princ emacs-version)')/elpa
 
-ID=asdf
-
-bidule:
-	echo ${ID}
-
-all: bidule clearscr tests
+all: clearscr tests
 
 clearscr:
 	clear
