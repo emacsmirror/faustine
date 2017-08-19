@@ -36,3 +36,9 @@ elpa: $(ELPA_DIR)
 $(ELPA_DIR): Cask
 	$(CASK) install
 	touch $@
+
+# npm install emacs
+# ln -sf /home/rof/cache/emacs/bin/emacs ~/bin/
+# curl -fsSL https://raw.githubusercontent.com/cask/cask/master/go | python
+# export PATH="/home/rof/.cask/bin:$PATH"
+# mkdir $(emacs --version | head -1 | awk -v N=3 '{print $N}')
