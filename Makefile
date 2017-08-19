@@ -46,3 +46,13 @@ $(ELPA_DIR): Cask
 # Codeship POST
 # mkdir -p .cask/$(emacs --version | head -1 | awk -v N=3 '{print $N}')
 # make all
+
+# pip install emacs
+# Collecting emacs
+#   Downloading emacs-24.1.50.1-20120610.tar.gz
+# Building wheels for collected packages: emacs
+#   Running setup.py bdist_wheel for emacs ... done
+#   Stored in directory: /home/rof/cache/pip/wheels/e2/1f/d4/74c9fb56f2db93ecc3442caeff57e2a5eb52b53b467224f40a
+# Successfully built emacs
+# Installing collected packages: emacs
+# Successfully installed emacs-24.1.50.1.post20120610
