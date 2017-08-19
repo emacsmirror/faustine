@@ -7,7 +7,6 @@ Use `faustine-configure' (M-x faustine-configure) to set it up.
 Available commands while editing Faust files:
 
 ---
-[![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html) [ ![Codeship Status for yassinphilip/faustine](https://app.codeship.com/projects/c2385cd0-5dc6-0135-04b2-0a800465306c/status?branch=master)](https://app.codeship.com/projects/238325)
 
 ## Features
 
