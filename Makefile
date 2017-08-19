@@ -37,8 +37,12 @@ $(ELPA_DIR): Cask
 	$(CASK) install
 	touch $@
 
+# Codeship PRE
 # npm install emacs
 # ln -sf /home/rof/cache/emacs/bin/emacs ~/bin/
 # curl -fsSL https://raw.githubusercontent.com/cask/cask/master/go | python
 # export PATH="/home/rof/.cask/bin:$PATH"
-# mkdir $(emacs --version | head -1 | awk -v N=3 '{print $N}')
+
+# Codeship POST
+# mkdir -p .cask/$(emacs --version | head -1 | awk -v N=3 '{print $N}')
+# make all
