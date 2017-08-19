@@ -12,13 +12,14 @@ if [ ! -d "${EMACS_DIR}" ]; then
 
   (
     cd "${HOME}/emacs" || exit 1
-    ./configure --prefix="${EMACS_DIR}" --with-xpm=no
+    ./configure --prefix="${EMACS_DIR}" --with-xpm=no  2> /dev/null
     make
     make install
   )
 fi
 
 ln -s "${EMACS_DIR}/bin/"* "${HOME}/bin"
+
 
 # Then as build steps call these two commands:
 
