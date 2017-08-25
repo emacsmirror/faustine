@@ -1,6 +1,7 @@
 # Faustine
  *Edit, visualize, build and run Faust code*
 ___
+[![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html) [![Codeship Status for yassinphilip/faustine](https://app.codeship.com/projects/c2385cd0-5dc6-0135-04b2-0a800465306c/status?branch=master)](https://app.codeship.com/projects/238325)
 
 
 Faustine allows the edition of Faust (http://faust.grame.fr) code. Edit, visualize, build and run Faust code files.
@@ -146,4 +147,4 @@ during initialization.
 
 ___
 ___
-##### README.md Generated at Fri Aug 25 10:17:22 2017 using [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)
+##### README.md Generated at Fri Aug 25 10:19:25 2017 using [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)
