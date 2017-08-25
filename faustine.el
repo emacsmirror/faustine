@@ -1,4 +1,4 @@
-;;; faustine.el --- Edit, visualize, build and run Faust code
+;;; faustine.el - Edit, visualize, build and run Faust code
 
 ;; Copyright (C) 2017 Yassin Philip
 
@@ -23,8 +23,25 @@
 
 ;;; Commentary:
 
-;; Edit, visualize, build and run Faust code.
-;; Inspired by Faustworks, now deprecated.
+;; Faustine allows the edition of Faust (http://faust.grame.fr) code. Edit, visualize, build and run Faust code files.
+;; Use `faustine-configure' (`M-x faustine-configure`) to set it up. Available commands while editing Faust files:
+
+;; ## Features
+
+;; - Project-based (inter-linked Faust files)
+;; - Faust code syntax hightlighting, indentation and keyword completion
+;; - Build/compile with configurable output window
+;; - Graphic diagrams generation and vizualisation in the browser
+;; - Browse generated C++ code inside Emacs
+;; - Inter-linked files/buffers :
+;;     - From "component" to Faust file
+;;     - From "include" to library file
+;; - From error to file, direct to line number
+;; - From function name to online documentation
+;; - Fully configurable (build type/target/architecture/toolkit, keyboard shortcuts, etc.)
+;; - Automatic keyword completion
+;; - Modeline indicator of the state of the code
+
 
 ;;; Code:
 
@@ -341,6 +358,7 @@ This is only for use with the command `faustine-online-doc'."
   :lighter faustine-red-mode-bug
   :keymap faustine-red-mode-map)
 
+;;;###autoload
 (defvar faust-mode-map
   (let ((map (make-sparse-keymap)))
     map)
@@ -444,8 +462,7 @@ This is only for use with the command `faustine-online-doc'."
 ;;;###autoload
 (define-derived-mode faust-mode prog-mode "Faust"
 
-  "Faustine allows the edition of Faust (http://faust.grame.fr) code.
-Edit, visualize, build and run Faust code files.
+  "A mode to allow the edition of Faust (http://faust.grame.fr) code.
 
 Use `faustine-configure' (\\[faustine-configure]) to set it up.
 Available commands while editing Faust files:
@@ -488,7 +505,7 @@ Available commands while editing Faust files:
 
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
-(define-derived-mode faustine-output-mode fundamental-mode
+(define-derived-mode faustine-output-mode fundamental-mode "Faust Output"
   "The Faust output buffer mode."
   (kill-all-local-variables)
   (setq font-lock-defaults '(faustine-output-mode-font-lock-keywords t))
