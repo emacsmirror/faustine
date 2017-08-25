@@ -7,6 +7,9 @@
 ;; Keywords: languages, faust
 ;; Version: 1.0.1
 ;; URL: https://bitbucket.org/yassinphilip/faustine
+;; License: GPLv3
+;; Codeship-key: c2385cd0-5dc6-0135-04b2-0a800465306c
+;; Codeship-prj: 238325
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
