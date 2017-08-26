@@ -508,9 +508,10 @@ Available commands while editing Faust files:
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
 (define-derived-mode faustine-output-mode fundamental-mode "Faust Output"
-  "The Faust output buffer mode.
+  "The Faust output buffer mode. 
 The output buffer displays the result of the commands with their time stamps and status. 
-- A click on an error opens the buffer at the error line ;
+
+- A click on an error opens the buffer at the error line
 - A click on an executable name runs it."
   (kill-all-local-variables)
   (setq font-lock-defaults '(faustine-output-mode-font-lock-keywords t))
