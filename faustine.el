@@ -26,8 +26,7 @@
 
 ;;; Commentary:
 
-;; Faustine allows the edition of Faust (http://faust.grame.fr) code. Edit, visualize, build and run Faust code files.
-;; Use `faustine-configure' (`M-x faustine-configure`) to set it up. Available commands while editing Faust files:
+;; Faustine allows the edition of Faust (http://faust.grame.fr) code. 
 
 ;; ## Features
 
@@ -44,7 +43,6 @@
 ;; - Fully configurable (build type/target/architecture/toolkit, keyboard shortcuts, etc.)
 ;; - Automatic keyword completion
 ;; - Modeline indicator of the state of the code
-
 
 ;;; Code:
 
@@ -484,7 +482,7 @@ Available commands while editing Faust files:
       (progn
         (add-to-list 'ac-modes 'faust-mode)
         (add-to-list 'ac-sources 'faust-mode-ac-source))
-    (message "You should really install auto-complete"))
+    (message "You really should install and use auto-complete"))
 
   (smie-setup nil #'ignore)
 
@@ -505,6 +503,7 @@ Available commands while editing Faust files:
   (define-key faust-mode-map (kbd faustine-kb-source-code) 'faustine-source-code)
   (define-key faust-mode-map (kbd faustine-kb-syntax-check) 'faustine-syntax-check)
   (define-key faust-mode-map (kbd faustine-kb-toggle-output-buffer) 'faustine-toggle-output-buffer)
+  (define-key faust-mode-map (kbd "C-M-q") nil)
 
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
