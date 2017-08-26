@@ -1,4 +1,4 @@
-;;; faustine.el - Edit, visualize, build and run Faust code
+;;; faustine.el --- Edit, visualize, build and run Faust code
 
 ;; Copyright (C) 2017 Yassin Philip
 
