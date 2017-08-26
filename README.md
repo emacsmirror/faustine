@@ -33,18 +33,18 @@ Available commands while editing Faust files:
 
 Key binding  | Commmand 
 ------------- | ------------- 
-C-c C-b | faustine-build
-C-c C-c | faustine-syntax-check
-C-c C-d | faustine-diagram
-C-c C-h | faustine-online-doc
-C-c RET | faustine-mdoc
-C-c C-o | faustine-toggle-output-buffer
-C-c C-p | faustine-configure
-C-c C-s | faustine-source-code
-C-c r | faustine-run
-C-c C-S-b | faustine-build-all
-C-c C-S-d | faustine-diagram-all
-C-M-q | prog-indent-sexp
+`C-c C-b` | faustine-build
+`C-c C-c` | faustine-syntax-check
+`C-c C-d` | faustine-diagram
+`C-c C-h` | faustine-online-doc
+`C-c RET` | faustine-mdoc
+`C-c C-o` | faustine-toggle-output-buffer
+`C-c C-p` | faustine-configure
+`C-c C-s` | faustine-source-code
+`C-c r` | faustine-run
+`C-c C-S-b` | faustine-build-all
+`C-c C-S-d` | faustine-diagram-all
+`C-M-q` | prog-indent-sexp
 
 ### faust-mode Commands
 #### faustine-build
@@ -132,8 +132,6 @@ When interactively called with prefix, indent the enclosing defun
 instead.
 
 
-
-___
 ## faustine-output-mode
 The Faust output buffer mode.
 
@@ -142,7 +140,5 @@ during initialization.
 
 
 
-
 ___
-___
-##### README.md Generated at 04:24:50 using [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)
+##### README.md Generated at 04:37:03 using [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)
