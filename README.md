@@ -133,7 +133,11 @@ instead.
 
 
 ## faustine-output-mode
-The Faust output buffer mode.
+The Faust output buffer mode. 
+The output buffer displays the result of the commands with their time stamps and status. 
+
+- A click on an error opens the buffer at the error line
+- A click on an executable name runs it.
 
 This mode runs the hook `faustine-output-mode-hook`, as the final step
 during initialization.
@@ -141,4 +145,4 @@ during initialization.
 
 
 ___
-##### README.md Generated at 04:37:03 using [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)
+##### README.md Generated at 04:54:12 using [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)
