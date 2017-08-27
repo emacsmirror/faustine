@@ -123,7 +123,7 @@ using the `faustine-build-backend`.
 Build diagram of all the files referenced by his one.
 Construct a minimal HTML page and display it in the default browser.
 
-#### prog-indent-sexp (in prog-mode.el)
+#### prog-indent-sexp (from prog-mode.el)
 
 (prog-indent-sexp &optional DEFUN)
 
@@ -145,4 +145,4 @@ during initialization.
 
 
 ___
-##### README.md Generated at 04:54:12 using [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)
+*README.md Generated at 04:54:12 using [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
