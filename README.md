@@ -33,18 +33,18 @@ Available commands while editing Faust files:
 
 Key binding  | Commmand 
 ------------- | ------------- 
-`C-c C-b` | faustine-build
-`C-c C-c` | faustine-syntax-check
-`C-c C-d` | faustine-diagram
-`C-c C-h` | faustine-online-doc
-`C-c RET` | faustine-mdoc
-`C-c C-o` | faustine-toggle-output-buffer
-`C-c C-p` | faustine-configure
-`C-c C-s` | faustine-source-code
-`C-c r` | faustine-run
-`C-c C-S-b` | faustine-build-all
-`C-c C-S-d` | faustine-diagram-all
-`C-M-q` | prog-indent-sexp
+`C-c C-b` | [faustine-build](#markdown-header-faustine-build)
+`C-c C-c` | [faustine-syntax-check](#markdown-header-faustine-syntax-check)
+`C-c C-d` | [faustine-diagram](#markdown-header-faustine-diagram)
+`C-c C-h` | [faustine-online-doc](#markdown-header-faustine-online-doc)
+`C-c RET` | [faustine-mdoc](#markdown-header-faustine-mdoc)
+`C-c C-o` | [faustine-toggle-output-buffer](#markdown-header-faustine-toggle-output-buffer)
+`C-c C-p` | [faustine-configure](#markdown-header-faustine-configure)
+`C-c C-s` | [faustine-source-code](#markdown-header-faustine-source-code)
+`C-c r` | [faustine-run](#markdown-header-faustine-run)
+`C-c C-S-b` | [faustine-build-all](#markdown-header-faustine-build-all)
+`C-c C-S-d` | [faustine-diagram-all](#markdown-header-faustine-diagram-all)
+`C-M-q` | [prog-indent-sexp](#markdown-header-prog-indent-sexp)
 
 ### faust-mode Commands
 #### faustine-build
@@ -123,7 +123,9 @@ using the `faustine-build-backend`.
 Build diagram of all the files referenced by his one.
 Construct a minimal HTML page and display it in the default browser.
 
-#### prog-indent-sexp (from prog-mode.el)
+#### prog-indent-sexp
+> Defined in *prog-mode.el*
+
 
 (prog-indent-sexp &optional DEFUN)
 
@@ -132,6 +134,7 @@ When interactively called with prefix, indent the enclosing defun
 instead.
 
 
+___
 ## faustine-output-mode
 The Faust output buffer mode. 
 The output buffer displays the result of the commands with their time stamps and status. 
@@ -145,4 +148,4 @@ during initialization.
 
 
 ___
-*README.md Generated at 04:54:12 using [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md Generated on 2017-08-27 at 14:40:58 using [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
