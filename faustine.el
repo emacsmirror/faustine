@@ -726,7 +726,6 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
                   faustine-output-buffer-name
                   (format "faust2mathdoc %s" (shell-quote-argument
                                               (file-name-nondirectory (buffer-file-name)))))))
-    
     (faustine-sentinel (format "Mdoc:%s" (file-name-nondirectory (buffer-file-name))) "started\n")
     (set-process-sentinel process 'faustine-sentinel)))
 
@@ -736,12 +735,15 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
   (interactive)
   (faustine-sentinel (format "Build:%s" (file-name-nondirectory (buffer-file-name))) "started\n")
   (let* ((files-to-build (if build-all
-                             (mapconcat 'identity (faustine-project-files (file-name-nondirectory (buffer-file-name)) '() "Build") " ")
-                           (current-buffer)))
+                             (mapconcat 'shell-quote-argument (faustine-project-files
+                                                               (file-name-nondirectory
+                                                                (buffer-file-name)) '() "Build") " ")
+                           (file-name-nondirectory (buffer-file-name))))
          (process (start-process-shell-command
                    (format "Build:%s" (file-name-nondirectory (buffer-file-name)))
                    faustine-output-buffer-name
                    (format "%s %s" faustine-build-backend files-to-build))))
+    (message "files: %S" files-to-build)
     (set-process-sentinel process 'faustine-sentinel)))
 
 (defun faustine-run (&optional button)
@@ -759,7 +761,7 @@ or passed by from the output buffer BUTTON click."
          (process (start-process-shell-command
                    (format "Run:%s" buffer)
                    faustine-output-buffer-name
-                   command)))
+                   (shell-quote-argument command))))
     (set-process-sentinel process 'faustine-sentinel)))
 
 (defun faustine-source-code ()
@@ -767,15 +769,17 @@ or passed by from the output buffer BUTTON click."
 display it in a buffer."
   (interactive)
   (let ((process (start-process-shell-command
-                  (format "C++:%s" (file-name-nondirectory
-                                    (buffer-file-name)))
+                  (format "C++:%s" (shell-quote-argument
+                                    (file-name-nondirectory
+                                     (buffer-file-name))))
                   nil
                   (format "faust -uim %s -o %s.cpp"
                           (file-name-nondirectory
                            (buffer-file-name))
-                          (file-name-sans-extension
-                           (file-name-nondirectory
-                            (buffer-file-name)))))))
+                          (shell-quote-argument
+                           (file-name-sans-extension
+                            (file-name-nondirectory
+                             (buffer-file-name))))))))
     (set-process-sentinel process 'faustine-sentinel)))
 
 (defun faustine-diagram (&optional build-all)
@@ -794,7 +798,7 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
                     (format "Diagram:%s" (file-name-nondirectory
                                           (buffer-file-name)))
                     nil
-                    (format "faust2svg %s" (mapconcat 'identity files-to-build " ")))))
+                    (format "faust2svg %s" (mapconcat 'shell-quote-argument files-to-build " ")))))
       (faustine-build-html-file files-to-build (file-name-nondirectory
                                                 (buffer-file-name)) display-mode)
       (set-process-sentinel process 'faustine-sentinel))))
