@@ -147,4 +147,4 @@ during initialization.
 
 
 ___
-*README.md Generated on 2017-08-31 at 13:25:53 using [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-08-31 at 13:32:07 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
