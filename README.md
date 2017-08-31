@@ -40,7 +40,7 @@ Available commands while editing Faust files:
 
 ### faustine-mode Keys
 
-Key binding  | Commmand 
+Key binding  | Command 
 ------------- | ------------- 
 `C-c C-b` | [faustine-build](#markdown-header-faustine-build)
 `C-c C-c` | [faustine-syntax-check](#markdown-header-faustine-syntax-check)
@@ -149,7 +149,7 @@ Available key bindings in the output buffer:
 
 ### faustine-output-mode Keys
 
-Key binding  | Commmand 
+Key binding  | Command 
 ------------- | ------------- 
 `q` | [delete-window](#markdown-header-delete-window)
 
@@ -181,4 +181,4 @@ that is its frame's root window.
 
 
 ___
-*README.md made on 2017-08-31 at 14:59:26 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-08-31 at 15:04:57 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
