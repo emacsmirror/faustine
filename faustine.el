@@ -775,14 +775,19 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
   (interactive)
   (message "plop")
   (let ((files-to-build
-         (if build-all (faustine-project-files (buffer-name) '() "Diagram") (list (buffer-name))))
+         (if build-all
+             (faustine-project-files (file-name-nondirectory
+                                      (buffer-file-name)) '() "Diagram")
+           (list (file-name-nondirectory (buffer-file-name)))))
         (display-mode
          (if build-all "all" "single")))
     (let ((process (start-process-shell-command
-                    (format "Diagram:%s" (buffer-name))
+                    (format "Diagram:%s" (file-name-nondirectory
+                                          (buffer-file-name)))
                     nil
                     (format "faust2svg %s" (mapconcat 'identity files-to-build " ")))))
-      (faustine-build-html-file files-to-build (buffer-name) display-mode)
+      (faustine-build-html-file files-to-build (file-name-nondirectory
+                                                (buffer-file-name)) display-mode)
       (set-process-sentinel process 'faustine-sentinel))))
 
 (defun faustine-build-html-file (list diagram display-mode)
@@ -889,10 +894,6 @@ img.scaled {
     (write-region "</div>
 </body>
 </html>\n" nil faustine-diagram-page-name 'append 0 nil nil)))
-
-;;;###autoload
-(add-to-list 'auto-mode-alist
-             '("\\.dsp\\'" . faust-mode))
 
 (provide 'faustine)
 
