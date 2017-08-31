@@ -758,11 +758,15 @@ or passed by from the output buffer BUTTON click."
 display it in a buffer."
   (interactive)
   (let ((process (start-process-shell-command
-                  (format "C++:%s" (buffer-name))
+                  (format "C++:%s" (file-name-nondirectory
+                                    (buffer-file-name)))
                   nil
                   (format "faust -uim %s -o %s.cpp"
-                          (buffer-name)
-                          (file-name-sans-extension (buffer-name))))))
+                          (file-name-nondirectory
+                           (buffer-file-name))
+                          (file-name-sans-extension
+                           (file-name-nondirectory
+                            (buffer-file-name)))))))
     (set-process-sentinel process 'faustine-sentinel)))
 
 (defun faustine-diagram (&optional build-all)
