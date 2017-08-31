@@ -22,14 +22,20 @@ Faustine allows the edition of Faust (http://faust.grame.fr) code.
 - Automatic keyword completion
 - Modeline indicator of the state of the code
 
-## faust-mode
+## Installation
+
+Put it in `load-path` ; optionally add your usual Faust file
+extension to the auto-mode-alist: `(add-to-list `auto-mode-alist
+'("\\.dsp\\'" . faustine-mode))` to put any new Faust file in the mode.
+
+
+## faustine-mode
 A mode to allow the edition of Faust (http://faust.grame.fr) code.
 
-Use `faustine-configure` (M-x faustine-configure) to set it up.
 Available commands while editing Faust files:
 
 
-### faust-mode Keys
+### faustine-mode Keys
 
 Key binding  | Commmand 
 ------------- | ------------- 
@@ -39,14 +45,13 @@ Key binding  | Commmand
 `C-c C-h` | [faustine-online-doc](#markdown-header-faustine-online-doc)
 `C-c RET` | [faustine-mdoc](#markdown-header-faustine-mdoc)
 `C-c C-o` | [faustine-toggle-output-buffer](#markdown-header-faustine-toggle-output-buffer)
-`C-c C-p` | [faustine-configure](#markdown-header-faustine-configure)
 `C-c C-s` | [faustine-source-code](#markdown-header-faustine-source-code)
 `C-c r` | [faustine-run](#markdown-header-faustine-run)
 `C-c C-S-b` | [faustine-build-all](#markdown-header-faustine-build-all)
 `C-c C-S-d` | [faustine-diagram-all](#markdown-header-faustine-diagram-all)
 `C-M-q` | [prog-indent-sexp](#markdown-header-prog-indent-sexp)
 
-### faust-mode Commands
+### faustine-mode Commands
 #### faustine-build
 
 (faustine-build &optional BUILD-ALL)
@@ -88,12 +93,6 @@ If BUILD-ALL is set, build all Faust files referenced by this one.
 (faustine-toggle-output-buffer)
 
 Show/hide the Faust output buffer.
-
-#### faustine-configure
-
-(faustine-configure)
-
-Set up Faustine preferences using `cutomize-group`.
 
 #### faustine-source-code
 
@@ -148,4 +147,4 @@ during initialization.
 
 
 ___
-*README.md Generated on 2017-08-27 at 14:40:58 using [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md Generated on 2017-08-31 at 13:25:53 using [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*

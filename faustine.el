@@ -157,65 +157,6 @@
   "Faustine - A lightweight Emacs Faust IDE"
   :group 'tools)
 
-(defgroup keyboard-shortcuts nil
-  "Faustine keyboard shortcuts"
-  :group 'faustine)
-
-(defcustom faustine-kb-configure "C-c C-p"
-  "Configure Faustine."
-  :type 'string
-  :group 'keyboard-shortcuts)
-
-(defcustom faustine-kb-build "C-c C-b"
-  "Build the current buffer/file executable using the `faustine-build-backend' script."
-  :type '(string)
-  :group 'keyboard-shortcuts)
-
-(defcustom faustine-kb-build-all "C-c C-S-b"
-  "Build all project files."
-  :type '(string)
-  :group 'keyboard-shortcuts)
-
-(defcustom faustine-kb-diagram "C-c C-d"
-  "Generate the current buffer/file Faust diagram."
-  :type '(string)
-  :group 'keyboard-shortcuts)
-
-(defcustom faustine-kb-diagram-all "C-c C-S-d"
-  "Generate all project files Faust diagrams."
-  :type '(string)
-  :group 'keyboard-shortcuts)
-
-(defcustom faustine-kb-online-doc "C-c C-h"
-  "Websearch the selected string on the faust.grame.fr library web site."
-  :type '(string)
-  :group 'keyboard-shortcuts)
-
-(defcustom faustine-kb-mdoc "C-c C-m"
-  "Generate Faust mdoc of the current faust buffer/file."
-  :type '(string)
-  :group 'keyboard-shortcuts)
-
-(defcustom faustine-kb-run "C-c r"
-  "Run the current buffer/file executable."
-  :type '(string)
-  :group 'keyboard-shortcuts)
-
-(defcustom faustine-kb-source-code "C-c C-s"
-  "Generate C++ source code of the current faust buffer/file."
-  :type '(string)
-  :group 'keyboard-shortcuts)
-
-(defcustom faustine-kb-syntax-check "C-c C-c"
-  "Check if Faust code buffer compiles."
-  :type '(string)
-  :group 'keyboard-shortcuts)
-
-(defcustom faustine-kb-toggle-output-buffer "C-c C-o"
-  "Show/hide Faust output buffer."
-  :type '(string)
-  :group 'keyboard-shortcuts)
-
 (defcustom faustine-output-buffer-name "*Faust*"
   "The name of the Faust output buffer.
 Surround it with \"*\" to hide it in special buffers."
@@ -323,15 +264,13 @@ This is only for use with the command `faustine-online-doc'."
     ["Run executable" faustine-run t]
     ("Project"
      ["Generate all linked diagrams" (faustine-diagram t) t]
-     ["Build all linked executables" (faustine-build t) t])
-    ["Preferences" faustine-configure t]))
+     ["Build all linked executables" (faustine-build t) t])))
 
 (easy-menu-define faustine-red-mode-menu faustine-red-mode-map
   "Red bug menu"
   '("Faustine"
     ["Syntax: ERROR" faustine-toggle-output-buffer t]
-    "----------------"
-    ["Preferences" faustine-configure t]))
+    "----------------"))
 
 (defvar faustine-green-mode-bug
   (list
@@ -366,9 +305,20 @@ This is only for use with the command `faustine-online-doc'."
   :lighter faustine-red-mode-bug
   :keymap faustine-red-mode-map)
 
-;;;###autoload
 (defvar faustine-mode-map
   (let ((map (make-sparse-keymap)))
+    
+    (define-key map (kbd "C-c C-b") 'faustine-build)
+    (define-key map (kbd "C-c C-S-b") 'faustine-build-all)
+    (define-key map (kbd "C-c C-d") 'faustine-diagram)
+    (define-key map (kbd "C-c C-S-d") 'faustine-diagram-all)
+    (define-key map (kbd "C-c C-m") 'faustine-mdoc)
+    (define-key map (kbd "C-c C-h") 'faustine-online-doc)
+    (define-key map (kbd "C-c r") 'faustine-run)
+    (define-key map (kbd "C-c C-s") 'faustine-source-code)
+    (define-key map (kbd "C-c C-c") 'faustine-syntax-check)
+    (define-key map (kbd "C-c C-o") 'faustine-toggle-output-buffer)
+    
     map)
   "Keymap for `faustine-mode'.")
 
@@ -472,7 +422,6 @@ This is only for use with the command `faustine-online-doc'."
 
   "A mode to allow the edition of Faust (http://faust.grame.fr) code.
 
-Use `faustine-configure' (\\[faustine-configure]) to set it up.
 Available commands while editing Faust files:
 
 \\{faustine-mode-map}"
@@ -498,19 +447,6 @@ Available commands while editing Faust files:
 
   (set-syntax-table faustine-mode-syntax-table)
   (use-local-map faustine-mode-map)
-
-  (define-key faustine-mode-map (kbd faustine-kb-configure) 'faustine-configure)
-  (define-key faustine-mode-map (kbd faustine-kb-build) 'faustine-build)
-  (define-key faustine-mode-map (kbd faustine-kb-build-all) 'faustine-build-all)
-  (define-key faustine-mode-map (kbd faustine-kb-diagram) 'faustine-diagram)
-  (define-key faustine-mode-map (kbd faustine-kb-diagram-all) 'faustine-diagram-all)
-  (define-key faustine-mode-map (kbd faustine-kb-mdoc) 'faustine-mdoc)
-  (define-key faustine-mode-map (kbd faustine-kb-online-doc) 'faustine-online-doc)
-  (define-key faustine-mode-map (kbd faustine-kb-run) 'faustine-run)
-  (define-key faustine-mode-map (kbd faustine-kb-source-code) 'faustine-source-code)
-  (define-key faustine-mode-map (kbd faustine-kb-syntax-check) 'faustine-syntax-check)
-  (define-key faustine-mode-map (kbd faustine-kb-toggle-output-buffer) 'faustine-toggle-output-buffer)
-  (define-key faustine-mode-map (kbd "C-M-q") nil)
 
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
@@ -664,11 +600,6 @@ Construct a minimal HTML page and display it in the default browser."
 using the `faustine-build-backend'."
   (interactive)
   (faustine-build t))
-
-(defun faustine-configure ()
-  "Set up Faustine preferences using `cutomize-group'."
-  (interactive)
-  (customize-group 'faustine))
 
 (defun faustine-online-doc (start end)
   "View online documentation for the selected (or under point)
