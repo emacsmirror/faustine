@@ -432,8 +432,6 @@ Available commands while editing Faust files:
 
   (setq
    comment-start "//"
-   mode-name "Faust"
-   major-mode 'faustine-mode
    comment-end ""
    font-lock-defaults '(faustine-mode-font-lock-keywords))
 
@@ -463,6 +461,7 @@ Available commands while editing Faust files:
   "Keymap for `faustine-output-mode'.")
 
 (define-derived-mode faustine-output-mode fundamental-mode "Faust Output"
+  
   "The Faust output buffer mode. 
 The output buffer displays the result of the commands with their time stamps and status. 
 
@@ -472,6 +471,7 @@ The output buffer displays the result of the commands with their time stamps and
 Available key bindings in the output buffer:
 
 \\{faustine-output-mode-map}"
+
   (setq font-lock-defaults '(faustine-output-mode-font-lock-keywords t)))
 
 (defun faustine-project-files (fname blist &optional calling-process)
