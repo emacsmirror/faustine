@@ -704,9 +704,10 @@ Build a button/link from START to END."
 Run at load and save time."
   (interactive)
   (let ((process (start-process-shell-command
-                  (format "Check:%s" (buffer-name))
+                  (format "Check:%s" (file-name-nondirectory (buffer-file-name)))
                   faustine-output-buffer-name
-                  (format "faust %s > /dev/null" (buffer-name)))))
+                  (format "faust %s > /dev/null" (file-name-nondirectory (buffer-file-name))))))
+    (message "name: %S" (file-name-nondirectory (buffer-file-name)))
     (set-process-sentinel process 'faustine-sentinel)))
 
 (defun faustine-mdoc (&optional build-all)
