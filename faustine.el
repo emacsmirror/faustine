@@ -43,9 +43,9 @@
 ;; - Fully configurable (build type/target/architecture/toolkit, keyboard shortcuts, etc.)
 ;; - Automatic keyword completion
 ;; - Modeline indicator of the state of the code
-;;
+
 ;; ## Installation
-;;
+
 ;; Put it in `load-path` ; optionally add your usual Faust file
 ;; extension to the auto-mode-alist: `(add-to-list 'auto-mode-alist
 ;; '("\\.dsp\\'" . faustine-mode))` to put any new Faust file in the mode.
