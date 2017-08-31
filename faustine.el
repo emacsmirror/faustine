@@ -268,13 +268,16 @@ This is only for use with the command `faustine-online-doc'."
     ["Run executable" faustine-run t]
     ("Project"
      ["Generate all linked diagrams" (faustine-diagram t) t]
-     ["Build all linked executables" (faustine-build t) t])))
+     ["Build all linked executables" (faustine-build t) t])
+    "----------------"
+    ["Preferences" (customize-group 'faustine) t]))
 
 (easy-menu-define faustine-red-mode-menu faustine-red-mode-map
   "Red bug menu"
   '("Faustine"
     ["Syntax: ERROR" faustine-toggle-output-buffer t]
-    "----------------"))
+    "----------------"
+    ["Preferences" (customize-group 'faustine) t]))
 
 (defvar faustine-green-mode-bug
   (list
