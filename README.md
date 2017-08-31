@@ -15,8 +15,8 @@ Faustine allows the edition of Faust (http://faust.grame.fr) code.
 - Browse generated C++ code inside Emacs
 - Inter-linked files/buffers :
     - From "component" to Faust file
-    - From "include" to library file
-- From error to file, direct to line number
+    - From "include" to Faust library file
+- From error to file:line number
 - From function name to online documentation
 - Fully configurable (build type/target/architecture/toolkit, keyboard shortcuts, etc.)
 - Automatic keyword completion
@@ -25,9 +25,12 @@ Faustine allows the edition of Faust (http://faust.grame.fr) code.
 ## Installation
 
 Put it in `load-path` ; optionally add your usual Faust file
-extension to the auto-mode-alist: `(add-to-list `auto-mode-alist
-'("\\.dsp\\'" . faustine-mode))` to put any new Faust file in the mode.
-
+extension to the `auto-mode-alist`:
+```
+(add-to-list `auto-mode-alist
+             '("\\.dsp\\'" . faustine-mode))
+```
+to put any new Faust file in the mode.
 
 ## faustine-mode
 A mode to allow the edition of Faust (http://faust.grame.fr) code.
@@ -141,10 +144,7 @@ The output buffer displays the result of the commands with their time stamps and
 - A click on an error opens the buffer at the error line
 - A click on an executable name runs it.
 
-This mode runs the hook `faustine-output-mode-hook`, as the final step
-during initialization.
-
 
 
 ___
-*README.md made on 2017-08-31 at 13:56:47 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-08-31 at 14:22:26 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
