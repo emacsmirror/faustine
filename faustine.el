@@ -11,6 +11,7 @@
 ;; Codeship-key: c2385cd0-5dc6-0135-04b2-0a800465306c
 ;; Codeship-prj: 238325
 ;; Package-requires: ((emacs "24.3"))
+
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
@@ -37,8 +38,8 @@
 ;; - Browse generated C++ code inside Emacs
 ;; - Inter-linked files/buffers :
 ;;     - From "component" to Faust file
-;;     - From "include" to library file
-;; - From error to file, direct to line number
+;;     - From "include" to Faust library file
+;; - From error to file:line number
 ;; - From function name to online documentation
 ;; - Fully configurable (build type/target/architecture/toolkit, keyboard shortcuts, etc.)
 ;; - Automatic keyword completion
@@ -47,9 +48,12 @@
 ;; ## Installation
 
 ;; Put it in `load-path` ; optionally add your usual Faust file
-;; extension to the auto-mode-alist: `(add-to-list 'auto-mode-alist
-;; '("\\.dsp\\'" . faustine-mode))` to put any new Faust file in the mode.
-
+;; extension to the `auto-mode-alist`:
+;; ```
+;; (add-to-list 'auto-mode-alist
+;;              '("\\.dsp\\'" . faustine-mode))
+;; ```
+;; to put any new Faust file in the mode.
 
 ;;; Code:
 
@@ -426,13 +430,12 @@ Available commands while editing Faust files:
 
 \\{faustine-mode-map}"
 
-  (kill-all-local-variables)
-  (setq-local comment-start "//")
-
-  (setq mode-name "Faust"
-        major-mode 'faustine-mode
-        comment-end ""
-        font-lock-defaults '(faustine-mode-font-lock-keywords))
+  (setq
+   comment-start "//"
+   mode-name "Faust"
+   major-mode 'faustine-mode
+   comment-end ""
+   font-lock-defaults '(faustine-mode-font-lock-keywords))
 
   (if (boundp 'ac-sources)
       (progn
@@ -450,13 +453,25 @@ Available commands while editing Faust files:
 
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
+
+(defvar faustine-output-mode-map
+  (let ((map (make-sparse-keymap)))
+    
+    (define-key map (kbd "\q") 'delete-window)
+    
+    map)
+  "Keymap for `faustine-output-mode'.")
+
 (define-derived-mode faustine-output-mode fundamental-mode "Faust Output"
   "The Faust output buffer mode. 
 The output buffer displays the result of the commands with their time stamps and status. 
 
 - A click on an error opens the buffer at the error line
-- A click on an executable name runs it."
-  (kill-all-local-variables)
+- A click on an executable name runs it.
+
+Available key bindings in the output buffer:
+
+\\{faustine-output-mode-map}"
   (setq font-lock-defaults '(faustine-output-mode-font-lock-keywords t)))
 
 (defun faustine-project-files (fname blist &optional calling-process)
