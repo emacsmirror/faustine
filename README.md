@@ -144,7 +144,41 @@ The output buffer displays the result of the commands with their time stamps and
 - A click on an error opens the buffer at the error line
 - A click on an executable name runs it.
 
+Available key bindings in the output buffer:
+
+
+### faustine-output-mode Keys
+
+Key binding  | Commmand 
+------------- | ------------- 
+`q` | [delete-window](#markdown-header-delete-window)
+
+### faustine-output-mode Commands
+#### delete-window
+> Defined in *window.el*
+
+
+It is bound to C-x 0.
+
+(delete-window &optional WINDOW)
+
+Delete WINDOW.
+WINDOW must be a valid window and defaults to the selected one.
+Return nil.
+
+If the variable `ignore-window-parameters` is non-nil or the
+`delete-window` parameter of WINDOW equals t, do not process any
+parameters of WINDOW.  Otherwise, if the `delete-window`
+parameter of WINDOW specifies a function, call that function with
+WINDOW as its sole argument and return the value returned by that
+function.
+
+Otherwise, if WINDOW is part of an atomic window, call
+`delete-window` with the root of the atomic window as its
+argument.  Signal an error if WINDOW is either the only window on
+its frame, the last non-side window, or part of an atomic window
+that is its frame's root window.
 
 
 ___
-*README.md made on 2017-08-31 at 14:22:26 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-08-31 at 14:41:31 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
