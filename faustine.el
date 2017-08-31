@@ -10,7 +10,7 @@
 ;; License: GPLv3
 ;; Codeship-key: c2385cd0-5dc6-0135-04b2-0a800465306c
 ;; Codeship-prj: 238325
-
+;; Package-requires: ((emacs "24.3"))
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
@@ -48,7 +48,7 @@
 ;;
 ;; Put it in `load-path` ; optionally add your usual Faust file
 ;; extension to the auto-mode-alist: `(add-to-list 'auto-mode-alist
-;; '("\\.dsp\\'" . faust-mode))` to put any new Faust file in the mode.
+;; '("\\.dsp\\'" . faustine-mode))` to put any new Faust file in the mode.
 
 
 ;;; Code:
@@ -367,19 +367,19 @@ This is only for use with the command `faustine-online-doc'."
   :keymap faustine-red-mode-map)
 
 ;;;###autoload
-(defvar faust-mode-map
+(defvar faustine-mode-map
   (let ((map (make-sparse-keymap)))
     map)
-  "Keymap for `faust-mode'.")
+  "Keymap for `faustine-mode'.")
 
-(defvar faust-mode-syntax-table
+(defvar faustine-mode-syntax-table
   (let ((st (make-syntax-table)))
     (modify-syntax-entry ?/  ". 124b" st)
     (modify-syntax-entry ?*  ". 23" st)
     (modify-syntax-entry ?\n "> b" st)
     (modify-syntax-entry ?\^m "> b" st)
     st)
-  "Syntax table for `faust-mode'.")
+  "Syntax table for `faustine-mode'.")
 
 (defvar faustine-regexp-keywords-function (regexp-opt faustine-faust-keywords-functions 'words))
 (defvar faustine-regexp-keywords-statement (regexp-opt faustine-faust-keywords-statements 'words))
@@ -446,7 +446,7 @@ This is only for use with the command `faustine-online-doc'."
 (defconst faustine-output-mode-keywords-bad
   (rx (and word-start (or "warning" "error") word-end)))
 
-(defconst faust-mode-font-lock-keywords
+(defconst faustine-mode-font-lock-keywords
   `((,faustine-regexp-keywords-function . font-lock-function-name-face)
     (,faustine-regexp-keywords-statement . font-lock-keyword-face)
     (,faustine-regexp-keywords-lib . font-lock-keyword-face)
@@ -464,31 +464,31 @@ This is only for use with the command `faustine-online-doc'."
     (,faustine-output-mode-keywords-time . 'font-lock-type-face)
     (,faustine-output-mode-keywords-status . 'font-lock-keyword-face)))
 
-(defvar faust-mode-ac-source
+(defvar faustine-mode-ac-source
   '((candidates . faustine-faust-keywords-lib)))
 
 ;;;###autoload
-(define-derived-mode faust-mode prog-mode "Faust"
+(define-derived-mode faustine-mode prog-mode "Faust"
 
   "A mode to allow the edition of Faust (http://faust.grame.fr) code.
 
 Use `faustine-configure' (\\[faustine-configure]) to set it up.
 Available commands while editing Faust files:
 
-\\{faust-mode-map}"
+\\{faustine-mode-map}"
 
   (kill-all-local-variables)
   (setq-local comment-start "//")
 
   (setq mode-name "Faust"
-        major-mode 'faust-mode
+        major-mode 'faustine-mode
         comment-end ""
-        font-lock-defaults '(faust-mode-font-lock-keywords))
+        font-lock-defaults '(faustine-mode-font-lock-keywords))
 
   (if (boundp 'ac-sources)
       (progn
-        (add-to-list 'ac-modes 'faust-mode)
-        (add-to-list 'ac-sources 'faust-mode-ac-source))
+        (add-to-list 'ac-modes 'faustine-mode)
+        (add-to-list 'ac-sources 'faustine-mode-ac-source))
     (message "You really should install and use auto-complete"))
 
   (smie-setup nil #'ignore)
@@ -496,21 +496,21 @@ Available commands while editing Faust files:
   (add-hook 'find-file-hook 'faustine-syntax-check nil t)
   (add-hook 'after-save-hook 'faustine-syntax-check nil t)
 
-  (set-syntax-table faust-mode-syntax-table)
-  (use-local-map faust-mode-map)
+  (set-syntax-table faustine-mode-syntax-table)
+  (use-local-map faustine-mode-map)
 
-  (define-key faust-mode-map (kbd faustine-kb-configure) 'faustine-configure)
-  (define-key faust-mode-map (kbd faustine-kb-build) 'faustine-build)
-  (define-key faust-mode-map (kbd faustine-kb-build-all) 'faustine-build-all)
-  (define-key faust-mode-map (kbd faustine-kb-diagram) 'faustine-diagram)
-  (define-key faust-mode-map (kbd faustine-kb-diagram-all) 'faustine-diagram-all)
-  (define-key faust-mode-map (kbd faustine-kb-mdoc) 'faustine-mdoc)
-  (define-key faust-mode-map (kbd faustine-kb-online-doc) 'faustine-online-doc)
-  (define-key faust-mode-map (kbd faustine-kb-run) 'faustine-run)
-  (define-key faust-mode-map (kbd faustine-kb-source-code) 'faustine-source-code)
-  (define-key faust-mode-map (kbd faustine-kb-syntax-check) 'faustine-syntax-check)
-  (define-key faust-mode-map (kbd faustine-kb-toggle-output-buffer) 'faustine-toggle-output-buffer)
-  (define-key faust-mode-map (kbd "C-M-q") nil)
+  (define-key faustine-mode-map (kbd faustine-kb-configure) 'faustine-configure)
+  (define-key faustine-mode-map (kbd faustine-kb-build) 'faustine-build)
+  (define-key faustine-mode-map (kbd faustine-kb-build-all) 'faustine-build-all)
+  (define-key faustine-mode-map (kbd faustine-kb-diagram) 'faustine-diagram)
+  (define-key faustine-mode-map (kbd faustine-kb-diagram-all) 'faustine-diagram-all)
+  (define-key faustine-mode-map (kbd faustine-kb-mdoc) 'faustine-mdoc)
+  (define-key faustine-mode-map (kbd faustine-kb-online-doc) 'faustine-online-doc)
+  (define-key faustine-mode-map (kbd faustine-kb-run) 'faustine-run)
+  (define-key faustine-mode-map (kbd faustine-kb-source-code) 'faustine-source-code)
+  (define-key faustine-mode-map (kbd faustine-kb-syntax-check) 'faustine-syntax-check)
+  (define-key faustine-mode-map (kbd faustine-kb-toggle-output-buffer) 'faustine-toggle-output-buffer)
+  (define-key faustine-mode-map (kbd "C-M-q") nil)
 
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
@@ -521,14 +521,7 @@ The output buffer displays the result of the commands with their time stamps and
 - A click on an error opens the buffer at the error line
 - A click on an executable name runs it."
   (kill-all-local-variables)
-  (setq font-lock-defaults '(faustine-output-mode-font-lock-keywords t))
-  (if (functionp 'font-lock-ensure)
-      (font-lock-ensure)
-    ;; font-lock-fontify-buffer is marked as interactive only
-    ;; in Emacs 25.  Call interactively to avoid
-    ;; byte-compilation errors
-    (call-interactively 'font-lock-fontify-buffer))
-  )
+  (setq font-lock-defaults '(faustine-output-mode-font-lock-keywords t)))
 
 (defun faustine-project-files (fname blist &optional calling-process)
   "Recursively find all Faust links in FNAME, put them in BLIST, return BLIST.
@@ -616,7 +609,7 @@ Log CALLING-PROCESS to output buffer."
                      faustine-faust-libs-dir
                      (buffer-substring
                       (button-start button) (button-end button))))
-  (faust-mode)
+  (faustine-mode)
   (faustine-buttonize-buffer 'lib))
 
 (defun faustine-button-dsp-action (button)
