@@ -718,7 +718,6 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
                   faustine-output-buffer-name
                   (format "faust2mathdoc %s" (buffer-file-name)))))
     
-    (message "name: %S current: %S" (buffer-name) (current-buffer))
     (faustine-sentinel (format "Mdoc:%s" (file-name-nondirectory (buffer-file-name))) "started\n")
     (set-process-sentinel process 'faustine-sentinel)))
 
@@ -726,12 +725,12 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
   "Build the current buffer/file executable(s).
 If BUILD-ALL is set, build all Faust files referenced by this one."
   (interactive)
-  (faustine-sentinel (format "Build:%s" (buffer-name)) "started\n")
+  (faustine-sentinel (format "Build:%s" (file-name-nondirectory (buffer-file-name))) "started\n")
   (let* ((files-to-build (if build-all
-                             (mapconcat 'identity (faustine-project-files (buffer-name) '() "Build") " ")
+                             (mapconcat 'identity (faustine-project-files (file-name-nondirectory (buffer-file-name)) '() "Build") " ")
                            (current-buffer)))
          (process (start-process-shell-command
-                   (format "Build:%s" (buffer-name))
+                   (format "Build:%s" (file-name-nondirectory (buffer-file-name)))
                    faustine-output-buffer-name
                    (format "%s %s" faustine-build-backend files-to-build))))
     (set-process-sentinel process 'faustine-sentinel)))
