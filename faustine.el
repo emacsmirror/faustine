@@ -43,6 +43,13 @@
 ;; - Fully configurable (build type/target/architecture/toolkit, keyboard shortcuts, etc.)
 ;; - Automatic keyword completion
 ;; - Modeline indicator of the state of the code
+;;
+;; ## Installation
+;;
+;; Put it in `load-path` ; optionally add your usual Faust file
+;; extension to the auto-mode-alist: `(add-to-list 'auto-mode-alist
+;; '("\\.dsp\\'" . faust-mode))` to put any new Faust file in the mode.
+
 
 ;;; Code:
 
@@ -706,7 +713,8 @@ Run at load and save time."
   (let ((process (start-process-shell-command
                   (format "Check:%s" (file-name-nondirectory (buffer-file-name)))
                   faustine-output-buffer-name
-                  (format "faust %s > /dev/null" (file-name-nondirectory (buffer-file-name))))))
+                  (format "faust %s > /dev/null" (shell-quote-argument
+                                                  (file-name-nondirectory (buffer-file-name)))))))
     (set-process-sentinel process 'faustine-sentinel)))
 
 (defun faustine-mdoc (&optional build-all)
@@ -716,7 +724,8 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
   (let ((process (start-process-shell-command
                   (format "Mdoc:%s" (file-name-nondirectory (buffer-file-name)))
                   faustine-output-buffer-name
-                  (format "faust2mathdoc %s" (buffer-file-name)))))
+                  (format "faust2mathdoc %s" (shell-quote-argument
+                                              (file-name-nondirectory (buffer-file-name)))))))
     
     (faustine-sentinel (format "Mdoc:%s" (file-name-nondirectory (buffer-file-name))) "started\n")
     (set-process-sentinel process 'faustine-sentinel)))
