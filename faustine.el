@@ -707,7 +707,6 @@ Run at load and save time."
                   (format "Check:%s" (file-name-nondirectory (buffer-file-name)))
                   faustine-output-buffer-name
                   (format "faust %s > /dev/null" (file-name-nondirectory (buffer-file-name))))))
-    (message "name: %S" (file-name-nondirectory (buffer-file-name)))
     (set-process-sentinel process 'faustine-sentinel)))
 
 (defun faustine-mdoc (&optional build-all)
@@ -715,10 +714,12 @@ Run at load and save time."
 If BUILD-ALL is set, build all Faust files referenced by this one."
   (interactive)
   (let ((process (start-process-shell-command
-                  (format "Mdoc:%s" (buffer-name))
+                  (format "Mdoc:%s" (file-name-nondirectory (buffer-file-name)))
                   faustine-output-buffer-name
-                  (format "faust2mathdoc %s" (current-buffer)))))
-    (faustine-sentinel (format "Mdoc:%s" (buffer-name)) "started\n")
+                  (format "faust2mathdoc %s" (buffer-file-name)))))
+    
+    (message "name: %S current: %S" (buffer-name) (current-buffer))
+    (faustine-sentinel (format "Mdoc:%s" (file-name-nondirectory (buffer-file-name))) "started\n")
     (set-process-sentinel process 'faustine-sentinel)))
 
 (defun faustine-build (&optional build-all)
