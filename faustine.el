@@ -743,8 +743,10 @@ or passed by from the output buffer BUTTON click."
                       button
                     (format "./%s" (file-name-sans-extension
                                     (file-name-nondirectory
-                                     (buffer-name))))))
-         (buffer (if button "Click" (buffer-name)))
+                                     (buffer-file-name))))))
+         (buffer (if button "Click" (file-name-sans-extension
+                                     (file-name-nondirectory
+                                      (buffer-file-name)))))
          (process (start-process-shell-command
                    (format "Run:%s" buffer)
                    faustine-output-buffer-name
