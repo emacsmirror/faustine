@@ -11,6 +11,8 @@
 ;; Codeship-key: c2385cd0-5dc6-0135-04b2-0a800465306c
 ;; Codeship-prj: 238325
 ;; Package-requires: ((emacs "24.3"))
+;; MELPA: yes
+
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -47,8 +49,8 @@
 
 ;; ## Installation
 
-;; Put it in `load-path` ; optionally add your usual Faust file
-;; extension to the `auto-mode-alist`:
+;; Put it in `load-path` ; optionally add the Faust file extension to
+;; the `auto-mode-alist`:
 ;; ```
 ;; (add-to-list 'auto-mode-alist
 ;;              '("\\.dsp\\'" . faustine-mode))
@@ -193,12 +195,6 @@ Surround it with \"*\" to hide it in special buffers."
 This is only for use with the command `faustine-online-doc'."
   :type '(string)
   :group 'faustine)
-
-(eval-and-compile
-  (defcustom faustine-faust-extension "dsp"
-    "The Faust files extension."
-    :type '(string)
-    :group 'faustine))
 
 (defcustom faustine-build-backend 'faust2jaqt
   "The Faust code-to-executable build backend script."
@@ -347,15 +343,14 @@ This is only for use with the command `faustine-online-doc'."
                                     "\"" (submatch
                                           (and word-start
                                                (one-or-more word)
-                                               "."
-                                               (eval faustine-faust-extension)))
+                                               ".dsp"))
                                     "\"")
   "The regexp to match `something.faust'.")
 
 (defvar faustine-regexp-log
   (rx
    (submatch (and word-start
-                  (one-or-more word) "." (eval faustine-faust-extension) ":" (one-or-more digit))))
+                  (one-or-more word) ".dsp:" (one-or-more digit))))
   "The regexp to match `something.faust:num'.")
 
 (defconst faustine-regexp-lib (rx
@@ -382,10 +377,8 @@ This is only for use with the command `faustine-online-doc'."
 (defvar faustine-output-mode-keywords-faust-file
   (rx
    (submatch (and word-start
-                  (one-or-more word) "." (eval faustine-faust-extension)
-                  ;; word-end
-                  )))
-  "The regexp to match `something.faust:num'.")
+                  (one-or-more word) ".dsp")))
+  "The regexp to match `something.faust'.")
 
 (defconst faustine-output-mode-keywords-jack
   (rx
