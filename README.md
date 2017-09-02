@@ -24,7 +24,16 @@ Faustine allows the edition of Faust (http://faust.grame.fr) code.
 
 ## Installation
 
-Put it in `load-path` ; optionally add the Faust file extension to
+### Simple
+
+- Install it from [MELPA](https://melpa.org): `M-x install-package RET faustine RET`
+
+### Hard
+
+- Copy/clone this repository in `load-path`
+- Add `  (require `faustine)` to you init file
+
+Optionally, add the Faust file extension to
 the `auto-mode-alist`:
 ```
 (add-to-list `auto-mode-alist
@@ -179,4 +188,4 @@ that is its frame's root window.
 
 
 ___
-*README.md made on 2017-09-02 at 12:19:43 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-09-02 at 12:30:39 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
