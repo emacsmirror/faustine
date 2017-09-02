@@ -13,7 +13,6 @@
 ;; Package-requires: ((emacs "24.3"))
 ;; MELPA: yes
 
-
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
@@ -49,7 +48,16 @@
 
 ;; ## Installation
 
-;; Put it in `load-path` ; optionally add the Faust file extension to
+;; ### Simple
+
+;; - Install it from [MELPA](https://melpa.org): `M-x install-package RET faustine RET`
+
+;; ### Hard
+
+;; - Copy/clone this repository in `load-path`
+;; - Add `  (require 'faustine)` to you init file
+
+;; Optionally, add the Faust file extension to
 ;; the `auto-mode-alist`:
 ;; ```
 ;; (add-to-list 'auto-mode-alist
