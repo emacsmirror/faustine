@@ -55,7 +55,7 @@
 ;; ### Hard
 
 ;; - Copy/clone this repository in `load-path`
-;; - Add `  (require 'faustine)` to you init file
+;; - Add `(require 'faustine)` to your init file
 
 ;; Optionally, add something like this to your init file:
 ;; ```

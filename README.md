@@ -31,7 +31,7 @@ Faustine allows the edition of Faust (http://faust.grame.fr) code.
 ### Hard
 
 - Copy/clone this repository in `load-path`
-- Add `  (require `faustine)` to you init file
+- Add `(require `faustine)` to your init file
 
 Optionally, add something like this to your init file:
 ```
@@ -187,4 +187,4 @@ that is its frame's root window.
 
 
 ___
-*README.md made on 2017-09-02 at 13:19:58 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-09-02 at 21:55:07 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
