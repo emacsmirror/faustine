@@ -24,7 +24,7 @@ Faustine allows the edition of Faust (http://faust.grame.fr) code.
 
 ## Installation
 
-### Simple
+### Easy
 
 - Install it from [MELPA](https://melpa.org).
 
@@ -37,12 +37,22 @@ Faustine allows the edition of Faust (http://faust.grame.fr) code.
 ```
 to your init file
 
-Optionally, add something like this to your init file:
+### Faust
+Oh, and of course install [the latest Faust](http://faust.grame.fr/download/) and ensure it`s in the PATH.
+
+## Usage
+
+### Enter the mode
+
+Use `faustine-mode` ; Optionally, add something like this to your init file:
 ```
 (add-to-list `auto-mode-alist
              '("\\.dsp\\'" . faustine-mode))
 ```
 to put any new Faust file in the mode.
+
+### Commands
+Every interactive command is documented in [the README](https://bitbucket.org/yassinphilip/faustine/src/master/README.md?at=master&fileviewer=file-view-default) file.
 
 ## faustine-mode
 A mode to allow the edition of Faust (http://faust.grame.fr) code.
@@ -191,4 +201,4 @@ that is its frame's root window.
 
 
 ___
-*README.md made on 2017-09-02 at 21:56:58 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-09-02 at 22:14:17 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
