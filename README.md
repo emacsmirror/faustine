@@ -33,12 +33,12 @@ Faustine allows the edition of Faust (http://faust.grame.fr) code.
 - Copy/clone this repository in `load-path`
 - Add
 ```elisp
-(require `faustine)
+(require 'faustine)
 ```
 to your init file
 
 ### Faust
-Oh, and of course install [the latest Faust](http://faust.grame.fr/download/) and ensure it`s in the PATH.
+Oh, and of course install [the latest Faust](http://faust.grame.fr/download/) and ensure it's in the PATH.
 
 ## Usage
 
@@ -46,7 +46,7 @@ Oh, and of course install [the latest Faust](http://faust.grame.fr/download/) an
 
 Use `faustine-mode` ; Optionally, add something like this to your init file:
 ```elisp
-(add-to-list `auto-mode-alist
+(add-to-list 'auto-mode-alist
              '("\\.dsp\\'" . faustine-mode))
 ```
 to put any new Faust file in the mode.
@@ -71,7 +71,7 @@ icon is also the main Faustine menu.
 
 An "output buffer" is provided to display information about the
 Faust command output, you can toggle its visibility with
-`faustine-toggle-output-buffer` ; see `faustine-output-mode`
+`faustine-toggle-output-buffer' ; see `faustine-output-mode'
 documentation for details about interaction in said buffer.
 
 Several commands allow the editing of Faust code, they are all
@@ -155,7 +155,7 @@ or passed by from the output buffer BUTTON click.
 (faustine-build-all)
 
 Build executable of all the files referenced by his one
-using the `faustine-build-backend`.
+using the `faustine-build-backend'.
 
 #### faustine-diagram-all
 
@@ -204,19 +204,19 @@ Delete WINDOW.
 WINDOW must be a valid window and defaults to the selected one.
 Return nil.
 
-If the variable `ignore-window-parameters` is non-nil or the
-`delete-window` parameter of WINDOW equals t, do not process any
-parameters of WINDOW.  Otherwise, if the `delete-window`
+If the variable `ignore-window-parameters' is non-nil or the
+`delete-window' parameter of WINDOW equals t, do not process any
+parameters of WINDOW.  Otherwise, if the `delete-window'
 parameter of WINDOW specifies a function, call that function with
 WINDOW as its sole argument and return the value returned by that
 function.
 
 Otherwise, if WINDOW is part of an atomic window, call
-`delete-window` with the root of the atomic window as its
+`delete-window' with the root of the atomic window as its
 argument.  Signal an error if WINDOW is either the only window on
 its frame, the last non-side window, or part of an atomic window
 that is its frame's root window.
 
 
 ___
-*README.md made on 2017-09-03 at 00:33:54 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-09-03 at 00:37:25 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
