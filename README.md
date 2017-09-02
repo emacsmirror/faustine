@@ -1,7 +1,7 @@
 # Faustine
  *Edit, visualize, build and run Faust code*
 ___
-[![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html) [![Codeship Status for yassinphilip/faustine](https://app.codeship.com/projects/c2385cd0-5dc6-0135-04b2-0a800465306c/status?branch=master)](https://app.codeship.com/projects/238325)
+[![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html) [![Codeship Status for yassinphilip/faustine](https://app.codeship.com/projects/c2385cd0-5dc6-0135-04b2-0a800465306c/status?branch=master)](https://app.codeship.com/projects/238325) [![MELPA](https://melpa.org/packages/faustine-badge.svg)](https://melpa.org/#/faustine) 
 
 
 Faustine allows the edition of Faust (http://faust.grame.fr) code. 
@@ -24,8 +24,8 @@ Faustine allows the edition of Faust (http://faust.grame.fr) code.
 
 ## Installation
 
-Put it in `load-path` ; optionally add your usual Faust file
-extension to the `auto-mode-alist`:
+Put it in `load-path` ; optionally add the Faust file extension to
+the `auto-mode-alist`:
 ```
 (add-to-list `auto-mode-alist
              '("\\.dsp\\'" . faustine-mode))
@@ -36,7 +36,6 @@ to put any new Faust file in the mode.
 A mode to allow the edition of Faust (http://faust.grame.fr) code.
 
 Available commands while editing Faust files:
-
 
 ### faustine-mode Keys
 
@@ -146,7 +145,6 @@ The output buffer displays the result of the commands with their time stamps and
 
 Available key bindings in the output buffer:
 
-
 ### faustine-output-mode Keys
 
 Key binding  | Command 
@@ -181,4 +179,4 @@ that is its frame's root window.
 
 
 ___
-*README.md made on 2017-08-31 at 15:04:57 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-09-02 at 12:19:43 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
