@@ -10,8 +10,8 @@ Faustine allows the edition of Faust (http://faust.grame.fr) code.
 
 - Project-based (inter-linked Faust files)
 - Faust code syntax hightlighting, indentation and keyword completion
-- Build/compile with configurable output window
-- Graphic diagrams generation and vizualisation in the browser
+- Build/compile with output window
+- Graphic diagrams generation and vizualisation in the (default) browser
 - Browse generated C++ code inside Emacs
 - Inter-linked files/buffers :
     - From "component" to Faust file
@@ -19,22 +19,21 @@ Faustine allows the edition of Faust (http://faust.grame.fr) code.
 - From error to file:line number
 - From function name to online documentation
 - Fully configurable (build type/target/architecture/toolkit, keyboard shortcuts, etc.)
-- Automatic keyword completion
+- Automatic keyword completion 
 - Modeline indicator of the state of the code
 
 ## Installation
 
 ### Simple
 
-- Install it from [MELPA](https://melpa.org): `M-x install-package RET faustine RET`
+- Install it from [MELPA](https://melpa.org).
 
 ### Hard
 
 - Copy/clone this repository in `load-path`
 - Add `  (require `faustine)` to you init file
 
-Optionally, add the Faust file extension to
-the `auto-mode-alist`:
+Optionally, add something like this to your init file:
 ```
 (add-to-list `auto-mode-alist
              '("\\.dsp\\'" . faustine-mode))
@@ -48,7 +47,7 @@ Available commands while editing Faust files:
 
 ### faustine-mode Keys
 
-Key binding  | Command 
+Key  | Binding 
 ------------- | ------------- 
 `C-c C-b` | [faustine-build](#markdown-header-faustine-build)
 `C-c C-c` | [faustine-syntax-check](#markdown-header-faustine-syntax-check)
@@ -156,7 +155,7 @@ Available key bindings in the output buffer:
 
 ### faustine-output-mode Keys
 
-Key binding  | Command 
+Key  | Binding 
 ------------- | ------------- 
 `q` | [delete-window](#markdown-header-delete-window)
 
@@ -188,4 +187,4 @@ that is its frame's root window.
 
 
 ___
-*README.md made on 2017-09-02 at 12:30:39 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-09-02 at 13:19:58 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
