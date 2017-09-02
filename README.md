@@ -55,9 +55,27 @@ to put any new Faust file in the mode.
 Every interactive command is documented in [the README](https://bitbucket.org/yassinphilip/faustine/src/master/README.md?at=master&fileviewer=file-view-default) file.
 
 ## faustine-mode
-A mode to allow the edition of Faust (http://faust.grame.fr) code.
+A mode to allow the edition of Faust code.
 
-Available commands while editing Faust files:
+Syntax highlighting of all the Faust commands and operators, as
+well as indentation rules.
+
+Every referenced ("component") file is linked, and can be
+opened by clicking on it or by pressing RET over it ; Imported
+library files are linked too.
+
+The code is checked at each save ; The state of the last check is
+displayed in the modeline as a green bug icon when it compiles
+without error or warning, and a red bug when it doesn`t. This
+icon is also the main Faustine menu.
+
+An "output buffer" is provided to display the errors, you can
+toggle its visibility with `faustine-toggle-output-buffer` ; see
+`faustine-output-mode` documentation for details about
+interaction in said buffer.
+
+Several commands allow the editing of Faust code, they are all
+available in the menu or as a key binding, and described below.
 
 ### faustine-mode Keys
 
@@ -201,4 +219,4 @@ that is its frame's root window.
 
 
 ___
-*README.md made on 2017-09-02 at 22:14:17 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-09-02 at 22:30:09 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
