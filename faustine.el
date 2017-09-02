@@ -447,7 +447,7 @@ Syntax highlighting of all the Faust commands and operators, as
 well as indentation rules.
 
 Every referenced (\"component\") file is linked, and can be
-opened by clicking on it or by pressing RET over it ; Imported
+opened by clicking on it or by pressing `RET' over it ; Imported
 library files are linked too.
 
 The code is checked at each save ; The state of the last check is
@@ -455,10 +455,10 @@ displayed in the modeline as a green bug icon when it compiles
 without error or warning, and a red bug when it doesn't. This
 icon is also the main Faustine menu.
 
-An \"output buffer\" is provided to display the errors, you can
-toggle its visibility with `faustine-toggle-output-buffer' ; see
-`faustine-output-mode' documentation for details about
-interaction in said buffer.
+An \"output buffer\" is provided to display information about the
+Faust command output, you can toggle its visibility with
+`faustine-toggle-output-buffer' ; see `faustine-output-mode'
+documentation for details about interaction in said buffer.
 
 Several commands allow the editing of Faust code, they are all
 available in the menu or as a key binding, and described below.
