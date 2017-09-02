@@ -32,7 +32,7 @@ Faustine allows the edition of Faust (http://faust.grame.fr) code.
 
 - Copy/clone this repository in `load-path`
 - Add
-```
+```el
 (require `faustine)
 ```
 to your init file
@@ -45,7 +45,7 @@ Oh, and of course install [the latest Faust](http://faust.grame.fr/download/) an
 ### Enter the mode
 
 Use `faustine-mode` ; Optionally, add something like this to your init file:
-```
+```el
 (add-to-list `auto-mode-alist
              '("\\.dsp\\'" . faustine-mode))
 ```
@@ -219,4 +219,4 @@ that is its frame's root window.
 
 
 ___
-*README.md made on 2017-09-02 at 23:10:19 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-09-03 at 00:29:14 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*

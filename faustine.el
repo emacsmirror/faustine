@@ -56,7 +56,7 @@
 
 ;; - Copy/clone this repository in `load-path`
 ;; - Add
-;; ```
+;; ```el
 ;; (require 'faustine)
 ;; ```
 ;; to your init file
@@ -69,7 +69,7 @@
 ;; ### Enter the mode
 
 ;; Use `faustine-mode` ; Optionally, add something like this to your init file:
-;; ```
+;; ```el
 ;; (add-to-list 'auto-mode-alist
 ;;              '("\\.dsp\\'" . faustine-mode))
 ;; ```
