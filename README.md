@@ -52,7 +52,7 @@ Use `faustine-mode` ; Optionally, add something like this to your init file:
 to put any new Faust file in the mode.
 
 ### Commands
-Every interactive command is documented in [the README](https://bitbucket.org/yassinphilip/faustine/src/master/README.md?at=master&fileviewer=file-view-default) file.
+Every interactive command is documented in [the README](https://bitbucket.org/yassinphilip/faustine/src/master/README.md) file.
 
 ## faustine-mode
 A mode to allow the edition of Faust code.
@@ -219,4 +219,4 @@ that is its frame's root window.
 
 
 ___
-*README.md made on 2017-09-03 at 00:44:06 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-09-03 at 09:30:40 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
