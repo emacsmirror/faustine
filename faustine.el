@@ -440,7 +440,8 @@ This is only for use with the command `faustine-online-doc'."
   "Syntax table for `faustine-mode'.")
 
 ;;;###autoload
-(define-derived-mode faustine-mode prog-mode "Faust"
+(define-derived-mode faustine-mode faust-mode
+  "Faust"
 
   "A mode to allow the edition of Faust code.
 
