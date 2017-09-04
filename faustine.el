@@ -10,7 +10,7 @@
 ;; License: GPLv3
 ;; Codeship-key: c2385cd0-5dc6-0135-04b2-0a800465306c
 ;; Codeship-prj: 238325
-;; Package-requires: ((emacs "24.3"))
+;; Package-requires: ((emacs "24.3") (faust-mode))
 ;; MELPA: yes
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -33,7 +33,7 @@
 ;; ## Features
 
 ;; - Project-based (inter-linked Faust files)
-;; - Faust code syntax hightlighting, indentation and keyword completion
+;; - Faust code syntax hightlighting, indentation and keyword completion (using faust-mode)
 ;; - Build/compile with output window
 ;; - Graphic diagrams generation and vizualisation in the (default) browser
 ;; - Browse generated C++ code inside Emacs
@@ -80,22 +80,6 @@
 ;; Every interactive command is documented in [the README](https://bitbucket.org/yassinphilip/faustine/src/master/README.md) file.
 
 ;;; Code:
-
-(require 'smie)
-
-(defvar ac-sources)
-
-(defconst faustine-faust-keywords-statements
-  '("process" "with" "case" "seq" "par" "sum" "prod" "include" "import" "component" "library" "environment" "declare" "define" "undef" "error" "pragma" "ident" "if" "def" "else" "elif" "endif" "line" "warning"))
-
-(defconst faustine-faust-keywords-functions
-  '("mem" "prefix" "int" "float" "rdtable" "rwtable" "select2" "select3" "ffunction" "fconstant" "fvariable" "attach" "acos" "asin" "atan" "atan2" "cos" "sin" "tan" "exp" "log" "log10" "pow" "sqrt" "abs" "min" "max" "fmod" "remainder" "floor" "ceil" "rint"))
-
-(defconst faustine-faust-keywords-math
-  '("mem" "prefix" "int" "float" "rdtable" "rwtable" "select2" "select3" "ffunction" "fconstant" "fvariable" "attach" "acos" "asin" "atan" "atan2" "cos" "sin" "tan" "exp" "log" "log10" "pow" "sqrt" "abs" "min" "max" "fmod" "remainder" "floor" "ceil" "rint"))
-
-(defconst faustine-faust-keywords-ui
-  '("button" "checkbox" "vslider" "hslider" "nentry" "vgroup" "hgroup" "tgroup" "vbargraph" "hbargraph"))
 
 (defgroup faustine nil
   "Faustine - A lightweight Emacs Faust IDE"
@@ -246,10 +230,6 @@ This is only for use with the command `faustine-online-doc'."
   :lighter faustine-red-mode-bug
   :keymap faustine-red-mode-map)
 
-(defvar faustine-regexp-keywords-function (regexp-opt faustine-faust-keywords-functions 'words))
-(defvar faustine-regexp-keywords-statement (regexp-opt faustine-faust-keywords-statements 'words))
-(defvar faustine-regexp-keywords-ui (regexp-opt faustine-faust-keywords-ui 'words))
-
 (defvar faustine-regexp-faust-file (rx
                                     "\"" (submatch
                                           (and word-start
@@ -271,15 +251,6 @@ This is only for use with the command `faustine-online-doc'."
 (defconst faustine-regexp-exe (rx
                                (submatch (and (or "./" "/") (one-or-more (any word "/")))) ";")
   "The regexp to match `/some/thing'.")
-
-(defconst faustine-regexp-faust-operator (rx
-                                          (any ",:*-+><")))
-
-(defconst faustine-regexp-faust-delimiters (rx
-                                            (any "{}()[];")))
-
-(defconst faustine-regexp-faust-numbers (rx
-                                         (one-or-more digit)))
 
 (defconst faustine-output-mode-keywords-proc
   (rx
@@ -359,14 +330,6 @@ Several commands allow the editing of Faust code, they are all
 available in the menu or as a key binding, and described below.
 
 \\{faustine-mode-map}"
-
-  (if (boundp 'ac-sources)
-      (progn
-        (add-to-list 'ac-modes 'faustine-mode)
-        (add-to-list 'ac-sources 'faustine-mode-ac-source))
-    (message "You really should install and use auto-complete"))
-
-  (smie-setup nil #'ignore)
 
   (add-hook 'find-file-hook 'faustine-syntax-check nil t)
   (add-hook 'after-save-hook 'faustine-syntax-check nil t)
