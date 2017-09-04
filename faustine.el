@@ -310,7 +310,7 @@ This is only for use with the command `faustine-online-doc'."
   "A mode to allow the edition of Faust code.
 
 Syntax highlighting of all the Faust commands and operators, as
-well as indentation rules.
+well as indentation rules, using [faust-mode](https://melpa.org/#/faust-mode).
 
 Every referenced (\"component\") file is linked, and can be
 opened by clicking on it or by pressing `RET' over it ; Imported
