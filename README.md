@@ -9,7 +9,7 @@ Faustine allows the edition of Faust (http://faust.grame.fr) code.
 ## Features
 
 - Project-based (inter-linked Faust files)
-- Faust code syntax hightlighting, indentation and keyword completion (using faust-mode)
+- Faust code syntax hightlighting, indentation and keyword completion
 - Build/compile with output window
 - Graphic diagrams generation and vizualisation in the (default) browser
 - Browse generated C++ code inside Emacs
@@ -32,11 +32,9 @@ Faustine allows the edition of Faust (http://faust.grame.fr) code.
 ### Hard
 
 - Copy/clone this repository in `load-path`
-- Copy/clone [Faust-mode](https://github.com/rukano/emacs-faust-mode) in `load-path`
 - Add
 ```elisp
 (require 'faustine)
-(require 'faust-mode)
 ```
 to your init file
 
@@ -61,7 +59,7 @@ Every interactive command is documented in [the README](https://bitbucket.org/ya
 A mode to allow the edition of Faust code.
 
 Syntax highlighting of all the Faust commands and operators, as
-well as indentation rules, using [faust-mode](https://melpa.org/#/faust-mode).
+well as indentation rules.
 
 Every referenced ("component") file is linked, and can be
 opened by clicking on it or by pressing `RET` over it ; Imported
@@ -186,6 +184,8 @@ The output buffer displays the result of the commands with their time stamps and
 - A click on an error opens the buffer at the error line
 - A click on an executable name runs it.
 
+Available key bindings in the output buffer:
+
 ### faustine-output-mode Keys
 
 Key  | Binding 
@@ -220,4 +220,4 @@ that is its frame's root window.
 
 
 ___
-*README.md made on 2017-09-04 at 20:04:22 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-09-04 at 09:40:20 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
