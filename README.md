@@ -19,7 +19,8 @@ Faustine allows the edition of Faust (http://faust.grame.fr) code.
 - From error to file:line number
 - From function name to online documentation
 - Fully configurable (build type/target/architecture/toolkit, keyboard shortcuts, etc.)
-- Automatic keyword completion 
+- Automatic keyword completion (if [Auto-Complete](https://github.com/auto-complete/auto-complete) is installed)
+- Automatic objets (functions, operators, etc.) template insertion with default sensible values (if [Yasnippet](https://github.com/joaotavora/yasnippet) is installed)
 - Modeline indicator of the state of the code
 
 ## Installation
@@ -219,4 +220,4 @@ that is its frame's root window.
 
 
 ___
-*README.md made on 2017-09-03 at 09:30:40 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-09-04 at 09:40:20 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
