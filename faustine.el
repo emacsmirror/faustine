@@ -43,7 +43,8 @@
 ;; - From error to file:line number
 ;; - From function name to online documentation
 ;; - Fully configurable (build type/target/architecture/toolkit, keyboard shortcuts, etc.)
-;; - Automatic keyword completion 
+;; - Automatic keyword completion (if [Auto-Complete](https://github.com/auto-complete/auto-complete) is installed)
+;; - Automatic objets (functions, operators, etc.) template insertion with default sensible values (if [Yasnippet](https://github.com/joaotavora/yasnippet) is installed)
 ;; - Modeline indicator of the state of the code
 
 ;; ## Installation
@@ -329,32 +330,6 @@ This is only for use with the command `faustine-online-doc'."
   :lighter faustine-red-mode-bug
   :keymap faustine-red-mode-map)
 
-(defvar faustine-mode-map
-  (let ((map (make-sparse-keymap)))
-    
-    (define-key map (kbd "C-c C-b") 'faustine-build)
-    (define-key map (kbd "C-c C-S-b") 'faustine-build-all)
-    (define-key map (kbd "C-c C-d") 'faustine-diagram)
-    (define-key map (kbd "C-c C-S-d") 'faustine-diagram-all)
-    (define-key map (kbd "C-c C-m") 'faustine-mdoc)
-    (define-key map (kbd "C-c C-h") 'faustine-online-doc)
-    (define-key map (kbd "C-c r") 'faustine-run)
-    (define-key map (kbd "C-c C-s") 'faustine-source-code)
-    (define-key map (kbd "C-c C-c") 'faustine-syntax-check)
-    (define-key map (kbd "C-c C-o") 'faustine-toggle-output-buffer)
-    
-    map)
-  "Keymap for `faustine-mode'.")
-
-(defvar faustine-mode-syntax-table
-  (let ((st (make-syntax-table)))
-    (modify-syntax-entry ?/  ". 124b" st)
-    (modify-syntax-entry ?*  ". 23" st)
-    (modify-syntax-entry ?\n "> b" st)
-    (modify-syntax-entry ?\^m "> b" st)
-    st)
-  "Syntax table for `faustine-mode'.")
-
 (defvar faustine-regexp-keywords-function (regexp-opt faustine-faust-keywords-functions 'words))
 (defvar faustine-regexp-keywords-statement (regexp-opt faustine-faust-keywords-statements 'words))
 (defvar faustine-regexp-keywords-lib (regexp-opt faustine-faust-keywords-lib 'words))
@@ -438,6 +413,32 @@ This is only for use with the command `faustine-online-doc'."
 (defvar faustine-mode-ac-source
   '((candidates . faustine-faust-keywords-lib)))
 
+(defvar faustine-mode-map
+  (let ((map (make-sparse-keymap)))
+    
+    (define-key map (kbd "C-c C-b") 'faustine-build)
+    (define-key map (kbd "C-c C-S-b") 'faustine-build-all)
+    (define-key map (kbd "C-c C-d") 'faustine-diagram)
+    (define-key map (kbd "C-c C-S-d") 'faustine-diagram-all)
+    (define-key map (kbd "C-c C-m") 'faustine-mdoc)
+    (define-key map (kbd "C-c C-h") 'faustine-online-doc)
+    (define-key map (kbd "C-c r") 'faustine-run)
+    (define-key map (kbd "C-c C-s") 'faustine-source-code)
+    (define-key map (kbd "C-c C-c") 'faustine-syntax-check)
+    (define-key map (kbd "C-c C-o") 'faustine-toggle-output-buffer)
+    
+    map)
+  "Keymap for `faustine-mode'.")
+
+(defvar faustine-mode-syntax-table
+  (let ((st (make-syntax-table)))
+    (modify-syntax-entry ?/  ". 124b" st)
+    (modify-syntax-entry ?*  ". 23" st)
+    (modify-syntax-entry ?\n "> b" st)
+    (modify-syntax-entry ?\^m "> b" st)
+    st)
+  "Syntax table for `faustine-mode'.")
+
 ;;;###autoload
 (define-derived-mode faustine-mode prog-mode "Faust"
 
@@ -501,8 +502,6 @@ The output buffer displays the result of the commands with their time stamps and
 
 - A click on an error opens the buffer at the error line
 - A click on an executable name runs it.
-
-Available key bindings in the output buffer:
 
 \\{faustine-output-mode-map}"
 
