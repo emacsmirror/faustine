@@ -103,12 +103,6 @@ Surround it with \"*\" to hide it in special buffers."
   :type 'integer
   :group 'faustine)
 
-(defcustom faustine-c++-buffer-name "*Faust C++*"
-  "The name of the Faust C++ code output buffer.
-Surround it with \"*\" to hide it in special buffers."
-  :type '(string)
-  :group 'faustine)
-
 (defcustom faustine-diagram-page-name "faust-graphs.html"
   "The name of the Faust diagrams HTML page."
   :type '(string)
@@ -631,6 +625,7 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
 (defun faustine-build-html-file (list diagram display-mode)
   "Build a minimal HTML (web) page to display Faust diagram(s).
 LIST is the list of files to display, DIAGRAM is the current file, and DISPLAY-MODE is the mode."
+  (message "list: %S" list)
   (when (file-regular-p faustine-diagram-page-name)
     (delete-file faustine-diagram-page-name))
   (let ((flex-value (if (equal display-mode "all") "" "100%")))
@@ -691,11 +686,15 @@ img.scaled {
     width: 100%%;
 }
 </style>
-<title>Faust diagram</title>
+<title>%s (%s) | Faustine</title>
 </head>
 <body>
 <h1>Rendered on %s</h1>
-<div class='wrap'>\n" flex-value (format-time-string "%A %B %d, %H:%M:%S")) nil faustine-diagram-page-name)
+<div class='wrap'>\n"
+                          flex-value
+                          diagram
+                          (format-time-string "%H:%M:%S")
+                          (format-time-string "%A %B %d, %H:%M:%S")) nil faustine-diagram-page-name)
     (while list
       (if (file-regular-p (car list))
           (let* ((dsp-element (file-name-sans-extension (car list)))
