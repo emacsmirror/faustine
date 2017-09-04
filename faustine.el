@@ -10,7 +10,7 @@
 ;; License: GPLv3
 ;; Codeship-key: c2385cd0-5dc6-0135-04b2-0a800465306c
 ;; Codeship-prj: 238325
-;; Package-requires: ((emacs "24.3") (faust-mode))
+;; Package-requires: ((emacs "24.3") (faust-mode "0.1"))
 ;; MELPA: yes
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -56,9 +56,11 @@
 ;; ### Hard
 
 ;; - Copy/clone this repository in `load-path`
+;; - Copy/clone [Faust-mode](https://github.com/rukano/emacs-faust-mode) in `load-path`
 ;; - Add
 ;; ```elisp
 ;; (require 'faustine)
+;; (require 'faust-mode)
 ;; ```
 ;; to your init file
 
@@ -242,7 +244,7 @@ This is only for use with the command `faustine-online-doc'."
   (rx
    (submatch (and word-start
                   (one-or-more word) ".dsp:" (one-or-more digit))))
-  "The regexp to match `something.faust:num'.")
+  "The regexp to match `something.dsp:num'.")
 
 (defconst faustine-regexp-lib (rx
                                "\"" (submatch (and word-start (one-or-more word) ".lib")) "\"")
@@ -250,7 +252,7 @@ This is only for use with the command `faustine-online-doc'."
 
 (defconst faustine-regexp-exe (rx
                                (submatch (and (or "./" "/") (one-or-more (any word "/")))) ";")
-  "The regexp to match `/some/thing'.")
+  "The regexp to match `./some/thing'.")
 
 (defconst faustine-output-mode-keywords-proc
   (rx
@@ -260,7 +262,7 @@ This is only for use with the command `faustine-online-doc'."
   (rx
    (submatch (and word-start
                   (one-or-more word) ".dsp")))
-  "The regexp to match `something.faust'.")
+  "The regexp to match `something.dsp'.")
 
 (defconst faustine-output-mode-keywords-jack
   (rx
