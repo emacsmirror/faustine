@@ -59,8 +59,8 @@
 ;; - Copy/clone [Faust-mode](https://github.com/rukano/emacs-faust-mode) in `load-path`
 ;; - Add
 ;; ```elisp
-;; (require 'faustine)
 ;; (require 'faust-mode)
+;; (require 'faustine)
 ;; ```
 ;; to your init file
 
@@ -741,5 +741,7 @@ img.scaled {
 
 (provide 'faustine)
 
+;; Local Variables:
+;; byte-compile-warnings: (not free-vars)
 ;; End:
 ;;; faustine.el ends here
