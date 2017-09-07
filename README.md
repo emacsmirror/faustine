@@ -46,6 +46,7 @@ Oh, and of course install [the latest Faust](http://faust.grame.fr/download/) an
 ### Recommended packages
 
 Those package are not required, but Faustine makes good use of them, and they will make your life better anyway ; They are all available in MELPA, snapshot and stable.
+
 - [Projectile](https://github.com/bbatsov/projectile)
 - [AutoComplete](https://github.com/auto-complete/auto-complete)
 - [Yasnippet](https://github.com/joaotavora/yasnippet)
@@ -227,4 +228,4 @@ that is its frame's root window.
 
 
 ___
-*README.md made on 2017-09-07 at 22:05:09 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-09-07 at 22:05:55 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
