@@ -10,7 +10,7 @@
 ;; License: GPLv3
 ;; Codeship-key: c2385cd0-5dc6-0135-04b2-0a800465306c
 ;; Codeship-prj: 238325
-;; Package-requires: ((emacs "24.3") (faust-mode "0.1"))
+;; Package-requires: ((emacs "24.3") (faust-mode "0.2"))
 ;; MELPA: yes
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -101,12 +101,6 @@ Surround it with \"*\" to hide it in special buffers."
 (defcustom faustine-output-buffer-height 22
   "The height/width of the Faust output buffer."
   :type 'integer
-  :group 'faustine)
-
-(defcustom faustine-c++-buffer-name "*Faust C++*"
-  "The name of the Faust C++ code output buffer.
-Surround it with \"*\" to hide it in special buffers."
-  :type '(string)
   :group 'faustine)
 
 (defcustom faustine-diagram-page-name "faust-graphs.html"
@@ -241,38 +235,31 @@ This is only for use with the command `faustine-online-doc'."
   "The regexp to match `something.faust'.")
 
 (defvar faustine-regexp-log
-  (rx
-   (submatch (and word-start
-                  (one-or-more word) ".dsp:" (one-or-more digit))))
+  (rx (submatch (and word-start (one-or-more word) ".dsp:" (one-or-more digit))))
   "The regexp to match `something.dsp:num'.")
 
-(defconst faustine-regexp-lib (rx
-                               "\"" (submatch (and word-start (one-or-more word) ".lib")) "\"")
+(defconst faustine-regexp-lib
+  (rx "\"" (submatch (and word-start (one-or-more word) ".lib")) "\"")
   "The regexp to match `something.lib'.")
 
-(defconst faustine-regexp-exe (rx
-                               (submatch (and (or "./" "/") (one-or-more (any word "/")))) ";")
+(defconst faustine-regexp-exe
+  (rx (submatch (and (or "./" "/") (one-or-more (any word "/")))) ";")
   "The regexp to match `./some/thing'.")
 
 (defconst faustine-output-mode-keywords-proc
-  (rx
-   (and word-start (or "Build" "Check" "Click" "C++" "Diagram" "Mdoc" "Run") word-end)))
+  (rx (and word-start (or "Build" "Check" "Click" "C++" "Diagram" "Mdoc" "Run") word-end)))
 
 (defvar faustine-output-mode-keywords-faust-file
-  (rx
-   (submatch (and word-start
-                  (one-or-more word) ".dsp")))
+  (rx (submatch (and word-start (one-or-more word) ".dsp")))
   "The regexp to match `something.dsp'.")
 
 (defconst faustine-output-mode-keywords-jack
-  (rx
-   (or (and line-start (or "ins" "outs"))
-       (and line-start "physical" space (or "input" "output") space "system")
-       (and line-start "The" space (or "sample rate" "buffer size") space "is now"))))
+  (rx (or (and line-start (or "ins" "outs"))
+          (and line-start "physical" space (or "input" "output") space "system")
+          (and line-start "The" space (or "sample rate" "buffer size") space "is now"))))
 
 (defconst faustine-output-mode-keywords-time
-  (rx
-   (and line-start (one-or-more digit) ":" (one-or-more digit) ":" (one-or-more digit))))
+  (rx (and line-start (one-or-more digit) ":" (one-or-more digit) ":" (one-or-more digit))))
 
 (defconst faustine-output-mode-keywords-status
   (rx (and word-start (or "started" "finished") word-end)))
@@ -348,13 +335,15 @@ available in the menu or as a key binding, and described below.
     map)
   "Keymap for `faustine-output-mode'.")
 
-(define-derived-mode faustine-output-mode fundamental-mode "Faust Output"
+(define-derived-mode faustine-output-mode fundamental-mode
+  "Faust Output"
   
-  "The Faust output buffer mode. 
-The output buffer displays the result of the commands with their time stamps and status. 
+  "The output buffer displays the result of the issued Faust
+  commands with their time stamps and status/messages.
 
-- A click on an error opens the buffer at the error line
-- A click on an executable name runs it.
+- A click/RET on a Faust file name opens it
+- A click/RET on an error opens the file at the error line
+- A click/RET on an executable name runs it.
 
 \\{faustine-output-mode-map}"
 
@@ -631,6 +620,7 @@ If BUILD-ALL is set, build all Faust files referenced by this one."
 (defun faustine-build-html-file (list diagram display-mode)
   "Build a minimal HTML (web) page to display Faust diagram(s).
 LIST is the list of files to display, DIAGRAM is the current file, and DISPLAY-MODE is the mode."
+  (message "list: %S" list)
   (when (file-regular-p faustine-diagram-page-name)
     (delete-file faustine-diagram-page-name))
   (let ((flex-value (if (equal display-mode "all") "" "100%")))
@@ -691,11 +681,15 @@ img.scaled {
     width: 100%%;
 }
 </style>
-<title>Faust diagram</title>
+<title>%s (%s) | Faustine</title>
 </head>
 <body>
 <h1>Rendered on %s</h1>
-<div class='wrap'>\n" flex-value (format-time-string "%A %B %d, %H:%M:%S")) nil faustine-diagram-page-name)
+<div class='wrap'>\n"
+                          flex-value
+                          diagram
+                          (format-time-string "%H:%M:%S")
+                          (format-time-string "%A %B %d, %H:%M:%S")) nil faustine-diagram-page-name)
     (while list
       (if (file-regular-p (car list))
           (let* ((dsp-element (file-name-sans-extension (car list)))
