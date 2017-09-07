@@ -32,8 +32,8 @@
 
 ;; ## Features
 
+;; - Faust code syntax hightlighting and indentation
 ;; - Project-based (inter-linked Faust files)
-;; - Faust code syntax hightlighting, indentation and keyword completion (using faust-mode)
 ;; - Build/compile with output window
 ;; - Graphic diagrams generation and vizualisation in the (default) browser
 ;; - Browse generated C++ code inside Emacs
@@ -66,6 +66,13 @@
 
 ;; ### Faust
 ;; Oh, and of course install [the latest Faust](http://faust.grame.fr/download/) and ensure it's in the PATH.
+
+;; ### Recommended packages
+
+;; Those package are not required, but Faustine makes good use of them, and they will make your life better anyway ; They are all available in MELPA, snapshot and stable.
+;; - [Projectile](https://github.com/bbatsov/projectile)
+;; - [AutoComplete](https://github.com/auto-complete/auto-complete)
+;; - [Yasnippet](https://github.com/joaotavora/yasnippet)
 
 ;; ## Usage
 
