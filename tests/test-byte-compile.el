@@ -1,4 +1,5 @@
 (require 'ert)
+(require 'faust-mode)
 (require 'faustine)
 
 (ert-deftest no-byte-compile-warnings ()
