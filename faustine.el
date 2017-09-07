@@ -83,6 +83,8 @@
 
 ;;; Code:
 
+(defvar ac-sources)
+
 (defgroup faustine nil
   "Faustine - A lightweight Emacs Faust IDE"
   :group 'tools)
@@ -333,11 +335,15 @@ available in the menu or as a key binding, and described below.
 
 \\{faustine-mode-map}"
 
+  (if (boundp 'ac-sources)
+      (progn
+        (add-to-list 'ac-modes 'faustine-mode)
+        (add-to-list 'ac-sources 'faustine-mode-ac-source))
+    (message "You really should install and use auto-complete"))
+  
+  (use-local-map faustine-mode-map)
   (add-hook 'find-file-hook 'faustine-syntax-check nil t)
   (add-hook 'after-save-hook 'faustine-syntax-check nil t)
-
-  (use-local-map faustine-mode-map)
-
   (run-hooks 'change-major-mode-after-body-hook 'after-change-major-mode-hook))
 
 (defvar faustine-output-mode-map
@@ -735,7 +741,5 @@ img.scaled {
 
 (provide 'faustine)
 
-;; Local Variables:
-;; byte-compile-warnings: (not free-vars)
 ;; End:
 ;;; faustine.el ends here
