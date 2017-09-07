@@ -70,6 +70,7 @@
 ;; ### Recommended packages
 
 ;; Those package are not required, but Faustine makes good use of them, and they will make your life better anyway ; They are all available in MELPA, snapshot and stable.
+
 ;; - [Projectile](https://github.com/bbatsov/projectile)
 ;; - [AutoComplete](https://github.com/auto-complete/auto-complete)
 ;; - [Yasnippet](https://github.com/joaotavora/yasnippet)
