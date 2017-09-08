@@ -12,6 +12,7 @@
 ;; Codeship-prj: 238325
 ;; Package-requires: ((emacs "24.3") (faust-mode "0.2"))
 ;; MELPA: yes
+;; MELPA-stable: yes
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
