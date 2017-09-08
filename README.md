@@ -1,7 +1,7 @@
 # Faustine
  *Edit, visualize, build and run Faust code*
 ___
-[![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html) [![Codeship Status for yassinphilip/faustine](https://app.codeship.com/projects/c2385cd0-5dc6-0135-04b2-0a800465306c/status?branch=master)](https://app.codeship.com/projects/238325) [![MELPA](https://melpa.org/packages/faustine-badge.svg)](https://melpa.org/#/faustine) [![MELPA](https://stable.melpa.org/packages/faustine-badge.svg)](https://melpa.org/#/faustine) 
+[![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html) [![Codeship Status for yassinphilip/faustine](https://app.codeship.com/projects/c2385cd0-5dc6-0135-04b2-0a800465306c/status?branch=master)](https://app.codeship.com/projects/238325) [![MELPA](https://melpa.org/packages/faustine-badge.svg)](https://melpa.org/#/faustine) [![MELPA](https://stable.melpa.org/packages/faustine-badge.svg)](https://stable.melpa.org/#/faustine) 
 
 
 Faustine allows the edition of Faust (http://faust.grame.fr) code. 
@@ -32,7 +32,7 @@ Faustine allows the edition of Faust (http://faust.grame.fr) code.
 ### Hard
 
 - Copy/clone this repository in `load-path`
-- Copy/clone [Faust-mode](https://github.com/rukano/emacs-faust-mode) in `load-path`
+- Copy/clone [Faust-mode](https://github.com/magnetophon/emacs-faust-mode) in `load-path`
 - Add
 ```elisp
 (require 'faust-mode)
@@ -258,4 +258,4 @@ that is its frame's root window.
 
 
 ___
-*README.md made on 2017-09-08 at 14:41:33 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-09-08 at 14:57:54 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
