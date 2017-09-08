@@ -258,4 +258,4 @@ that is its frame's root window.
 
 
 ___
-*README.md made on 2017-09-08 at 14:40:46 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-09-08 at 14:41:33 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
