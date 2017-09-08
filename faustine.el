@@ -10,7 +10,7 @@
 ;; License: GPLv3
 ;; Codeship-key: c2385cd0-5dc6-0135-04b2-0a800465306c
 ;; Codeship-prj: 238325
-;; Package-requires: ((emacs "24.3") (faust-mode "0.2"))
+;; Package-requires: ((emacs "24.3") (faust-mode "0.3"))
 ;; MELPA: yes
 ;; MELPA-stable: yes
 

@@ -35,12 +35,8 @@ Faustine allows the edition of Faust (http://faust.grame.fr) code.
 - Copy/clone [Faust-mode](https://github.com/rukano/emacs-faust-mode) in `load-path`
 - Add
 ```elisp
-```elisp
 (require 'faust-mode)
-```
-```elisp
 (require 'faustine)
-```
 ```
 to your init file
 
@@ -262,4 +258,4 @@ that is its frame's root window.
 
 
 ___
-*README.md made on 2017-09-08 at 14:14:44 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
+*README.md made on 2017-09-08 at 14:20:31 with [doc-a-mode](https://bitbucket.org/yassinphilip/doc-a-mode)*
