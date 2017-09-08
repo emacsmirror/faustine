@@ -316,6 +316,9 @@ This is only for use with the command `faustine-online-doc'."
     map)
   "Keymap for `faustine-mode'.")
 
+(defvar faustine-mode-ac-source
+  '((candidates . faust-keywords-lib)))
+
 ;;;###autoload
 (define-derived-mode faustine-mode faust-mode
   "Faust"
