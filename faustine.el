@@ -6,7 +6,7 @@
 ;; Maintainer: Yassin Philip <xaccrocheur@gmail.com>
 ;; Keywords: languages, faust
 ;; Version: 1.0.1
-;; URL: https://bitbucket.org/yassinphilip/faustine
+;; URL: https://bitbucket.org/yphil/faustine
 ;; License: GPLv3
 ;; Codeship-key: c2385cd0-5dc6-0135-04b2-0a800465306c
 ;; Codeship-prj: 238325
@@ -29,7 +29,7 @@
 
 ;;; Commentary:
 
-;; Faustine allows the edition of Faust (http://faust.grame.fr) code. 
+;; Faustine allows the edition of Faust (http://faust.grame.fr) code.
 
 ;; ## Features
 
@@ -88,7 +88,7 @@
 ;; to put any new Faust file in the mode.
 
 ;; ### Commands
-;; Every interactive command is documented in [the README](https://bitbucket.org/yassinphilip/faustine/src/master/README.md) file.
+;; Every interactive command is documented in [the README](https://bitbucket.org/yphil/faustine/src/master/README.md) file.
 
 ;;; Code:
 
@@ -301,7 +301,7 @@ This is only for use with the command `faustine-online-doc'."
 
 (defvar faustine-mode-map
   (let ((map (make-sparse-keymap)))
-    
+
     (define-key map (kbd "C-c C-b") 'faustine-build)
     (define-key map (kbd "C-c C-S-b") 'faustine-build-all)
     (define-key map (kbd "C-c C-d") 'faustine-diagram)
@@ -312,7 +312,7 @@ This is only for use with the command `faustine-online-doc'."
     (define-key map (kbd "C-c C-s") 'faustine-source-code)
     (define-key map (kbd "C-c C-c") 'faustine-syntax-check)
     (define-key map (kbd "C-c C-o") 'faustine-toggle-output-buffer)
-    
+
     map)
   "Keymap for `faustine-mode'.")
 
@@ -352,7 +352,7 @@ available in the menu or as a key binding, and described below.
         (add-to-list 'ac-modes 'faustine-mode)
         (add-to-list 'ac-sources 'faustine-mode-ac-source))
     (message "You really should install and use auto-complete"))
-  
+
   (use-local-map faustine-mode-map)
   (add-hook 'find-file-hook 'faustine-syntax-check nil t)
   (add-hook 'after-save-hook 'faustine-syntax-check nil t)
@@ -360,16 +360,16 @@ available in the menu or as a key binding, and described below.
 
 (defvar faustine-output-mode-map
   (let ((map (make-sparse-keymap)))
-    
+
     (define-key map (kbd "\q") 'delete-window)
-    
+
     map)
   "Keymap for `faustine-output-mode'.")
 
 (define-derived-mode faustine-output-mode fundamental-mode "Faust Output"
-  
-  "The Faust output buffer mode. 
-The output buffer displays the result of the commands with their time stamps and status. 
+
+  "The Faust output buffer mode.
+The output buffer displays the result of the commands with their time stamps and status.
 
 - A click on an error opens the buffer at the error line
 - A click on an executable name runs it.
