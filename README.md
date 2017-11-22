@@ -1,10 +1,10 @@
 # Faustine
  *Edit, visualize, build and run Faust code*
 ___
-[![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html) [![Codeship Status for yassinphilip/faustine](https://app.codeship.com/projects/c2385cd0-5dc6-0135-04b2-0a800465306c/status?branch=master)](https://app.codeship.com/projects/238325) [![MELPA](https://melpa.org/packages/faustine-badge.svg)](https://melpa.org/#/faustine) [![MELPA](https://stable.melpa.org/packages/faustine-badge.svg)](https://stable.melpa.org/#/faustine) 
+[![License GPLv3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html) [![Codeship Status for yphil/faustine](https://app.codeship.com/projects/c2385cd0-5dc6-0135-04b2-0a800465306c/status?branch=master)](https://app.codeship.com/projects/238325) [![MELPA](https://melpa.org/packages/faustine-badge.svg)](https://melpa.org/#/faustine) [![MELPA](https://stable.melpa.org/packages/faustine-badge.svg)](https://stable.melpa.org/#/faustine) 
 
 
-Faustine allows the edition of Faust (http://faust.grame.fr) code. 
+Faustine allows the edition of Faust (http://faust.grame.fr) code.
 
 ## Features
 
@@ -63,7 +63,7 @@ Use `faustine-mode` ; Optionally, add something like this to your init file:
 to put any new Faust file in the mode.
 
 ### Commands
-Every interactive command is documented in [the README](https://bitbucket.org/yassinphilip/faustine/src/master/README.md) file.
+Every interactive command is documented in [the README](https://bitbucket.org/yphil/faustine/src/master/README.md) file.
 
 ## Major modes
 
@@ -256,4 +256,4 @@ that is its frame’s root window.
 
 
 ___
-*README.md made on 2017-11-22 at 10:21:13 with [doc-a-mode](https://bitbucket.org/yphil/doc-a-mode)*
+*README.md made on 2017-11-22 at 12:02:18 with [doc-a-mode](https://bitbucket.org/yphil/doc-a-mode)*
